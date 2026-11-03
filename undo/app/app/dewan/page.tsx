@@ -87,7 +87,9 @@ export default function DewanPage() {
                 <StatusBadge status={t.status} />
                 <span>{fmt(t.amount)}</span>
                 <span className="text-stone-500">
-                  {tr("oleh", "decided by")} {t.dispute?.decided_by} → {t.final_to ? short(t.final_to) : "—"}
+                  {tr("oleh", "decided by")}{" "}
+                  {t.dispute?.decided_by === "council" ? tr("dewan", "the council") : t.dispute?.decided_by === "timeout" ? tr("diamnya dewan", "council silence") : t.dispute?.decided_by} →{" "}
+                  {t.final_to ? short(t.final_to) : "—"}
                 </span>
                 {t.dispute?.council_reason && <span className="text-stone-500">“{pickReason(t.dispute.council_reason)}”</span>}
               </li>

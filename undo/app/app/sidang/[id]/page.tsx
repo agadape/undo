@@ -150,7 +150,7 @@ export default function SidangPage() {
           </div>
           <div className="text-xs text-stone-500">
             {tr("batas bukti", "evidence deadline")}: <Countdown ns={d.evidence_deadline} done={tr("ditutup", "closed")} /> · {tr("batas dewan", "council deadline")}:{" "}
-            <Countdown ns={timeoutAt} done={tr("habis", "expired")} />
+            {t.status === "Disputed" ? <Countdown ns={timeoutAt} done={tr("habis", "expired")} /> : tr("sudah diputus", "decided")}
           </div>
         </div>
       </Card>
