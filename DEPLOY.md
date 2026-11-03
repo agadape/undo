@@ -7,10 +7,12 @@ Status per 2 Nov 2026:
 - Tidak ada nilai rahasia `.env` di file lain (dipindai 200 file).
 - Kontrak demo publik sudah terkunci: `demo.nh-s26r-mvz1zxfx.testnet`.
 
-## 1. GitHub (manusia)
-1. Buat repo **private** dulu. Jadikan publik hanya saat submit.
-2. Bilang ke Claude "commit + push". Claude tidak push tanpa diminta.
-3. Sebelum push, cek ulang: `git status` tidak boleh memuat `.env`, `.data/`, atau `submission*.json`.
+## 1. GitHub
+- ✅ Repo private sudah ada: https://github.com/agadape/undo (branch `main`). Jadikan publik hanya saat submit.
+- Undang anggota tim lewat Settings → Collaborators.
+- `recon/` dan `spikes/out/ref/` sengaja tidak masuk git. Isinya riset internal dan salinan dokumen pihak lain.
+- Akhir baris dikunci ke LF (`.gitattributes`), supaya `build.sh` dan byte PROMPT pengadilan tidak berubah di Windows.
+- Sebelum push, cek ulang: `git status` tidak boleh memuat `.env`, `.data/`, atau `submission*.json`.
 
 ## 2. Vercel (manusia buat akun, lalu impor repo)
 - Project → Import repo → **Root Directory: `undo/app`**. Framework: Next.js, Node **24.x** (sudah di `engines`).
@@ -37,7 +39,11 @@ Saat ini penjaga jalan lokal (`node guard/run-local.mjs`).
   npx wrangler secret put COBACURI_GUARD_FC_KEY
   ```
   Lakukan hal yang sama untuk `COBACURI_GUARD_ID`, `COBACURI_CONTRACT_ID`, `COBACURI_DEMO_ID`. Lalu jalankan `npx wrangler deploy`.
-- **Cadangan:** `.github/workflows/cobacuri-guard.yml`. Isi GitHub Secrets dengan nama yang sama.
+- **Cadangan:** `.github/workflows/cobacuri-guard.yml` (cron tiap 5 menit). Workflow ini **sedang dimatikan** supaya tidak gagal terus dan menghabiskan menit Actions. Isi dulu GitHub Secrets dengan nama yang sama, lalu nyalakan:
+  ```
+  gh workflow enable cobacuri-guard -R agadape/undo
+  ```
+  Di repo private, cron tiap 5 menit memakan sekitar 300 menit Actions per hari, padahal jatah gratisnya 2000 menit per bulan. Nyalakan hanya saat repo publik atau menjelang demo.
 - Kunci penjaga cuma function-call key (panic / finalize / unlock / release_expired), bukan full access.
 
 ## 4. Build reproducible (S25, opsional)
