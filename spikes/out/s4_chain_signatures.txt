@@ -1,0 +1,136 @@
+=== EVM (Base Sepolia, chainId 84532) ===
+derived EVM address: 0x2a01699F048133Dce1035DDfBcA7f423f39D566B
+on-chain derived_public_key: secp256k1:33CE5HBDoNFVFDKNSLGrLEJf9bf4ZgwGmSBrQv4wRZuWc6tsQNXPozqgRPsBGFKVKgB71cex3fVpLvSVNYrxnoKB == client-side derivation ✅
+Base Sepolia balance (wei): 0
+unsigned EVM tx: {
+  "gas": "21000",
+  "maxFeePerGas": "7000000",
+  "maxPriorityFeePerGas": "1000000",
+  "nonce": 0,
+  "chainId": 84532,
+  "type": "eip1559",
+  "to": "0x2a01699F048133Dce1035DDfBcA7f423f39D566B",
+  "value": "0"
+}
+  MPC sign (Ecdsa) returned in 5961 ms; raw: {
+  "scheme": "Secp256k1",
+  "big_r": {
+    "affine_point": "034d674f4001d5d85e09c86b2c68d4d68dd3d094a458f0ac39bfd73358b0624fda"
+  },
+  "s": {
+    "scalar": "7f9472194c2c66f74c153d145681e74f084dbb8858c788448e0c96098ff5f04c"
+  },
+  "recovery_id": 0
+}
+recovered signer: 0x2a01699F048133Dce1035DDfBcA7f423f39D566B == derived ✅
+Transaction broadcast failed: TransactionRejectedRpcError: Transaction creation failed.
+
+URL: https://sepolia.base.org
+Request body: {"method":"eth_sendRawTransaction","params":["0x02f86b83014a3480830f4240836acfc0825208942a01699f048133dce1035ddfbca7f423f39d566b8080c080a04d674f4001d5d85e09c86b2c68d4d68dd3d094a458f0ac39bfd73358b0624fdaa07f9472194c2c66f74c153d145681e74f084dbb8858c788448e0c96098ff5f04c"]}
+
+Details: insufficient funds for gas * price + value: have 0 want 147000000000
+Version: viem@2.57.11
+    at withRetry.delay.count.count (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/viem/_esm/utils/buildRequest.js:65:31)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async attemptRetry (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/viem/_esm/utils/promise/withRetry.js:27:30) {
+  details: 'insufficient funds for gas * price + value: have 0 want 147000000000',
+  docsPath: undefined,
+  metaMessages: [
+    'URL: https://sepolia.base.org',
+    'Request body: {"method":"eth_sendRawTransaction","params":["0x02f86b83014a3480830f4240836acfc0825208942a01699f048133dce1035ddfbca7f423f39d566b8080c080a04d674f4001d5d85e09c86b2c68d4d68dd3d094a458f0ac39bfd73358b0624fdaa07f9472194c2c66f74c153d145681e74f084dbb8858c788448e0c96098ff5f04c"]}'
+  ],
+  shortMessage: 'Transaction creation failed.',
+  version: '2.57.11',
+  code: -32003,
+  [cause]: RpcRequestError: RPC Request failed.
+  
+  URL: https://sepolia.base.org
+  Request body: {"method":"eth_sendRawTransaction","params":["0x02f86b83014a3480830f4240836acfc0825208942a01699f048133dce1035ddfbca7f423f39d566b8080c080a04d674f4001d5d85e09c86b2c68d4d68dd3d094a458f0ac39bfd73358b0624fdaa07f9472194c2c66f74c153d145681e74f084dbb8858c788448e0c96098ff5f04c"]}
+  
+  Details: insufficient funds for gas * price + value: have 0 want 147000000000
+  Version: viem@2.57.11
+      at request (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/viem/_esm/clients/transports/http.js:73:27)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async withRetry.delay.count.count (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/viem/_esm/utils/buildRequest.js:30:24)
+      at async attemptRetry (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/viem/_esm/utils/promise/withRetry.js:27:30) {
+    details: 'insufficient funds for gas * price + value: have 0 want 147000000000',
+    docsPath: undefined,
+    metaMessages: [
+      'URL: https://sepolia.base.org',
+      'Request body: {"method":"eth_sendRawTransaction","params":["0x02f86b83014a3480830f4240836acfc0825208942a01699f048133dce1035ddfbca7f423f39d566b8080c080a04d674f4001d5d85e09c86b2c68d4d68dd3d094a458f0ac39bfd73358b0624fdaa07f9472194c2c66f74c153d145681e74f084dbb8858c788448e0c96098ff5f04c"]}'
+    ],
+    shortMessage: 'RPC Request failed.',
+    version: '2.57.11',
+    code: -32003,
+    data: undefined,
+    url: 'https://sepolia.base.org',
+    [cause]: {
+      code: -32003,
+      message: 'insufficient funds for gas * price + value: have 0 want 147000000000'
+    }
+  }
+}
+broadcast failed: Failed to broadcast transaction.
+
+=== Solana devnet (Ed25519) ===
+derived Solana address: EtrvGD9fnY4yqZhTVdh9BfzVgQBBTF6c2nD2ykFkdAM dest: 2cxrxbX3qkcpHn9pbC6dRz6dV3Rj8zqys4f33rFBTeFF
+balance (lamports): 0
+airdrop failed: 410 Gone:  {"jsonrpc":"2.0","error":{"code": 410, "message":"The RPC faucet is closed on this cluster. Request test SOL at https://faucet.solana.com"}, "id": "cae7a965-e5b2-427d-9c30-17e57b804407" } 
+
+Solana message bytes to sign: 150
+  MPC sign (Eddsa) returned in 5882 ms; raw: {
+  "scheme": "Ed25519",
+  "signature": [
+    200,
+    51,
+    127,
+    120,
+    53,
+    74,
+    215,
+    162,
+    159,
+    158,
+    148,
+    224,
+    22,
+    221,
+    236,
+    18,
+    152,
+    209,
+    107,
+    31,
+    197,
+    198,
+    180,
+    252,
+    52,
+    51,
+    72,
+    81,
+    213,
+    62,
+signature verifies locally: true
+broadcast failed: Simulation failed. 
+Message: Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.. 
+Logs: 
+[]. 
+Catch the `SendTransactionError` and call `getLogs()` on it for full details.
+
+=== S4 summary ===
+{
+  "evm": {
+    "address": "0x2a01699F048133Dce1035DDfBcA7f423f39D566B",
+    "signMs": 5961,
+    "recoveredMatches": true,
+    "broadcastError": "Failed to broadcast transaction."
+  },
+  "sol": {
+    "address": "EtrvGD9fnY4yqZhTVdh9BfzVgQBBTF6c2nD2ykFkdAM",
+    "airdropError": "410 Gone:  {\"jsonrpc\":\"2.0\",\"error\":{\"code\": 410, \"message\":\"The RPC faucet is closed on this cluster. Request test SOL at https://faucet.solana.com\"}, \"id\": \"cae7a965-e5b2-427d-9c30-17e57b804407\" } \r",
+    "signMs": 5882,
+    "verifies": true,
+    "broadcastError": "Simulation failed. \nMessage: Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.. \nLogs: \n[]. \nCatch the `SendTransactionError` and call `getLogs()` on it"
+  }
+}

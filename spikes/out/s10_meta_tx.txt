@@ -1,0 +1,88 @@
+{
+  "label": "create user sub-account (0.003 NEAR)",
+  "ok": true,
+  "hash": "C4EpD2ZbZoc46r8sZTWKQ1JAjLKbdCG8ssz67vbrueXM",
+  "explorer": "https://testnet.nearblocks.io/txns/C4EpD2ZbZoc46r8sZTWKQ1JAjLKbdCG8ssz67vbrueXM",
+  "gasBurnt": 8349895375000,
+  "logs": []
+}
+{
+  "label": "relayer pays USDC storage for user",
+  "ok": true,
+  "hash": "9fdpkR23Hvq62yeD23ttT9ZXaNvVvitg55MMx74ZLD1t",
+  "explorer": "https://testnet.nearblocks.io/txns/9fdpkR23Hvq62yeD23ttT9ZXaNvVvitg55MMx74ZLD1t",
+  "gasBurnt": 2087529579231,
+  "logs": [],
+  "successValue": "{\"total\":\"1250000000000000000000\",\"available\":\"0\"}"
+}
+{
+  "label": "fund user 20 USDC",
+  "ok": true,
+  "hash": "FrUk4vrWU5tnRGd8Wa5rC75owoKLhZLp3b2cu7pdTGd1",
+  "explorer": "https://testnet.nearblocks.io/txns/FrUk4vrWU5tnRGd8Wa5rC75owoKLhZLp3b2cu7pdTGd1",
+  "gasBurnt": 2327409707711,
+  "logs": [
+    "Transfer 20000000 from nh-spike-mvp62mw4.testnet to user.nh-spike-mvp62mw4.testnet"
+  ]
+}
+before: {
+  "userNear": "0.003",
+  "userUsdc": "20000000",
+  "merchantUsdc": "15000000"
+}
+signed delegate keys: [ 'delegateHash', 'signedDelegate' ] | nonce: 274845930000001 | maxBlockHeight: 274846064
+{
+  "label": "relayer submits user's signed delegate (ft_transfer 3 USDC)",
+  "ok": true,
+  "hash": "6GWdxtvS3Jsb56CF3jGWmKyPMLjWEyjFCmf8urjp9QYn",
+  "explorer": "https://testnet.nearblocks.io/txns/6GWdxtvS3Jsb56CF3jGWmKyPMLjWEyjFCmf8urjp9QYn",
+  "gasBurnt": 3296077758353,
+  "logs": [
+    "Transfer 3000000 from user.nh-spike-mvp62mw4.testnet to agent.nh-spike-mvp62mw4.testnet",
+    "Memo: coffee #42 (gasless)"
+  ]
+}
+after: {
+  "relay": {
+    "label": "relayer submits user's signed delegate (ft_transfer 3 USDC)",
+    "ok": true,
+    "hash": "6GWdxtvS3Jsb56CF3jGWmKyPMLjWEyjFCmf8urjp9QYn",
+    "explorer": "https://testnet.nearblocks.io/txns/6GWdxtvS3Jsb56CF3jGWmKyPMLjWEyjFCmf8urjp9QYn",
+    "gasBurnt": 3296077758353,
+    "logs": [
+      "Transfer 3000000 from user.nh-spike-mvp62mw4.testnet to agent.nh-spike-mvp62mw4.testnet",
+      "Memo: coffee #42 (gasless)"
+    ]
+  },
+  "relayMs": 3133,
+  "userNearDeltaYocto": "0",
+  "relayerNearDelta": "0.00-307",
+  "userUsdc": "20000000 -> 17000000",
+  "merchantUsdc": "15000000 -> 18000000"
+}
+replay rejected: Invalid delegate nonce (ak: 274845930000001, delegate: 274845930000001)
+expired rejected: Delegate action has expired
+wrong receiver rejected: Delegate action sender user.nh-spike-mvp62mw4.testnet does not match transaction receiver agent.nh-spike-mvp62mw4.testnet
+
+=== S10 summary ===
+{
+  "relay": {
+    "label": "relayer submits user's signed delegate (ft_transfer 3 USDC)",
+    "ok": true,
+    "hash": "6GWdxtvS3Jsb56CF3jGWmKyPMLjWEyjFCmf8urjp9QYn",
+    "explorer": "https://testnet.nearblocks.io/txns/6GWdxtvS3Jsb56CF3jGWmKyPMLjWEyjFCmf8urjp9QYn",
+    "gasBurnt": 3296077758353,
+    "logs": [
+      "Transfer 3000000 from user.nh-spike-mvp62mw4.testnet to agent.nh-spike-mvp62mw4.testnet",
+      "Memo: coffee #42 (gasless)"
+    ]
+  },
+  "relayMs": 3133,
+  "userNearDeltaYocto": "0",
+  "relayerNearDelta": "0.00-307",
+  "userUsdc": "20000000 -> 17000000",
+  "merchantUsdc": "15000000 -> 18000000",
+  "replay": "Invalid delegate nonce (ak: 274845930000001, delegate: 274845930000001)",
+  "expired": "Delegate action has expired",
+  "wrongReceiver": "Delegate action sender user.nh-spike-mvp62mw4.testnet does not match transaction receiver agent.nh-spike-mvp62mw4.testnet"
+}

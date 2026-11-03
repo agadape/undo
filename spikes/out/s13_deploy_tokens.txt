@@ -1,0 +1,269 @@
+faucet account created: nh-ft-mvp6pidf.testnet
+
+===== ft: spike_ft.wasm (156146 bytes) -> nh-ft-mvp6pidf.testnet
+{
+  "label": "deploy + new (ft)",
+  "ok": true,
+  "hash": "Fmqds7DJpAhyo7UnSHjE47Jxy86gHpX9uhXjPZog8TSY",
+  "explorer": "https://testnet.nearblocks.io/txns/Fmqds7DJpAhyo7UnSHjE47Jxy86gHpX9uhXjPZog8TSY",
+  "gasBurnt": 13128159329855,
+  "logs": []
+}
+ft storage: 156459 bytes (~1.56 NEAR locked), balance 9.888 NEAR
+ft_metadata -> {
+  "spec": "ft-1.0.0",
+  "name": "Spike Token",
+  "symbol": "SPIKE",
+  "icon": null,
+  "reference": null,
+  "reference_hash": null,
+  "decimals": 6
+}
+storage_balance_bounds (ft) -> {
+  "min": "0",
+  "max": null
+}
+{
+  "label": "storage_deposit me (ft)",
+  "ok": true,
+  "hash": "Crk635LwQaE2beuea4UfwsTxA9GK9Sxe1PpgZrDwmDhK",
+  "explorer": "https://testnet.nearblocks.io/txns/Crk635LwQaE2beuea4UfwsTxA9GK9Sxe1PpgZrDwmDhK",
+  "gasBurnt": 1859218526429,
+  "logs": [],
+  "successValue": "{\"total\":\"0\",\"available\":\"0\"}"
+}
+{
+  "label": "storage_deposit agent (ft)",
+  "ok": true,
+  "hash": "8MbsfrvXqeaUop2JVZVkVUifPGhRXg4qFf8zErj4GCkq",
+  "explorer": "https://testnet.nearblocks.io/txns/8MbsfrvXqeaUop2JVZVkVUifPGhRXg4qFf8zErj4GCkq",
+  "gasBurnt": 1862796663611,
+  "logs": [],
+  "successValue": "{\"total\":\"0\",\"available\":\"0\"}"
+}
+[ERR] mint 1000 SPIKE: Smart contract panicked: Storage accounting error: Account nh-spike-mvp62mw4.testnet has insufficient balance: 0 NEAR available, but attempted to use 0.002 NEAR
+[ERR] ft_transfer 25 SPIKE -> agent: Smart contract panicked: Balance of the sender is insufficient: The account nh-spike-mvp62mw4.testnet does not have enough balance to withdraw 25000000 (current balance: 0).
+ft_balance_of me / agent / total -> {
+  "me": "0",
+  "agent": "0",
+  "total": "0"
+}
+faucet account created: nh-nft-mvp6py9i.testnet
+
+===== nft: spike_nft.wasm (224790 bytes) -> nh-nft-mvp6py9i.testnet
+{
+  "label": "deploy + new (nft)",
+  "ok": true,
+  "hash": "HwxTzTby4HXj2BCN9PXZEBdyhYwGYs86SaiL7RPCG669",
+  "explorer": "https://testnet.nearblocks.io/txns/HwxTzTby4HXj2BCN9PXZEBdyhYwGYs86SaiL7RPCG669",
+  "gasBurnt": 18159220870660,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"nep171\",\"version\":\"1.2.0\",\"event\":\"contract_metadata_update\",\"data\":[{}]}"
+  ]
+}
+nft storage: 225103 bytes (~2.25 NEAR locked), balance 9.884 NEAR
+nft_metadata -> {
+  "spec": "nft-2.1.0",
+  "name": "Spike NFT",
+  "symbol": "SPKNFT",
+  "icon": null,
+  "base_uri": null,
+  "reference": null,
+  "reference_hash": null
+}
+{
+  "label": "storage_deposit me (nft, 0.05)",
+  "ok": true,
+  "hash": "hUKpksZRmJ8xnfjxEYbSbiHPS6b8z7xWmgRWLTk8muJ",
+  "explorer": "https://testnet.nearblocks.io/txns/hUKpksZRmJ8xnfjxEYbSbiHPS6b8z7xWmgRWLTk8muJ",
+  "gasBurnt": 1938223765701,
+  "logs": [],
+  "successValue": "{\"total\":\"50000000000000000000000\",\"available\":\"50000000000000000000000\"}"
+}
+{
+  "label": "storage_deposit agent (nft, 0.05)",
+  "ok": true,
+  "hash": "D4Nd5EBAHrALKn7CwkStxfdM5rm1Ktz9y8qxm4dwSB5i",
+  "explorer": "https://testnet.nearblocks.io/txns/D4Nd5EBAHrALKn7CwkStxfdM5rm1Ktz9y8qxm4dwSB5i",
+  "gasBurnt": 1941801902883,
+  "logs": [],
+  "successValue": "{\"total\":\"50000000000000000000000\",\"available\":\"50000000000000000000000\"}"
+}
+{
+  "label": "mint NFT spike-mvp6q70b",
+  "ok": true,
+  "hash": "8DukH28xMkB3zvuibqCtAn6WCbznCPW4Tn5DQGryZRWC",
+  "explorer": "https://testnet.nearblocks.io/txns/8DukH28xMkB3zvuibqCtAn6WCbznCPW4Tn5DQGryZRWC",
+  "gasBurnt": 3184951193864,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"nep171\",\"version\":\"1.2.0\",\"event\":\"nft_mint\",\"data\":[{\"owner_id\":\"nh-spike-mvp62mw4.testnet\",\"token_ids\":[\"spike-mvp6q70b\"]}]}",
+    "EVENT_JSON:{\"standard\":\"nep171\",\"version\":\"1.2.0\",\"event\":\"nft_metadata_update\",\"data\":[{\"token_ids\":[\"spike-mvp6q70b\"]}]}"
+  ]
+}
+{
+  "label": "nft_transfer -> agent",
+  "ok": true,
+  "hash": "9H1Y3NtEs2mnkL3c4JV8msQgaoTuSJafyvbETDjo7Fm1",
+  "explorer": "https://testnet.nearblocks.io/txns/9H1Y3NtEs2mnkL3c4JV8msQgaoTuSJafyvbETDjo7Fm1",
+  "gasBurnt": 3228662486084,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"nep171\",\"version\":\"1.2.0\",\"event\":\"nft_transfer\",\"data\":[{\"old_owner_id\":\"nh-spike-mvp62mw4.testnet\",\"new_owner_id\":\"agent.nh-spike-mvp62mw4.testnet\",\"token_ids\":[\"spike-mvp6q70b\"],\"memo\":\"s13\"}]}"
+  ]
+}
+nft_token -> {
+  "token_id": "spike-mvp6q70b",
+  "owner_id": "agent.nh-spike-mvp62mw4.testnet",
+  "metadata": {
+    "title": "Spike Badge #1",
+    "description": null,
+    "media": null,
+    "media_hash": null,
+    "copies": null,
+    "issued_at": null,
+    "expires_at": null,
+    "starts_at": null,
+    "updated_at": null,
+    "extra": null,
+    "reference": null,
+    "reference_hash": null
+  },
+  "approved_account_ids": {}
+}
+nft_tokens_for_owner(agent) [NEP-181] -> [
+  {
+    "token_id": "spike-mvp6q70b",
+    "owner_id": "agent.nh-spike-mvp62mw4.testnet",
+    "approved_account_ids": {},
+    "metadata": {
+      "title": "Spike Badge #1",
+      "description": null,
+      "media": null,
+      "media_hash": null,
+      "copies": null,
+      "issued_at": null,
+      "expires_at": null,
+      "starts_at": null,
+      "updated_at": null,
+      "extra": null,
+      "reference": null,
+      "reference_hash": null
+    }
+  }
+]
+faucet account created: nh-mt-mvp6qbyw.testnet
+
+===== mt: spike_mt.wasm (212074 bytes) -> nh-mt-mvp6qbyw.testnet
+{
+  "label": "deploy + new (mt)",
+  "ok": true,
+  "hash": "H4Yg1T4cZ1VZrBJDuSNC6rvAfkQU9LAyaZxpL3zvdjmS",
+  "explorer": "https://testnet.nearblocks.io/txns/H4Yg1T4cZ1VZrBJDuSNC6rvAfkQU9LAyaZxpL3zvdjmS",
+  "gasBurnt": 17186236800075,
+  "logs": []
+}
+mt storage: 212380 bytes (~2.12 NEAR locked), balance 9.885 NEAR
+mt_metadata_contract -> {
+  "spec": "mt-1.0.0",
+  "name": "Spike MultiToken"
+}
+{
+  "label": "storage_deposit me (mt, 0.05)",
+  "ok": true,
+  "hash": "HQiG9Th31uFkdK6yVYY7vsZRLbBg23Z3mvC1CLDqfgbi",
+  "explorer": "https://testnet.nearblocks.io/txns/HQiG9Th31uFkdK6yVYY7vsZRLbBg23Z3mvC1CLDqfgbi",
+  "gasBurnt": 1923394033597,
+  "logs": [],
+  "successValue": "{\"total\":\"50000000000000000000000\",\"available\":\"50000000000000000000000\"}"
+}
+{
+  "label": "storage_deposit agent (mt, 0.05)",
+  "ok": true,
+  "hash": "EjUy1nwQnVHasjAbZxC4v9j6FT3NVX2zSD6dbi44TbAM",
+  "explorer": "https://testnet.nearblocks.io/txns/EjUy1nwQnVHasjAbZxC4v9j6FT3NVX2zSD6dbi44TbAM",
+  "gasBurnt": 1926972170779,
+  "logs": [],
+  "successValue": "{\"total\":\"50000000000000000000000\",\"available\":\"50000000000000000000000\"}"
+}
+{
+  "label": "mint 100 gold",
+  "ok": true,
+  "hash": "DWPvBprbhbDVPwC2AAcKQ7qZifEZgJeDCDRQDse2qGrP",
+  "explorer": "https://testnet.nearblocks.io/txns/DWPvBprbhbDVPwC2AAcKQ7qZifEZgJeDCDRQDse2qGrP",
+  "gasBurnt": 2778440051404,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"nep245\",\"version\":\"1.0.0\",\"event\":\"mt_mint\",\"data\":[{\"owner_id\":\"nh-spike-mvp62mw4.testnet\",\"token_ids\":[\"gold\"],\"amounts\":[\"100\"]}]}"
+  ]
+}
+{
+  "label": "mint 1 sword",
+  "ok": true,
+  "hash": "RA9zABaqDZa2cnCeZ9aHtYTu7m9XTcbGhZEtcrPUnqk",
+  "explorer": "https://testnet.nearblocks.io/txns/RA9zABaqDZa2cnCeZ9aHtYTu7m9XTcbGhZEtcrPUnqk",
+  "gasBurnt": 2817059729725,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"nep245\",\"version\":\"1.0.0\",\"event\":\"mt_mint\",\"data\":[{\"owner_id\":\"nh-spike-mvp62mw4.testnet\",\"token_ids\":[\"sword\"],\"amounts\":[\"1\"]}]}"
+  ]
+}
+{
+  "label": "mt_transfer 10 gold -> agent",
+  "ok": true,
+  "hash": "D6kreDn89bfZiGtqJUqGm1j4S1XyT7K64VXPb6xbsrif",
+  "explorer": "https://testnet.nearblocks.io/txns/D6kreDn89bfZiGtqJUqGm1j4S1XyT7K64VXPb6xbsrif",
+  "gasBurnt": 2439131100598,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"nep245\",\"version\":\"1.0.0\",\"event\":\"mt_transfer\",\"data\":[{\"old_owner_id\":\"nh-spike-mvp62mw4.testnet\",\"new_owner_id\":\"agent.nh-spike-mvp62mw4.testnet\",\"token_ids\":[\"gold\"],\"amounts\":[\"10\"],\"memo\":\"s13\"}]}"
+  ]
+}
+{
+  "label": "mt_batch_transfer gold+sword -> agent",
+  "ok": true,
+  "hash": "CHhennohhaWXVKSsD3wfrKRxVLtzLJtLHnriC7mBFMav",
+  "explorer": "https://testnet.nearblocks.io/txns/CHhennohhaWXVKSsD3wfrKRxVLtzLJtLHnriC7mBFMav",
+  "gasBurnt": 2912376211410,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"nep245\",\"version\":\"1.0.0\",\"event\":\"mt_transfer\",\"data\":[{\"old_owner_id\":\"nh-spike-mvp62mw4.testnet\",\"new_owner_id\":\"agent.nh-spike-mvp62mw4.testnet\",\"token_ids\":[\"gold\",\"sword\"],\"amounts\":[\"5\",\"1\"],\"memo\":\"s13 batch\"}]}"
+  ]
+}
+mt_batch_balance_of(agent) -> [
+  "15",
+  "1"
+]
+mt_batch_balance_of(me) -> [
+  "85",
+  "0"
+]
+mt_supply(gold) -> "100"
+
+=== S13 summary ===
+OK   | deploy ft | Fmqds7DJpAhyo7UnSHjE47Jxy86gHpX9uhXjPZog8TSY
+OK   | ft_metadata
+OK   | storage_balance_bounds (ft)
+OK   | storage_deposit me (ft) | Crk635LwQaE2beuea4UfwsTxA9GK9Sxe1PpgZrDwmDhK
+OK   | storage_deposit agent (ft) | 8MbsfrvXqeaUop2JVZVkVUifPGhRXg4qFf8zErj4GCkq
+FAIL | mint 1000 SPIKE | Smart contract panicked: Storage accounting error: Account nh-spike-mvp62mw4.testnet has insufficient balance: 0 NEAR available, but attempted to use 0.002 NEAR
+FAIL | ft_transfer 25 SPIKE -> agent | Smart contract panicked: Balance of the sender is insufficient: The account nh-spike-mvp62mw4.testnet does not have enough balance to withdraw 25000000 (current balance: 0).
+OK   | ft_balance_of me / agent / total
+OK   | deploy nft | HwxTzTby4HXj2BCN9PXZEBdyhYwGYs86SaiL7RPCG669
+OK   | nft_metadata
+OK   | storage_deposit me (nft, 0.05) | hUKpksZRmJ8xnfjxEYbSbiHPS6b8z7xWmgRWLTk8muJ
+OK   | storage_deposit agent (nft, 0.05) | D4Nd5EBAHrALKn7CwkStxfdM5rm1Ktz9y8qxm4dwSB5i
+OK   | mint NFT spike-mvp6q70b | 8DukH28xMkB3zvuibqCtAn6WCbznCPW4Tn5DQGryZRWC
+OK   | nft_transfer -> agent | 9H1Y3NtEs2mnkL3c4JV8msQgaoTuSJafyvbETDjo7Fm1
+OK   | nft_token
+OK   | nft_tokens_for_owner(agent) [NEP-181]
+OK   | deploy mt | H4Yg1T4cZ1VZrBJDuSNC6rvAfkQU9LAyaZxpL3zvdjmS
+OK   | mt_metadata_contract
+OK   | storage_deposit me (mt, 0.05) | HQiG9Th31uFkdK6yVYY7vsZRLbBg23Z3mvC1CLDqfgbi
+OK   | storage_deposit agent (mt, 0.05) | EjUy1nwQnVHasjAbZxC4v9j6FT3NVX2zSD6dbi44TbAM
+OK   | mint 100 gold | DWPvBprbhbDVPwC2AAcKQ7qZifEZgJeDCDRQDse2qGrP
+OK   | mint 1 sword | RA9zABaqDZa2cnCeZ9aHtYTu7m9XTcbGhZEtcrPUnqk
+OK   | mt_transfer 10 gold -> agent | D6kreDn89bfZiGtqJUqGm1j4S1XyT7K64VXPb6xbsrif
+OK   | mt_batch_transfer gold+sword -> agent | CHhennohhaWXVKSsD3wfrKRxVLtzLJtLHnriC7mBFMav
+OK   | mt_batch_balance_of(agent)
+OK   | mt_batch_balance_of(me)
+OK   | mt_supply(gold)
+{
+  "FT": "nh-ft-mvp6pidf.testnet",
+  "NFT": "nh-nft-mvp6py9i.testnet",
+  "MT": "nh-mt-mvp6qbyw.testnet"
+}

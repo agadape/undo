@@ -1,0 +1,52 @@
+{
+  "rows": [
+    {
+      "label": "no access keys remain on the contract account",
+      "pass": true,
+      "detail": "0 keys"
+    },
+    {
+      "label": "on-chain code hash == sha256(local wasm)",
+      "pass": true,
+      "detail": "5q9rRircqxg9Bko6gHa4k1ejQzvrb9zgQkkXaZSPsrGz"
+    },
+    {
+      "label": "NEP-330 source metadata is exposed",
+      "pass": true,
+      "detail": "[\n  {\n    \"standard\": \"nep330\",\n    \"version\": \"1.3.0\"\n  }\n]"
+    },
+    {
+      "label": "redeploy with the deleted key is impossible",
+      "pass": true,
+      "detail": "Exceeded 3 providers to execute request"
+    },
+    {
+      "label": "users can still use the locked contract (set_recovery)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "council-only functions still refuse others",
+      "pass": true,
+      "detail": "only the council can register the procedure"
+    }
+  ],
+  "wasm": {
+    "bytes": 295092,
+    "sha256_base58": "5q9rRircqxg9Bko6gHa4k1ejQzvrb9zgQkkXaZSPsrGz"
+  },
+  "contract": "lockedmvz3cg5t.nh-v1undo-mvz2j3bw.testnet",
+  "deleteKeyTx": "https://testnet.nearblocks.io/txns/94mtmFANajMAzTKgACwhrExn3jBo77KTJqbq97NLToSa",
+  "nep330": {
+    "version": "0.1.0",
+    "link": null,
+    "standards": [
+      {
+        "standard": "nep330",
+        "version": "1.3.0"
+      }
+    ],
+    "build_info": null
+  },
+  "summary": "6/6 pass"
+}

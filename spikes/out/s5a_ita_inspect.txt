@@ -1,0 +1,49 @@
+nonce echoed: 4b7d1ae9fdbdda455a520431dc707b7ec92320a41f74838308867db8fefa49ae | jwks_url: https://portal.trustauthority.intel.com/certs | policy_must_match: false
+
+== gateway: alg=PS384 kid=9612356c8d9127af iss=https://portal.trustauthority.intel.com
+   issued: 2026-10-26T11:48:42.000Z expires: 2026-10-26T11:53:42.000Z
+   tdx: {
+ "attester_type": "TDX",
+ "attester_tcb_status": "UpToDate",
+ "attester_tcb_date": "2026-08-12T00:00:00Z",
+ "tdx_is_debuggable": false,
+ "tdx_mrtd": "f06dfda6dce1cf904d4e2bab1dc370634cf95cefa2ceb2de2eee127c9382698090d7a4a13e14c536ec6c9c3c8fa87077",
+ "tdx_report_data": "0d84ac2354882b8443003f03899f3874c1b55a4ccd1838dfc84f0e430b70ee0544402c68206a9b9933449012ed66cf23520a",
+ "attester_runtime_data": {
+  "caller_nonce": "4b7d1ae9fdbdda455a520431dc707b7ec92320a41f74838308867db8fefa49ae",
+  "signing_address": "0xb98a789cdc4817275f5155593ba73ef2a957e779",
+  "signing_algo": "ecdsa"
+ }
+}
+   nonce bound in claims: yes (exact hex found)
+   claim keys: appraisal,eat_profile,intuse,tdx,ver,verifier_instance_ids,exp,jti,iat,iss,nbf
+
+-- model[0] keys: model,token,token_type,attestation_type,token_signing_alg | model: z-ai/glm-5.3-flash | signing_address: undefined | signing_algo: undefined
+
+== model[0] z-ai/glm-5.3-flash: alg=PS384 kid=9612356c8d9127af iss=https://portal.trustauthority.intel.com
+   issued: 2026-10-26T11:48:42.000Z expires: 2026-10-26T11:53:42.000Z
+   tdx: {
+ "attester_type": "TDX",
+ "attester_tcb_status": "UpToDate",
+ "attester_tcb_date": "2026-08-12T00:00:00Z",
+ "tdx_is_debuggable": false,
+ "tdx_mrtd": "f06dfda6dce1cf904d4e2bab1dc370634cf95cefa2ceb2de2eee127c9382698090d7a4a13e14c536ec6c9c3c8fa87077",
+ "tdx_report_data": "0d84ac2354882b8443003f03899f3874c1b55a4ccd1838dfc84f0e430b70ee0544402c68206a9b9933449012ed66cf23520a",
+ "attester_runtime_data": {
+  "caller_nonce": "4b7d1ae9fdbdda455a520431dc707b7ec92320a41f74838308867db8fefa49ae",
+  "signing_address": "0xb98a789cdc4817275f5155593ba73ef2a957e779",
+  "signing_algo": "ecdsa"
+ }
+}
+   gpu claims present: [
+  'attester_type',
+  'claim_details',
+  'eat_nonce',
+  'iss',
+  'sub',
+  'verifier_nonce',
+  'x-nvidia-overall-att-result',
+  'x-nvidia-ver'
+]
+   nonce bound in claims: yes (exact hex found)
+   claim keys: appraisal,eat_profile,intuse,nvgpu,tdx,ver,verifier_instance_ids,exp,jti,iat,iss,nbf

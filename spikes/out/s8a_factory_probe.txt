@@ -1,0 +1,87 @@
+get_default_code_hash -> "AA4nA45vauiac3jdVwJTzSdUP3oj2r1fDaPAb2mHdgcH"
+get_default_version -> [
+  3,
+  31
+]
+get_contracts_metadata -> [
+  [
+    "8RMeZ5cXDap6TENxaJKtigRYf3n139iHmTRe8ZUNey6N",
+    {
+      "version": [
+        2,
+        0
+      ],
+      "commit_id": "c2cf1553b070d04eed8f659571440b27d398c588",
+      "changelog_url": null
+    }
+  ],
+  [
+    "8LN56HLNjvwtiNb6pRVNSTMtPgJYqGjAgkVSHRiK5Wfv",
+    {
+      "version": [
+        2,
+        1
+      ],
+      "commit_id": "UNOFFICIAL_SCRIPT_DATA",
+      "changelog_url": null
+    }
+  ],
+  [
+    "783vth3Fg8MBBGGFmRqrytQCWBpYzUcmHoCq4Mo8QqF5",
+    {
+      "version": [
+        3,
+        0
+      ],
+      "commit_id": "640495ba572345ca356376989738fbd5462e1ff8",
+      "changelog
+recent daos: [
+  "e2e-mvi3tup7.sputnikv2.testnet",
+  "mymegacompany.sputnikv2.testnet",
+  "kmsrehearsald4d12e.sputnikv2.testnet",
+  "groupvault-4.sputnikv2.testnet",
+  "groupvault-6.sputnikv2.testnet"
+]
+sample policy: {
+  "roles": [
+    {
+      "name": "all",
+      "kind": "Everyone",
+      "permissions": [
+        "*:AddProposal"
+      ],
+      "vote_policy": {}
+    },
+    {
+      "name": "council",
+      "kind": {
+        "Group": [
+          "gv-b-1024-210252.testnet",
+          "gv-a-1024-210252.testnet"
+        ]
+      },
+      "permissions": [
+        "*:Finalize",
+        "*:AddProposal",
+        "*:VoteApprove",
+        "*:VoteReject",
+        "*:VoteRemove"
+      ],
+      "vote_policy": {}
+    }
+  ],
+  "default_vote_policy": {
+    "weight_kind": "RoleWeight",
+    "quorum": "0",
+    "threshold": [
+      1,
+      2
+    ]
+  },
+  "proposal_bond": "1000000000000000000000000",
+  "proposal_period": "604800000000000",
+  "bounty_bond": "1000000000000000000000000",
+  "bounty_forgiveness_period": "86400000000000"
+}
+sample dao balance: 10 storage 540366 code AA4nA45vauiac3jdVwJTzSdUP3oj2r1fDaPAb2mHdgcH
+my balance: 9.633

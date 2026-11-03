@@ -1,0 +1,148 @@
+bounds: {
+  "min": "0",
+  "max": null
+} | me before: {
+  "total": "0",
+  "available": "0"
+}
+{
+  "label": "storage_deposit +0.01 NEAR (not registration_only)",
+  "ok": true,
+  "hash": "Cao3yx4LbKvtemJ2ftVe8JtnPzxvAovH1R59i75LsXPk",
+  "explorer": "https://testnet.nearblocks.io/txns/Cao3yx4LbKvtemJ2ftVe8JtnPzxvAovH1R59i75LsXPk",
+  "gasBurnt": 1885976512518,
+  "logs": [],
+  "successValue": "{\"total\":\"10000000000000000000000\",\"available\":\"10000000000000000000000\"}"
+}
+me after: {
+  "total": "10000000000000000000000",
+  "available": "10000000000000000000000"
+}
+{
+  "label": "mint 1000 SPIKE",
+  "ok": true,
+  "hash": "5x9UXpFPoXruF2bG4MQJnQZNELEGKBWSFtKhsZnZsYBG",
+  "explorer": "https://testnet.nearblocks.io/txns/5x9UXpFPoXruF2bG4MQJnQZNELEGKBWSFtKhsZnZsYBG",
+  "gasBurnt": 2226082935297,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"nep141\",\"version\":\"1.0.0\",\"event\":\"ft_mint\",\"data\":[{\"owner_id\":\"nh-spike-mvp62mw4.testnet\",\"amount\":\"1000000000\"}]}"
+  ]
+}
+file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1047
+  if ("ExecutionError" in error) return new ContractExecutionError(error.ExecutionError, blockHash, blockHeight);
+                                        ^
+
+ContractExecutionError: Smart contract panicked: Storage accounting error: Account agent.nh-spike-mvp62mw4.testnet has insufficient balance: 0 NEAR available, but attempted to use <0.001 NEAR
+    at parseFunctionCallError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1047:41)
+    at parseActionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1430:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1238:19)
+    at Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4349:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///C:/Project_Dave/NEAR_Hackathon/spikes/[eval1]:11:44 {
+  blockHash: 'GaaWo8whYYWfGztRks4eqFD4UMceDFD5nQ1krLz7MgqM',
+  blockHeight: -1,
+  transactionResult: {
+    final_execution_status: 'EXECUTED',
+    receipts_outcome: [
+      {
+        block_hash: 'CAGMqfKuhGx8XGaf2thDbDxGCndEF2zt7x2TAWErWuM4',
+        id: 'ALdXoER8S7NPwe2AvhnGErBDnpmZVLG4BTsss7bApJ5o',
+        outcome: {
+          executor_id: 'nh-ft-mvp6pidf.testnet',
+          gas_burnt: 1823050332539,
+          logs: [
+            'EVENT_JSON:{"standard":"nep141","version":"1.0.0","event":"ft_transfer","data":[{"old_owner_id":"nh-spike-mvp62mw4.testnet","new_owner_id":"agent.nh-spike-mvp62mw4.testnet","amount":"25000000","memo":"s13"}]}'
+          ],
+          metadata: { contracts: [Array], gas_profile: [Array], version: 4 },
+          receipt_ids: [
+            'C1ynn5NDfkDmBJv9hJFz3LFRh1yLUNhYduVVaBi2YyJX',
+            'ADapJZeCRzmPUjDEfuV7A1Sgu2cjoiNBckEzZUZgCShM'
+          ],
+          status: { Failure: [Object] },
+          tokens_burnt: '182305033253900000000'
+        },
+        proof: []
+      },
+      {
+        block_hash: '7bF8DFZcACRhHtWX9PaJnohhBoSB4BAe6jTnHT5r1uLe',
+        id: 'C1ynn5NDfkDmBJv9hJFz3LFRh1yLUNhYduVVaBi2YyJX',
+        outcome: {
+          executor_id: 'nh-spike-mvp62mw4.testnet',
+          gas_burnt: 223182562500,
+          logs: [],
+          metadata: { contracts: [Array], gas_profile: [], version: 4 },
+          receipt_ids: [],
+          status: { SuccessValue: '' },
+          tokens_burnt: '0'
+        },
+        proof: [
+          {
+            direction: 'Right',
+            hash: 'EB2joTK9Gfqk6S2cgATworbX4pG1fA943J6S2ZDWbMNi'
+          }
+        ]
+      },
+      {
+        block_hash: '7bF8DFZcACRhHtWX9PaJnohhBoSB4BAe6jTnHT5r1uLe',
+        id: 'ADapJZeCRzmPUjDEfuV7A1Sgu2cjoiNBckEzZUZgCShM',
+        outcome: {
+          executor_id: 'nh-spike-mvp62mw4.testnet',
+          gas_burnt: 223182562500,
+          logs: [],
+          metadata: { contracts: [Array], gas_profile: [], version: 4 },
+          receipt_ids: [],
+          status: { SuccessValue: '' },
+          tokens_burnt: '0'
+        },
+        proof: [
+          {
+            direction: 'Left',
+            hash: '7ntxBnEAPsi7BYmGzi8dQN9wukcU73G4uUXoqmNuqeLm'
+          }
+        ]
+      }
+    ],
+    status: {
+      Failure: {
+        ActionError: { index: 0, kind: { FunctionCallError: [Object] } }
+      }
+    },
+    transaction: {
+      actions: [
+        {
+          FunctionCall: {
+            args: 'eyJyZWNlaXZlcl9pZCI6ImFnZW50Lm5oLXNwaWtlLW12cDYybXc0LnRlc3RuZXQiLCJhbW91bnQiOiIyNTAwMDAwMCIsIm1lbW8iOiJzMTMifQ==',
+            deposit: '1',
+            gas: 50000000000000,
+            method_name: 'ft_transfer'
+          }
+        }
+      ],
+      hash: 'DHkRE5hz5FhHtLETmrZCSECTPPo4zVJHwbfvQWZGFUw8',
+      nonce: 274844294000052,
+      priority_fee: 0,
+      public_key: 'ed25519:7QGgK5eBvnAVbUgJL16z8MkQb84oky4YRKJSh6Tajw4W',
+      receiver_id: 'nh-ft-mvp6pidf.testnet',
+      signature: 'ed25519:3N4BTnnkhHGNxezwhn4fQgVhoSzyPV4aPEg2ZekmvS4u3mWCEiRSoSFBV3y2WdNZGBChmZhSLej2xC2dTaTH22w5',
+      signer_id: 'nh-spike-mvp62mw4.testnet'
+    },
+    transaction_outcome: {
+      block_hash: 'GaaWo8whYYWfGztRks4eqFD4UMceDFD5nQ1krLz7MgqM',
+      id: 'DHkRE5hz5FhHtLETmrZCSECTPPo4zVJHwbfvQWZGFUw8',
+      outcome: {
+        executor_id: 'nh-spike-mvp62mw4.testnet',
+        gas_burnt: 312494085495,
+        logs: [],
+        metadata: { gas_profile: null, version: 1 },
+        receipt_ids: [ 'ALdXoER8S7NPwe2AvhnGErBDnpmZVLG4BTsss7bApJ5o' ],
+        status: {
+          SuccessReceiptId: 'ALdXoER8S7NPwe2AvhnGErBDnpmZVLG4BTsss7bApJ5o'
+        },
+        tokens_burnt: '31249408549500000000'
+      },
+      proof: []
+    }
+  }
+}
+
+Node.js v24.19.0

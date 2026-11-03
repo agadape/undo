@@ -1,0 +1,13 @@
+testnet v1.signer-prod.testnet -> "code_hash":"DAE5ng4ZFR2ctMx9SizQBqmGkVbKUutgZ4ZECD4R8Sm9" "storage_usage":1360261 
+testnet v1.signer.testnet -> "name":"HANDLER_ERROR" "cause":{"info":{"block_hash":"9zKPQn4ZuauTD7UQP1z7JygMfc4hPPKgEGYeLc1ELoPH","block_height":274843640,"requested_account_id":"v1.signer.testnet"} "name":"UNKNOWN_ACCOUNT" 
+testnet sputnikv2.testnet -> "code_hash":"77dkUJRCHKRxJxo6UtYgBtRP6hsEX2v4vXjmFuY7dktb" "storage_usage":6652546 
+testnet wrap.testnet -> "code_hash":"DsbyUrKaSJAT91Pewfi71QExPLBooDp1z4sL9GUDhNHa" "storage_usage":20860439 
+testnet usdc.fakes.testnet -> "code_hash":"E1E1CJYxT5FjzVSF55QoEWzv6dbqTe2yB6Hpmjks7JJ7" "storage_usage":31591763 
+mainnet v1.signer -> "code_hash":"DAE5ng4ZFR2ctMx9SizQBqmGkVbKUutgZ4ZECD4R8Sm9" "storage_usage":1200588 
+mainnet sputnik-dao.near -> "code_hash":"BXd5idTXSnC7WRfxHmi7z4crw2F5WXQJ6MZUEv8DfnnY" "storage_usage":2976107 
+mainnet wrap.near -> "code_hash":"DL2f5xmZ44cQRP6vBMt94rvseH5d5KKnAGis2WkTAsh1" "storage_usage":167331828 
+
+== MPC public_key (testnet, v1.signer-prod.testnet)
+result: "secp256k1:4NfTiv3UsGahebgTaHyD9vF8KYKMBnfd6kh94mK6xv8fGBiJB8TBtFMP5WWXz6B89Ac1fbpzPwAvoyQebemHFwx3"
+== sputnikv2.testnet get_dao_list count
+result: 5333

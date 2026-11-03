@@ -1,0 +1,6 @@
+accountId: nh-spike-mvp62mw4.testnet
+publicKey: ed25519:7QGgK5eBvnAVbUgJL16z8MkQb84oky4YRKJSh6Tajw4W
+https://helper.nearprotocol.com/account -> HTTP 200 in 4440ms; body: {"final_execution_status":"EXECUTED_OPTIMISTIC","receipts_outcome":[{"block_hash":"5GCo94RZbtvYSjNSVzVqMYkLiVVaYLDQrgSNSweeJAqb","id":"HaNGCSdVBCEnAYvcYNfmTPQooJF41MzbUpEKBvaKVkkA","outcome":{"executor_id":"nh-spike-mvp62mw4.testnet","gas_burnt":7524947687500,"logs":[],"metadata":{"contracts":[null,
+Saved credentials to .env (gitignored).
+view_account still failing: Do not know how to serialize a BigInt
+amount(yocto) 10000000000000000000000000 = 10 NEAR; storage 182 ; code_hash 11111111111111111111111111111111

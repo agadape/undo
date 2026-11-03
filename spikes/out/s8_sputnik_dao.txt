@@ -1,0 +1,105 @@
+{
+  "label": "create DAO nhspike-mvp6a0dx.sputnikv2.testnet",
+  "ok": true,
+  "hash": "8Bfz75JoS7PxLvnuZ6hk8tmeohsZZuaG2U6WsNw7S4Vh",
+  "explorer": "https://testnet.nearblocks.io/txns/8Bfz75JoS7PxLvnuZ6hk8tmeohsZZuaG2U6WsNw7S4Vh",
+  "gasBurnt": 88446020538885,
+  "logs": []
+}
+DAO account: 6 NEAR, storage 540357 code AA4nA45vauiac3jdVwJTzSdUP3oj2r1fDaPAb2mHdgcH
+policy roles: [
+  {
+    "name": "all",
+    "kind": "Everyone",
+    "perms": [
+      "*:AddProposal"
+    ]
+  },
+  {
+    "name": "council",
+    "kind": {
+      "Group": [
+        "nh-spike-mvp62mw4.testnet"
+      ]
+    },
+    "perms": [
+      "*:Finalize",
+      "*:AddProposal",
+      "*:VoteApprove",
+      "*:VoteReject",
+      "*:VoteRemove"
+    ]
+  }
+]
+proposal_bond: 1 NEAR
+{
+  "label": "add_proposal Transfer 0.1 NEAR",
+  "ok": true,
+  "hash": "HmKNSzdeFmew4Usfk7gB7EkD5gYJjmNC2d4uC81SoGpn",
+  "explorer": "https://testnet.nearblocks.io/txns/HmKNSzdeFmew4Usfk7gB7EkD5gYJjmNC2d4uC81SoGpn",
+  "gasBurnt": 2427087128165,
+  "logs": [],
+  "successValue": "0"
+}
+proposal id: 0
+{
+  "label": "act_proposal VoteApprove",
+  "ok": true,
+  "hash": "eYf7NywTnceb4uCNBSAVmHUvQvZB95HdAJjKMBLpb3m",
+  "explorer": "https://testnet.nearblocks.io/txns/eYf7NywTnceb4uCNBSAVmHUvQvZB95HdAJjKMBLpb3m",
+  "gasBurnt": 6775197565916,
+  "logs": []
+}
+proposal after vote: {
+  "status": "Approved",
+  "votes": {
+    "nh-spike-mvp62mw4.testnet": "Approve"
+  },
+  "kind": {
+    "Transfer": {
+      "token_id": "",
+      "receiver_id": "agent.nh-spike-mvp62mw4.testnet",
+      "amount": "100000000000000000000000",
+      "msg": null
+    }
+  }
+}
+receiver balance delta: 0.1 NEAR
+half bond rejected: Smart contract panicked: panicked at 'assertion failed: `(left == right)`
+  left: `500000000000000000000000`,
+ right: `1000000000000000000000000`: ERR_MIN_BOND', sputnikdao2/src/proposals.rs:491:9
+
+=== S8 summary ===
+{
+  "dao": "nhspike-mvp6a0dx.sputnikv2.testnet",
+  "create": {
+    "label": "create DAO nhspike-mvp6a0dx.sputnikv2.testnet",
+    "ok": true,
+    "hash": "8Bfz75JoS7PxLvnuZ6hk8tmeohsZZuaG2U6WsNw7S4Vh",
+    "explorer": "https://testnet.nearblocks.io/txns/8Bfz75JoS7PxLvnuZ6hk8tmeohsZZuaG2U6WsNw7S4Vh",
+    "gasBurnt": 88446020538885,
+    "logs": []
+  },
+  "createMs": 4994,
+  "addProposal": {
+    "label": "add_proposal Transfer 0.1 NEAR",
+    "ok": true,
+    "hash": "HmKNSzdeFmew4Usfk7gB7EkD5gYJjmNC2d4uC81SoGpn",
+    "explorer": "https://testnet.nearblocks.io/txns/HmKNSzdeFmew4Usfk7gB7EkD5gYJjmNC2d4uC81SoGpn",
+    "gasBurnt": 2427087128165,
+    "logs": [],
+    "successValue": "0"
+  },
+  "act": {
+    "label": "act_proposal VoteApprove",
+    "ok": true,
+    "hash": "eYf7NywTnceb4uCNBSAVmHUvQvZB95HdAJjKMBLpb3m",
+    "explorer": "https://testnet.nearblocks.io/txns/eYf7NywTnceb4uCNBSAVmHUvQvZB95HdAJjKMBLpb3m",
+    "gasBurnt": 6775197565916,
+    "logs": []
+  },
+  "status": "Approved",
+  "receiverDeltaNear": "0.1",
+  "badBond": "Smart contract panicked: panicked at 'assertion failed: `(left == right)`\n  left: `500000000000000000000000`,\n right: `1000000000000000000000000`: ERR_MIN_BOND', sputnikdao2/src/proposals.rs:491:9"
+}
+my balance now: 3.6169

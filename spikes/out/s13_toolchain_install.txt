@@ -1,0 +1,12 @@
+info: downloading component rust-std
+#!/bin/sh
+# shellcheck shell=dash
+# shellcheck disable=SC2039  # local is non-POSIX
+#
+# Licensed under the MIT license
+https://github.com/near/cargo-near/releases/download/cargo-near-v0.22.0
+downloading cargo-near 0.22.0 x86_64-unknown-linux-gnu
+installing to /home/dev/.cargo/bin
+  cargo-near
+everything's installed!
+cargo-near-near 0.22.0

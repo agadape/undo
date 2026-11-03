@@ -1,0 +1,14 @@
+USDC base assetId in token list: nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near
+
+docs example wNEAR->ARB, wait 3000: HTTP 400 525ms
+{"message":"Internal server error","correlationId":"211f7ccb-1dca-4eb8-9d1a-98f64d35f71e","timestamp":"2026-10-26T11:46:43.908Z","path":"/v0/quote"}
+
+wNEAR->USDC(near), wait 3000: HTTP 400 589ms
+{"message":"Internal server error","correlationId":"2e982511-0cbf-499b-8bdf-ce92d4f73413","timestamp":"2026-10-26T11:46:44.584Z","path":"/v0/quote"}
+
+USDC(near)->USDC(base) 1 USDC, wait 3000: HTTP 201 3429ms
+{"quote":{"amountIn":"1000000","amountInFormatted":"1.0","amountInUsd":"0.999714000000","minAmountIn":"1000000","amountOut":"997480","amountOutFormatted":"0.99748","amountOutUsd":"0.997194720720","minAmountOut":"987505","timeEstimate":22,"refundFee":"0","withdrawFee":"2400"},"quoteRequest":{"dry":true,"depositMode":"SIMPLE","swapType":"EXACT_INPUT","slippageTolerance":100,"originAsset":"nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1","depositType":"ORIGIN_CHAIN","destinationAsset":"nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near","amount":"1000000","refundTo":"wrap.near","refundType":"ORIGIN_CHAIN","recipient":"0x2a01699F048133Dce1035DDfBcA7f423f39D5
+wNEAR->USDC(base), refundTo=near: HTTP 201 3895ms -> {"in":"1.0","inUsd":"4.580000000000","out":"4.535739","outUsd":"4.534441778646","eta":24,"withdrawFee":"2400","signature":true}
+wNEAR->USDC(near), refundTo=recipient=near: HTTP 201 3670ms -> {"in":"1.0","inUsd":"4.580000000000","out":"4.556135","outUsd":"4.554831945390","eta":20,"withdrawFee":"0","signature":true}
+USDC(near)->wNEAR 1 USDC, refundTo=near: HTTP 201 3815ms -> {"in":"1.0","inUsd":"0.999714000000","out":"0.218750196727081778265641","outUsd":"0.999714000000","eta":22,"withdrawFee":"0","signature":true}
+USDC(near)->USDC(base) dust 0.01: HTTP 201 3322ms -> {"in":"0.01","inUsd":"0.009997140000","out":"0.007596","outUsd":"0.007593827544","eta":22,"withdrawFee":"2400","signature":true}

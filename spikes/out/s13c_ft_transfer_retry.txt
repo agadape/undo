@@ -1,0 +1,22 @@
+bounds: {"min":"0","max":null} | agent storage before: {"total":"0","available":"0"}
+{
+  "label": "storage_deposit +0.01 NEAR for agent (paid by sender)",
+  "ok": true,
+  "hash": "7toxukgBAEd77GEPpqioHTsAadeqv8yuzujtCArhAsQB",
+  "explorer": "https://testnet.nearblocks.io/txns/7toxukgBAEd77GEPpqioHTsAadeqv8yuzujtCArhAsQB",
+  "gasBurnt": 1887274649700,
+  "logs": [],
+  "successValue": "{\"total\":\"10000000000000000000000\",\"available\":\"10000000000000000000000\"}"
+}
+{
+  "label": "ft_transfer 25 SPIKE -> agent (retry)",
+  "ok": true,
+  "hash": "CVZnkDwijhiBD9VbfqZMDp21yc4soCgS8WUDJtezfae7",
+  "explorer": "https://testnet.nearblocks.io/txns/CVZnkDwijhiBD9VbfqZMDp21yc4soCgS8WUDJtezfae7",
+  "gasBurnt": 2301725770124,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"nep141\",\"version\":\"1.0.0\",\"event\":\"ft_transfer\",\"data\":[{\"old_owner_id\":\"nh-spike-mvp62mw4.testnet\",\"new_owner_id\":\"agent.nh-spike-mvp62mw4.testnet\",\"amount\":\"25000000\",\"memo\":\"s13\"}]}"
+  ]
+}
+balances: {"me":"975000000","agent":"25000000","total":"1000000000"}
+storage after: {"me":{"total":"10000000000000000000000","available":"8470000000000000000000"},"agent":{"total":"10000000000000000000000","available":"9030000000000000000000"}}

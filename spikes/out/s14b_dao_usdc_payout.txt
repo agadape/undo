@@ -1,0 +1,40 @@
+{
+  "label": "ft_transfer 50 USDC -> DAO",
+  "ok": true,
+  "hash": "B3f9PEnNhYMTkCgJkgUdfrnfr4GsNbTBhBrkTtAGpGnq",
+  "explorer": "https://testnet.nearblocks.io/txns/B3f9PEnNhYMTkCgJkgUdfrnfr4GsNbTBhBrkTtAGpGnq",
+  "gasBurnt": 2355476860145,
+  "logs": [
+    "Transfer 50000000 from nh-spike-mvp62mw4.testnet to nhspike-mvp6a0dx.sputnikv2.testnet",
+    "Memo: treasury funding"
+  ]
+}
+DAO USDC: 50.00 USDC
+{
+  "label": "add_proposal: DAO pays agent 5 USDC",
+  "ok": true,
+  "hash": "5dbdmQH6kP5pTbauY27aMjg2hEJHADADaX11jB6L8G8W",
+  "explorer": "https://testnet.nearblocks.io/txns/5dbdmQH6kP5pTbauY27aMjg2hEJHADADaX11jB6L8G8W",
+  "gasBurnt": 2430729288494,
+  "logs": [],
+  "successValue": "2"
+}
+{
+  "label": "act_proposal VoteApprove",
+  "ok": true,
+  "hash": "Err2mHPnJmKEvwGGB973gC979QSuXKSb3kCh3hSbWvZz",
+  "explorer": "https://testnet.nearblocks.io/txns/Err2mHPnJmKEvwGGB973gC979QSuXKSb3kCh3hSbWvZz",
+  "gasBurnt": 8732474902462,
+  "logs": [
+    "Transfer 5000000 from nhspike-mvp6a0dx.sputnikv2.testnet to agent.nh-spike-mvp62mw4.testnet",
+    "Memo: Pay agent 5 USDC for task #2 (retry)"
+  ]
+}
+proposal 2 status: Approved
+agent USDC: 10.00 USDC -> 15.00 USDC | DAO USDC: 45.00 USDC
+{
+  "fund": "B3f9PEnNhYMTkCgJkgUdfrnfr4GsNbTBhBrkTtAGpGnq",
+  "add": "5dbdmQH6kP5pTbauY27aMjg2hEJHADADaX11jB6L8G8W",
+  "act": "Err2mHPnJmKEvwGGB973gC979QSuXKSb3kCh3hSbWvZz",
+  "status": "Approved"
+}

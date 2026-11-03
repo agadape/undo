@@ -1,0 +1,13 @@
+== 1Click GET /v0/tokens
+HTTP=200 bytes=52145
+latency=1287ms
+tokens: 205
+chains(37): near,zec,base,qtc,eth,abs,sui,btc,sol,fogo,arb,doge,xrp,gnosis,starknet,bera,bsc,monad,xlayer,plasma,pol,tron,ton,op,avax,stellar,cardano,aptos,ltc,bch,aleo,dash,hood,adi,scroll,movement,hypercore
+sample keys: assetId,decimals,blockchain,symbol,price,priceUpdatedAt,contractAddress,coingeckoId
+NEAR-chain samples: wNEAR=nep141:wrap.near | ETH=nep141:eth.bridge.near | USDC=nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1 | FRAX=nep141:853d955acef822db058eb8505911ed77f175b99e.factory.bridge.near | AURORA=nep141:aaaaaa20d9e0e2461697782ef11675f668207961.factory.bridge.near | wBTC=nep141:2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near
+USDC entries: near,eth,arb,base,sol,gnosis,pol,bsc,aptos,op,avax,sui,stellar,monad,xlayer,hypercore,hypercore
+
+== mainnet view_account intents.near
+{"jsonrpc":"2.0","result":{"amount":"130762245190608203044285129214","block_hash":"FceNWuPGiE1i44YozTjapVUaaQQrehZqqBzE19ULmGn3","block_height":221680589,"code_hash":"BtA1BEFNS619KkvXFsgcpQ21Tb5yMm32aaUkn7xNothk","locked":"0","storage_paid_at":0,"storage_usage":12996877651},"id":"s1"}
+== testnet view_account intents.testnet
+{"jsonrpc":"2.0","result":{"amount":"0","block_hash":"ERHqUogeudWTGBamh5uUhrA8A3n9412M3pD3ykecAcEy","block_height":274843425,"code_hash":"11111111111111111111111111111111","locked":"0","storage_paid_at":0,"storage_usage":313},"id":"s1"}

@@ -1,0 +1,31 @@
+# Backup guard for Coba Curi (the primary is the Cloudflare Worker, every minute).
+# GitHub cron runs at most every 5 minutes and may be delayed; the 2-hour window leaves ample margin.
+name: cobacuri-guard
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: undo/app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund
+      - run: node guard/run-local.mjs --once
+        env:
+          COBACURI_CONTRACT_ID: cobacuri.nh-s26f-mvz1xz1q.testnet
+          COBACURI_DEMO_ID: curi.nh-s26f-mvz1xz1q.testnet
+          COBACURI_GUARD_ID: nh-s26f-mvz1xz1q.testnet
+          COBACURI_GUARD_FC_KEY: ${{ secrets.COBACURI_GUARD_FC_KEY }}
+          COBACURI_GUARD_PRIVATE_KEY: ${{ secrets.COBACURI_GUARD_PRIVATE_KEY }}
+          COBACURI_DEMO_PRIVATE_KEY: ${{ secrets.COBACURI_DEMO_PRIVATE_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

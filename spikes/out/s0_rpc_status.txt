@@ -1,0 +1,6 @@
+https://rpc.testnet.near.org | 3361ms | "chain_id":"testnet" "protocol_version":88 "latest_block_height":274843397 HTTP=200 
+https://test.rpc.fastnear.com | 394ms | "chain_id":"testnet" "protocol_version":88 "latest_block_height":274843397 HTTP=200 
+https://rpc.testnet.fastnear.com | 348ms | "chain_id":"testnet" "protocol_version":88 "latest_block_height":274843398 HTTP=200 
+https://rpc.mainnet.near.org | 3196ms | "chain_id":"mainnet" "protocol_version":86 "latest_block_height":221680568 HTTP=200 
+https://free.rpc.fastnear.com | 421ms | "chain_id":"mainnet" "protocol_version":86 "latest_block_height":221680569 HTTP=200 
+https://rpc.mainnet.fastnear.com | 317ms | "chain_id":"mainnet" "protocol_version":86 "latest_block_height":221680570 HTTP=200 

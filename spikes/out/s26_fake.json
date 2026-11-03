@@ -1,0 +1,87 @@
+{
+  "mode": "fake",
+  "startedAt": "2026-11-02T09:24:03.357Z",
+  "modelKey": "3fa22a1d57144474096f8568399a01e235b976bf2299a38091bd2eb0dd450e97",
+  "contract": "nh-s26f-mvz1xz1q.testnet",
+  "rows": [
+    {
+      "label": "open_case",
+      "pass": true,
+      "tgas": 1.842,
+      "tx": "https://testnet.nearblocks.io/txns/9QcJ281xv8TZ7uFrfKCetqG2CvpgU6nVZF14uLXrppec"
+    },
+    {
+      "label": "commit_evidence #0",
+      "pass": true,
+      "tgas": 1.813,
+      "tx": "https://testnet.nearblocks.io/txns/EMq6WmaP3vadChQxQzS8AXgTtuFVpmmYbDi78KCSA4DZ"
+    },
+    {
+      "label": "commit_evidence #1",
+      "pass": true,
+      "tgas": 1.822,
+      "tx": "https://testnet.nearblocks.io/txns/7yXbeZJP2xkxpkZM7SmAqsmqifwMZPQd2YZ8uxZ73KwD"
+    },
+    {
+      "label": "ATTACK server drops the seller's evidence",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: every committed evidence must be included, and nothing else"
+    },
+    {
+      "label": "ATTACK evidence order swapped",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: evidence #0 does not match its commitment"
+    },
+    {
+      "label": "ATTACK wrong ephemeral secret",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: ephemeral secret does not match the system envelope"
+    },
+    {
+      "label": "ATTACK edited response",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: response does not match the signed hash"
+    },
+    {
+      "label": "ATTACK model really read a smuggled extra message",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: the model did not receive this exact request (prompt, case file or evidence differs)"
+    },
+    {
+      "label": "ATTACK model really read a different prompt",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: system prompt is not the registered procedure"
+    },
+    {
+      "label": "HONEST post_recommendation",
+      "pass": true,
+      "tgas": 10.409,
+      "tx": "https://testnet.nearblocks.io/txns/F1aQXS4ReZEmyd7RoCWqMEeJdYF7NUaB4jK6vwEzjcLX"
+    }
+  ],
+  "case": {
+    "transferId": "tmvz1yita",
+    "amount": "150000000",
+    "nonce": "a21a1bf78ecb3035f7b833dee36d2638"
+  },
+  "verdictOnchain": {
+    "rekomendasi": "kembalikan",
+    "confidence": 92,
+    "curiga_injeksi": true,
+    "alasan_publik": "Resi bertanggal sebelum transaksi.",
+    "response_hash": "64e3b4f36d5c266f7f9821556b8e5dc896481c11c1079bdeccfe833f43054b07"
+  },
+  "summary": "10/10 pass"
+}

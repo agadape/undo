@@ -1,0 +1,109 @@
+===== build ft
+ │    Compiling darling v0.21.3
+ │    Compiling near-sdk-contract-tools-macros v4.0.0
+ │    Compiling darling_macro v0.24.1
+ │    Compiling darling v0.24.1
+ │    Compiling serde_with_macros v3.24.0
+ │    Compiling near-account-id v2.6.0
+ │    Compiling near-gas v0.3.7
+ │    Compiling near-token v0.3.6
+ │    Compiling serde_with v3.24.0
+ │    Compiling near-sdk-core v4.2.3
+ │    Compiling near-global-contracts v0.2.6
+ │    Compiling near-sdk v5.29.1
+ │    Compiling near-sdk-contract-tools v4.0.0
+ │    Compiling spike_ft v0.1.0 (/mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/ft)
+ │     Finished `release` profile [optimized] target(s) in 11.74s
+
+• Running an optimize for size post-step with wasm-opt --enable-nontrapping-float-to-int --enable-bulk-memory...
+    Finished wasm-opt -O in 366ms
+• done
+
+✓ Contract successfully built! (in CARGO_NEAR_BUILD_ENVIRONMENT=host)
+     -                Binary: /mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/wasm/spike_ft.wasm
+     -                  Size: 156.1 KB (156146 bytes)
+     - SHA-256 checksum hex : 5d0a27363c626875d90c72cbd5a898444673c8806702be12e6270cb3f3c8dbc1
+     - SHA-256 checksum bs58: 7GBtw9qtAdg41dhs1yqhfghDSvCRQAvL5PNH7JE5sjZi
+     -                   ABI: /mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/wasm/spike_ft_abi.json
+     -          Embedded ABI: /mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/wasm/spike_ft_abi.zst
+    Finished cargo near build in 57s
+Here is the console command if you ever need to re-run it again:
+cargo near build non-reproducible-wasm --out-dir wasm --manifest-path ft/Cargo.toml
+exit=0 took=59s
+===== build nft
+• Generating ABI
+ │    Compiling spike_nft v0.1.0 (/mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/nft)
+ │     Finished `dev` profile [unoptimized] target(s) in 0.66s
+• Extracting ABI...
+• done
+
+• Compressing ABI to be embedded..
+• done
+
+• Building contract
+ │    Compiling near-sdk-macros v5.29.1
+ │    Compiling near-sdk v5.29.1
+ │    Compiling near-sdk-contract-tools v4.0.0
+ │    Compiling spike_nft v0.1.0 (/mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/nft)
+ │     Finished `release` profile [optimized] target(s) in 4.85s
+
+• Running an optimize for size post-step with wasm-opt --enable-nontrapping-float-to-int --enable-bulk-memory...
+    Finished wasm-opt -O in 586ms
+• done
+
+✓ Contract successfully built! (in CARGO_NEAR_BUILD_ENVIRONMENT=host)
+     -                Binary: /mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/wasm/spike_nft.wasm
+     -                  Size: 224.8 KB (224790 bytes)
+     - SHA-256 checksum hex : 3fa9e237b110670915da30475d4ee72c56d40cc9fc513044b85b8ac8da3a9969
+     - SHA-256 checksum bs58: 5HWvzepxezAfDsJimewG7wDpCQ13hhPbxkdci6oHQpSC
+     -                   ABI: /mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/wasm/spike_nft_abi.json
+     -          Embedded ABI: /mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/wasm/spike_nft_abi.zst
+    Finished cargo near build in 6s
+Here is the console command if you ever need to re-run it again:
+cargo near build non-reproducible-wasm --out-dir wasm --manifest-path nft/Cargo.toml
+exit=0 took=6s
+===== build mt
+• Generating ABI
+ │    Compiling spike_mt v0.1.0 (/mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/mt)
+ │     Finished `dev` profile [unoptimized] target(s) in 0.75s
+• Extracting ABI...
+• done
+
+• Compressing ABI to be embedded..
+• done
+
+• Building contract
+ │    Compiling near-sdk-macros v5.29.1
+ │    Compiling near-sdk v5.29.1
+ │    Compiling near-sdk-contract-tools v4.0.0
+ │    Compiling spike_mt v0.1.0 (/mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/mt)
+ │     Finished `release` profile [optimized] target(s) in 4.75s
+
+• Running an optimize for size post-step with wasm-opt --enable-nontrapping-float-to-int --enable-bulk-memory...
+    Finished wasm-opt -O in 481ms
+• done
+
+✓ Contract successfully built! (in CARGO_NEAR_BUILD_ENVIRONMENT=host)
+     -                Binary: /mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/wasm/spike_mt.wasm
+     -                  Size: 212.1 KB (212074 bytes)
+     - SHA-256 checksum hex : 16d5e02dd43f10af0c25c0278c0082d01292771ea5b0ab15a6100e96c7519945
+     - SHA-256 checksum bs58: 2Y985kqtei9EMsv6bLypU5L7EkDSuPbeBtZbf4EojMU8
+     -                   ABI: /mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/wasm/spike_mt_abi.json
+     -          Embedded ABI: /mnt/c/Project_Dave/NEAR_Hackathon/spikes/contracts/wasm/spike_mt_abi.zst
+    Finished cargo near build in 6s
+Here is the console command if you ever need to re-run it again:
+cargo near build non-reproducible-wasm --out-dir wasm --manifest-path mt/Cargo.toml
+exit=0 took=7s
+total 668
+drwxrwxrwx 1 dev dev   4096 Oct 26 18:39 .
+drwxrwxrwx 1 dev dev   4096 Oct 26 18:38 ..
+-rwxrwxrwx 1 dev dev 156146 Oct 26 18:39 spike_ft.wasm
+-rwxrwxrwx 1 dev dev  14273 Oct 26 18:39 spike_ft_abi.json
+-rwxrwxrwx 1 dev dev   1569 Oct 26 18:39 spike_ft_abi.zst
+-rwxrwxrwx 1 dev dev 212074 Oct 26 18:39 spike_mt.wasm
+-rwxrwxrwx 1 dev dev  31557 Oct 26 18:39 spike_mt_abi.json
+-rwxrwxrwx 1 dev dev   2228 Oct 26 18:39 spike_mt_abi.zst
+-rwxrwxrwx 1 dev dev 224790 Oct 26 18:39 spike_nft.wasm
+-rwxrwxrwx 1 dev dev  23150 Oct 26 18:39 spike_nft_abi.json
+-rwxrwxrwx 1 dev dev   1725 Oct 26 18:39 spike_nft_abi.zst
+rustc 1.99.0 (b940084d7 2026-09-28)

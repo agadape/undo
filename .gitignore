@@ -1,0 +1,26 @@
+# secrets
+.env
+.env.*
+!.env.example
+*.key
+credentials/
+.near-credentials/
+
+# local runtime data (court evidence ciphertext, guard logs)
+.data/
+*.log
+
+# deps / build
+node_modules/
+.next/
+dist/
+target/
+__pycache__/
+.venv/
+
+# submission payload contains personal data
+submission*.json
+
+# kept local only: internal research (judge notes) and copies of third-party docs
+recon/
+spikes/out/ref/

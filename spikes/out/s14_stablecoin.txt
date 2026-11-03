@@ -1,0 +1,130 @@
+{
+  "label": "storage_deposit for nh-spike-mvp62mw4.testnet",
+  "ok": true,
+  "hash": "7N3vUDynqrL2QtQq5Dw8RF5Cgt9zD5Fap6fGQASgwFzm",
+  "explorer": "https://testnet.nearblocks.io/txns/7N3vUDynqrL2QtQq5Dw8RF5Cgt9zD5Fap6fGQASgwFzm",
+  "gasBurnt": 2087971214784,
+  "logs": [],
+  "successValue": "{\"total\":\"1250000000000000000000\",\"available\":\"0\"}"
+}
+{
+  "label": "storage_deposit for agent.nh-spike-mvp62mw4.testnet",
+  "ok": true,
+  "hash": "F8JVq1JkT81HKj8NSgKFAvv8k8Pag2FD4i1hrG9VtShJ",
+  "explorer": "https://testnet.nearblocks.io/txns/F8JVq1JkT81HKj8NSgKFAvv8k8Pag2FD4i1hrG9VtShJ",
+  "gasBurnt": 2092584450198,
+  "logs": [],
+  "successValue": "{\"total\":\"1250000000000000000000\",\"available\":\"0\"}"
+}
+{
+  "label": "storage_deposit for nhspike-mvp6a0dx.sputnikv2.testnet",
+  "ok": true,
+  "hash": "238N7CvmdWx2ZBoSctXtRzMRcs8iDGyKdfxatepUzKja",
+  "explorer": "https://testnet.nearblocks.io/txns/238N7CvmdWx2ZBoSctXtRzMRcs8iDGyKdfxatepUzKja",
+  "gasBurnt": 2088910919487,
+  "logs": [],
+  "successValue": "{\"total\":\"1250000000000000000000\",\"available\":\"0\"}"
+}
+{
+  "label": "mint 1000 USDC [\"account_id\",\"amount\"]",
+  "ok": true,
+  "hash": "8s51spUZrfLfpiEDpUyYHmS5qMbmqPNBR9jUWFwdcW7o",
+  "explorer": "https://testnet.nearblocks.io/txns/8s51spUZrfLfpiEDpUyYHmS5qMbmqPNBR9jUWFwdcW7o",
+  "gasBurnt": 2044580371885,
+  "logs": []
+}
+my USDC: 1000.00 USDC
+{
+  "label": "ft_transfer 10 USDC -> agent",
+  "ok": true,
+  "hash": "A9ckaRLCC2eeyCQpz1r27esFX7pg6Y88c8jmiidgQSTf",
+  "explorer": "https://testnet.nearblocks.io/txns/A9ckaRLCC2eeyCQpz1r27esFX7pg6Y88c8jmiidgQSTf",
+  "gasBurnt": 2355819384017,
+  "logs": [
+    "Transfer 10000000 from nh-spike-mvp62mw4.testnet to agent.nh-spike-mvp62mw4.testnet",
+    "Memo: S14 payout"
+  ]
+}
+agent USDC: 0.00 USDC -> 0.00 USDC
+unregistered receiver rejected: Smart contract panicked: The account nobody-1793014419663.testnet is not registered
+no-yocto rejected: Smart contract panicked: panicked at 'assertion failed: `(left == right)`
+  left: `0`,
+ right: `1`: Requires attached deposit of exactly 1 yoctoNEAR', /Users/haosun/.cargo/registry/src/mirrors.ustc.ed
+{
+  "label": "ft_transfer_call 50 USDC -> DAO",
+  "ok": true,
+  "hash": "4zxC55mez5vH1uMRrY91V6za9bXmk4DZwjQzGj1u67Yq",
+  "explorer": "https://testnet.nearblocks.io/txns/4zxC55mez5vH1uMRrY91V6za9bXmk4DZwjQzGj1u67Yq",
+  "gasBurnt": 6503227043448,
+  "logs": [
+    "Transfer 50000000 from nh-spike-mvp62mw4.testnet to nhspike-mvp6a0dx.sputnikv2.testnet",
+    "Refund 50000000 from nhspike-mvp6a0dx.sputnikv2.testnet to nh-spike-mvp62mw4.testnet"
+  ],
+  "successValue": "\"0\""
+}
+DAO USDC: 0.00 USDC -> 0.00 USDC
+{
+  "label": "add_proposal: DAO pays agent 5 USDC",
+  "ok": true,
+  "hash": "821z2JBbFwXrzHYE2eg8XXY9vcu9kiYrTXfdyi1KYJbm",
+  "explorer": "https://testnet.nearblocks.io/txns/821z2JBbFwXrzHYE2eg8XXY9vcu9kiYrTXfdyi1KYJbm",
+  "gasBurnt": 2427414754718,
+  "logs": [],
+  "successValue": "1"
+}
+{
+  "label": "act_proposal VoteApprove",
+  "ok": true,
+  "hash": "6TtBkQsqhs1MY8BTPdvkBgvmRdfjYdeLm5D8dSNrTyzW",
+  "explorer": "https://testnet.nearblocks.io/txns/6TtBkQsqhs1MY8BTPdvkBgvmRdfjYdeLm5D8dSNrTyzW",
+  "gasBurnt": 7448992736940,
+  "logs": []
+}
+proposal 1 status: Failed
+agent USDC: 10.00 USDC -> 10.00 USDC | DAO USDC: 0.00 USDC
+
+=== S14 summary ===
+{
+  "mint": {
+    "label": "mint 1000 USDC [\"account_id\",\"amount\"]",
+    "ok": true,
+    "hash": "8s51spUZrfLfpiEDpUyYHmS5qMbmqPNBR9jUWFwdcW7o",
+    "explorer": "https://testnet.nearblocks.io/txns/8s51spUZrfLfpiEDpUyYHmS5qMbmqPNBR9jUWFwdcW7o",
+    "gasBurnt": 2044580371885,
+    "logs": []
+  },
+  "transfer": {
+    "label": "ft_transfer 10 USDC -> agent",
+    "ok": true,
+    "hash": "A9ckaRLCC2eeyCQpz1r27esFX7pg6Y88c8jmiidgQSTf",
+    "explorer": "https://testnet.nearblocks.io/txns/A9ckaRLCC2eeyCQpz1r27esFX7pg6Y88c8jmiidgQSTf",
+    "gasBurnt": 2355819384017,
+    "logs": [
+      "Transfer 10000000 from nh-spike-mvp62mw4.testnet to agent.nh-spike-mvp62mw4.testnet",
+      "Memo: S14 payout"
+    ]
+  },
+  "unregistered": "Smart contract panicked: The account nobody-1793014419663.testnet is not registered",
+  "noYocto": "Smart contract panicked: panicked at 'assertion failed: `(left == right)`\n  left: `0`,\n right: `1`: Requires attached deposit of exactly 1 yoctoNEAR', /Users/haosun/.cargo/registry/src/mirrors.ustc.ed",
+  "toDao": {
+    "label": "ft_transfer_call 50 USDC -> DAO",
+    "ok": true,
+    "hash": "4zxC55mez5vH1uMRrY91V6za9bXmk4DZwjQzGj1u67Yq",
+    "explorer": "https://testnet.nearblocks.io/txns/4zxC55mez5vH1uMRrY91V6za9bXmk4DZwjQzGj1u67Yq",
+    "gasBurnt": 6503227043448,
+    "logs": [
+      "Transfer 50000000 from nh-spike-mvp62mw4.testnet to nhspike-mvp6a0dx.sputnikv2.testnet",
+      "Refund 50000000 from nhspike-mvp6a0dx.sputnikv2.testnet to nh-spike-mvp62mw4.testnet"
+    ],
+    "successValue": "\"0\""
+  },
+  "daoPay": {
+    "label": "act_proposal VoteApprove",
+    "ok": true,
+    "hash": "6TtBkQsqhs1MY8BTPdvkBgvmRdfjYdeLm5D8dSNrTyzW",
+    "explorer": "https://testnet.nearblocks.io/txns/6TtBkQsqhs1MY8BTPdvkBgvmRdfjYdeLm5D8dSNrTyzW",
+    "gasBurnt": 7448992736940,
+    "logs": []
+  },
+  "proposalStatus": "Failed"
+}

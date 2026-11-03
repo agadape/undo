@@ -1,0 +1,32 @@
+helper -> HTTP 200: {"final_execution_status":"EXECUTED_OPTIMISTIC","receipts_outcome":[{"block_hash":"zNoSAawTtFqnFmSqbyDVHPxwfsdSkJ51Snn4UDtGAUZ","id":"D416tgAz9L4sBEPPY7oxYgVAyK
+saved nh-undo-mvyqbgc0.testnet to .env
+new account balance: 10 NEAR
+{
+  "label": "deploy + new",
+  "ok": true,
+  "hash": "AFHCEhqWbaauUEo12dZd8UizruXbRGGhLGyaHkUuiKsQ",
+  "explorer": "https://testnet.nearblocks.io/txns/AFHCEhqWbaauUEo12dZd8UizruXbRGGhLGyaHkUuiKsQ",
+  "gasBurnt": 16355697497208,
+  "logs": []
+}
+{
+  "label": "USDC storage_deposit for contract",
+  "ok": true,
+  "hash": "FUFGSu9H9c9F7RjA3ms4UDsvTah3b67kvojKbmJiQnWR",
+  "explorer": "https://testnet.nearblocks.io/txns/FUFGSu9H9c9F7RjA3ms4UDsvTah3b67kvojKbmJiQnWR",
+  "gasBurnt": 2087765131173,
+  "logs": [],
+  "successValue": "{\"total\":\"1250000000000000000000\",\"available\":\"0\"}"
+}
+config: {
+  "owner": "nh-undo-mvyqbgc0.testnet",
+  "underlying": "usdc.fakes.testnet",
+  "council": "nhspike-mvp6a0dx.sputnikv2.testnet",
+  "judge": "nh-spike-mvp62mw4.testnet",
+  "window_sec": 60,
+  "dispute_timeout_sec": 3600,
+  "report_bond": "10000000000000000000000",
+  "total_supply": "0",
+  "next_id": "0"
+}
+contract balance: 9.9983 NEAR, storage 201633 bytes

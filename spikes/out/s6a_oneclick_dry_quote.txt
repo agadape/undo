@@ -1,0 +1,9 @@
+
+=== 0.1 NEAR -> USDC on NEAR: HTTP 400 in 942 ms
+{"message":"Internal server error","correlationId":"7fe7a70c-e6c6-4593-8b02-1a2aad7abdc9","timestamp":"2026-10-26T11:46:17.305Z","path":"/v0/quote"}
+
+=== 0.1 NEAR -> USDC on Base (to Chain-Signatures-derived EVM address from S4): HTTP 400 in 477 ms
+{"message":"Internal server error","correlationId":"3de6e6a9-6f46-4caf-804e-736155890ab2","timestamp":"2026-10-26T11:46:18.306Z","path":"/v0/quote"}
+
+=== unhappy: 0.0001 NEAR (dust) -> USDC on Base: HTTP 400 in 373 ms
+{"message":"Internal server error","correlationId":"2c4b8266-358a-49fc-8a43-a8d72ed42518","timestamp":"2026-10-26T11:46:18.710Z","path":"/v0/quote"}

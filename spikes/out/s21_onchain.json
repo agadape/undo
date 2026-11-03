@@ -1,0 +1,42 @@
+{
+  "contract": "nh-s21-mvz19hwe.testnet",
+  "pinnedSigner": "5a0210f2442c79355784f9de021985429561da5bacc3a4424b01ac52b7e0caff",
+  "verdictMatchesOffchainDecryption": true,
+  "caseNonceMatches": true,
+  "verdict": {
+    "transfer_id": "7",
+    "case_nonce": "6500ed7872e7b85e",
+    "rekomendasi": "kembalikan",
+    "confidence": 92,
+    "curiga_injeksi": true,
+    "alasan_publik": "Resi bertanggal sebelum transaksi, penjual menghilang setelah pembayaran, dan terdapat upaya injeksi instruksi pada bukti."
+  },
+  "rows": [
+    {
+      "label": "verify real NEAR AI signature + request hash",
+      "pass": true,
+      "tgas": 2.34,
+      "tx": "https://testnet.nearblocks.io/txns/9iSHQkytUhq13Qu5EfMwRgrm2uvKKEXDT16Q5DNxtWP1"
+    },
+    {
+      "label": "open real encrypted verdict (content key)",
+      "pass": true,
+      "tgas": 2.414,
+      "tx": "https://testnet.nearblocks.io/txns/6HMjbreMz84JUQNjt2wMAdoeN15NFjxi48PKKumt8JPt"
+    },
+    {
+      "label": "NEG content key cannot open the reasoning",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: decryption failed: wrong key or tampered content"
+    },
+    {
+      "label": "NEG edited response",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: response does not match the signed hash"
+    }
+  ]
+}

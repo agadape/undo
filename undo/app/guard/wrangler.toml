@@ -1,0 +1,15 @@
+# Cloudflare Worker for the Coba Curi guard (primary). Deploy from undo/app/guard: npx wrangler deploy
+name = "undo-cobacuri-guard"
+main = "worker.mjs"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+COBACURI_CONTRACT_ID = "cobacuri.nh-s26f-mvz1xz1q.testnet"
+COBACURI_DEMO_ID = "curi.nh-s26f-mvz1xz1q.testnet"
+COBACURI_GUARD_ID = "nh-s26f-mvz1xz1q.testnet"
+# Secrets (wrangler secret put …): COBACURI_GUARD_FC_KEY, COBACURI_GUARD_PRIVATE_KEY,
+# COBACURI_DEMO_PRIVATE_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID

@@ -1,0 +1,200 @@
+contract nh-undo-mvyqbgc0.testnet {
+  "owner": "nh-undo-mvyqbgc0.testnet",
+  "underlying": "usdc.fakes.testnet",
+  "council": "nhspike-mvp6a0dx.sputnikv2.testnet",
+  "judge": "nh-spike-mvp62mw4.testnet",
+  "window_sec": 60,
+  "dispute_timeout_sec": 3600,
+  "report_bond": "10000000000000000000000",
+  "total_supply": "0",
+  "next_id": "0"
+}
+{
+  "label": "nh-spike-mvp62mw4 → mint",
+  "ok": true,
+  "hash": "DaX7ncU6TmCXxzuW6aH11DQccvSE8o7bkk2pFAevK3PC",
+  "explorer": "https://testnet.nearblocks.io/txns/DaX7ncU6TmCXxzuW6aH11DQccvSE8o7bkk2pFAevK3PC",
+  "gasBurnt": 2044279980346,
+  "logs": []
+}
+{
+  "label": "nh-spike-mvp62mw4 → storage_deposit",
+  "ok": true,
+  "hash": "7XW4Hio7dm5Tva7xjaFXmuiZMrHTZdRv8XB1NMWfRVyk",
+  "explorer": "https://testnet.nearblocks.io/txns/7XW4Hio7dm5Tva7xjaFXmuiZMrHTZdRv8XB1NMWfRVyk",
+  "gasBurnt": 2089196080515,
+  "logs": [],
+  "successValue": "{\"total\":\"1250000000000000000000\",\"available\":\"0\"}"
+}
+{
+  "label": "nh-spike-mvp62mw4 → ft_transfer_call",
+  "ok": true,
+  "hash": "2N61eAjSNt8S6gqwMb86qyhFVkedEGiaUu7nR6HwqFwk",
+  "explorer": "https://testnet.nearblocks.io/txns/2N61eAjSNt8S6gqwMb86qyhFVkedEGiaUu7nR6HwqFwk",
+  "gasBurnt": 6724981578095,
+  "logs": [
+    "Transfer 50000000 from nh-spike-mvp62mw4.testnet to nh-undo-mvyqbgc0.testnet",
+    "EVENT_JSON:{\"standard\":\"undo\",\"version\":\"0.1.0\",\"event\":\"wrap\",\"data\":[{\"account_id\":\"nh-spike-mvp62mw4.testnet\",\"amount\":\"50000000\"}]}"
+  ],
+  "successValue": "\"50000000\""
+}
+PASS | wrap 50 USDC → 50 rUSDC available | {
+  "available": "50.00",
+  "pending_in": "0.00",
+  "disputed_in": "0.00",
+  "pending_exit": "0.00"
+}
+{
+  "label": "nh-spike-mvp62mw4 → transfer",
+  "ok": true,
+  "hash": "ADQZukmGW39rKEPEk7xySULqWYzFoYzxaeuiA18nqsmL",
+  "explorer": "https://testnet.nearblocks.io/txns/ADQZukmGW39rKEPEk7xySULqWYzFoYzxaeuiA18nqsmL",
+  "gasBurnt": 2579810853212,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"undo\",\"version\":\"0.1.0\",\"event\":\"transfer\",\"data\":[{\"id\":\"0\",\"from\":\"nh-spike-mvp62mw4.testnet\",\"to\":\"agent.nh-spike-mvp62mw4.testnet\",\"amount\":\"30000000\",\"unlock_at\":\"1793592012371986089\"}]}"
+  ],
+  "successValue": "\"0\""
+}
+PASS | thief sees 30 rUSDC only as pending | {
+  "available": "0.00",
+  "pending_in": "30.00",
+  "disputed_in": "0.00",
+  "pending_exit": "0.00"
+}
+PASS | thief cannot unwrap pending funds | Smart contract panicked: not enough available rUSDC (incoming funds unlock after the undo window)
+PASS | thief cannot forward pending funds | Smart contract panicked: not enough available rUSDC (incoming funds unlock after the undo window)
+PASS | report without the exact bond is rejected | Smart contract panicked: attach exactly the report bond
+{
+  "label": "nh-nft-mvp6py9i → report",
+  "ok": true,
+  "hash": "AX5QvPiMnEWQcC3ospvRZUYyKQ2c1dZcD2GHnYKboqU4",
+  "explorer": "https://testnet.nearblocks.io/txns/AX5QvPiMnEWQcC3ospvRZUYyKQ2c1dZcD2GHnYKboqU4",
+  "gasBurnt": 1998595526690,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"undo\",\"version\":\"0.1.0\",\"event\":\"report\",\"data\":[{\"id\":\"0\",\"reporter\":\"nh-nft-mvp6py9i.testnet\",\"reason\":\"Victim says the key was stolen; funds moved to a fresh account\"}]}"
+  ]
+}
+PASS | theft is now Disputed (frozen)
+{
+  "label": "nh-spike-mvp62mw4 → post_verdict",
+  "ok": true,
+  "hash": "FQaDWiS8AFsx1k9mtCPCovvS1TSV3wxxCTKyqFE19JWu",
+  "explorer": "https://testnet.nearblocks.io/txns/FQaDWiS8AFsx1k9mtCPCovvS1TSV3wxxCTKyqFE19JWu",
+  "gasBurnt": 1994301631821,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"undo\",\"version\":\"0.1.0\",\"event\":\"verdict\",\"data\":[{\"id\":\"0\",\"stolen\":true,\"confidence\":90}]}"
+  ]
+}
+PASS | non-judge cannot post a verdict | Smart contract panicked: only the judge can post verdicts
+PASS | thief cannot resolve the dispute | Smart contract panicked: only the council can resolve
+{
+  "label": "nh-spike-mvp62mw4 → add_proposal",
+  "ok": true,
+  "hash": "4fpmSZpsFEwXErRQp5RYtq7twJwddHMuJbP5okGST9BK",
+  "explorer": "https://testnet.nearblocks.io/txns/4fpmSZpsFEwXErRQp5RYtq7twJwddHMuJbP5okGST9BK",
+  "gasBurnt": 2462989024727,
+  "logs": [],
+  "successValue": "3"
+}
+{
+  "label": "nh-spike-mvp62mw4 → act_proposal",
+  "ok": true,
+  "hash": "4FDx67D6PXZhxkGHXwWTmyu16i2jsKunPhdum5QjcesT",
+  "explorer": "https://testnet.nearblocks.io/txns/4FDx67D6PXZhxkGHXwWTmyu16i2jsKunPhdum5QjcesT",
+  "gasBurnt": 9267451003171,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"undo\",\"version\":\"0.1.0\",\"event\":\"reverse\",\"data\":[{\"id\":\"0\",\"refund_to\":\"user.nh-spike-mvp62mw4.testnet\",\"amount\":\"30000000\"}]}"
+  ]
+}
+DAO vote → resolve executed in 13227 ms; logs: [
+  'EVENT_JSON:{"standard":"undo","version":"0.1.0","event":"reverse","data":[{"id":"0","refund_to":"user.nh-spike-mvp62mw4.testnet","amount":"30000000"}]}'
+]
+PASS | DAO proposal Approved | Approved
+PASS | transfer Reversed to the safe account | {
+  "status": "Reversed",
+  "refund_to": "user.nh-spike-mvp62mw4.testnet"
+}
+PASS | safe account received 30 rUSDC | {
+  "available": "30.00",
+  "pending_in": "0.00",
+  "disputed_in": "0.00",
+  "pending_exit": "0.00"
+}
+PASS | thief ends with nothing | {
+  "available": "0.00",
+  "pending_in": "0.00",
+  "disputed_in": "0.00",
+  "pending_exit": "0.00"
+}
+PASS | watcher's bond came back (minus gas) | delta 0.00-19 NEAR
+{
+  "label": "nh-spike-mvp62mw4 → transfer",
+  "ok": true,
+  "hash": "5K6wEy8MQH5GAh1VXEjtsvgsp91XeD3tVS2VpMSzQ457",
+  "explorer": "https://testnet.nearblocks.io/txns/5K6wEy8MQH5GAh1VXEjtsvgsp91XeD3tVS2VpMSzQ457",
+  "gasBurnt": 2602588035458,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"undo\",\"version\":\"0.1.0\",\"event\":\"transfer\",\"data\":[{\"id\":\"1\",\"from\":\"nh-spike-mvp62mw4.testnet\",\"to\":\"nh-mt-mvp6qbyw.testnet\",\"amount\":\"5000000\",\"unlock_at\":\"1793592063082896298\"}]}"
+  ],
+  "successValue": "\"1\""
+}
+PASS | merchant sees 5 rUSDC pending
+waiting 65s for the undo window...
+PASS | report after the window is rejected | Smart contract panicked: the undo window has closed
+PASS | after the window the merchant's 5 rUSDC are available
+{
+  "label": "nh-mt-mvp6qbyw → unwrap",
+  "ok": true,
+  "hash": "BhE2crk7xcvmG3rE3h1WoYLqJTV9pQ82vHPT3qgFfpLS",
+  "explorer": "https://testnet.nearblocks.io/txns/BhE2crk7xcvmG3rE3h1WoYLqJTV9pQ82vHPT3qgFfpLS",
+  "gasBurnt": 2820072982021,
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"undo\",\"version\":\"0.1.0\",\"event\":\"settle\",\"data\":[{\"account_id\":\"nh-mt-mvp6qbyw.testnet\",\"amount\":\"5000000\"}]}",
+    "EVENT_JSON:{\"standard\":\"undo\",\"version\":\"0.1.0\",\"event\":\"unwrap\",\"data\":[{\"id\":\"2\",\"from\":\"nh-mt-mvp6qbyw.testnet\",\"to\":\"nh-mt-mvp6qbyw.testnet\",\"amount\":\"5000000\",\"unlock_at\":\"1793592137216294313\"}]}"
+  ],
+  "successValue": "\"2\""
+}
+PASS | withdraw inside the exit window is rejected | Smart contract panicked: unwrap is still inside the undo window
+waiting 65s for the exit window...
+{
+  "label": "nh-mt-mvp6qbyw → withdraw",
+  "ok": true,
+  "hash": "228p7ZxqKZ9QzTBxhxD9DER86Dqj9nkHNAhbWcZ2pBUJ",
+  "explorer": "https://testnet.nearblocks.io/txns/228p7ZxqKZ9QzTBxhxD9DER86Dqj9nkHNAhbWcZ2pBUJ",
+  "gasBurnt": 6657218023410,
+  "logs": [
+    "Transfer 5000000 from nh-undo-mvyqbgc0.testnet to nh-mt-mvp6qbyw.testnet",
+    "Memo: undo unwrap #2",
+    "EVENT_JSON:{\"standard\":\"undo\",\"version\":\"0.1.0\",\"event\":\"withdraw\",\"data\":[{\"id\":\"2\",\"account_id\":\"nh-mt-mvp6qbyw.testnet\",\"amount\":\"5000000\"}]}"
+  ],
+  "successValue": "true"
+}
+PASS | merchant received 5 USDC on withdraw | USDC 0.00 → 5.00; tx 228p7ZxqKZ9QzTBxhxD9DER86Dqj9nkHNAhbWcZ2pBUJ
+PASS | USDC held by contract ≥ rUSDC total supply | held 45.00 vs supply 45.00
+
+=== S20 summary ===
+PASS | wrap 50 USDC → 50 rUSDC available
+PASS | thief sees 30 rUSDC only as pending
+PASS | thief cannot unwrap pending funds
+PASS | thief cannot forward pending funds
+PASS | report without the exact bond is rejected
+PASS | theft is now Disputed (frozen)
+PASS | non-judge cannot post a verdict
+PASS | thief cannot resolve the dispute
+PASS | DAO proposal Approved
+PASS | transfer Reversed to the safe account
+PASS | safe account received 30 rUSDC
+PASS | thief ends with nothing
+PASS | watcher's bond came back (minus gas)
+PASS | merchant sees 5 rUSDC pending
+PASS | report after the window is rejected
+PASS | after the window the merchant's 5 rUSDC are available
+PASS | withdraw inside the exit window is rejected
+PASS | merchant received 5 USDC on withdraw
+PASS | USDC held by contract ≥ rUSDC total supply
+19/19 passed
+key txs: {
+  "theft": "https://testnet.nearblocks.io/txns/ADQZukmGW39rKEPEk7xySULqWYzFoYzxaeuiA18nqsmL",
+  "report_and_vote": "https://testnet.nearblocks.io/txns/4FDx67D6PXZhxkGHXwWTmyu16i2jsKunPhdum5QjcesT",
+  "withdraw": "https://testnet.nearblocks.io/txns/228p7ZxqKZ9QzTBxhxD9DER86Dqj9nkHNAhbWcZ2pBUJ"
+}

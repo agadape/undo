@@ -1,0 +1,21 @@
+account: nh-spike-mvp62mw4.testnet
+balance before: 9.9981 NEAR
+{
+  "label": "transfer 0.001 NEAR to self",
+  "ok": true,
+  "hash": "DwDiXMVnTom79kGPJ89kudjGhUUKgxa177CHJbcMo5UT",
+  "explorer": "https://testnet.nearblocks.io/txns/DwDiXMVnTom79kGPJ89kudjGhUUKgxa177CHJbcMo5UT",
+  "gasBurnt": 446365125000,
+  "logs": []
+}
+latency ms: 2483
+callFunction return: ""
+latency ms: 2569
+total_messages: 835 last: [
+  {
+    "premium": false,
+    "sender": "nh-spike-mvp62mw4.testnet",
+    "text": "nh-spike S3b 2026-10-26T11:22:58.871Z"
+  }
+]
+balance after: 9.9979 NEAR

@@ -1,0 +1,3 @@
+# LF everywhere: build.sh runs in WSL, and the court PROMPT bytes must not change on Windows checkouts.
+* text=auto eol=lf
+*.wasm binary

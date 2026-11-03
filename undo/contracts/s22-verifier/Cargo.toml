@@ -1,0 +1,20 @@
+[package]
+name = "s22_verifier"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Spike S22: verify a NEAR AI Cloud response signature inside a NEAR contract"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+# Also open the encrypted verdict on-chain with a revealed per-message key (XChaCha20-Poly1305).
+decrypt = ["dep:chacha20poly1305"]
+
+[dependencies]
+near-sdk.workspace = true
+chacha20poly1305 = { version = "0.10.1", default-features = false, features = ["alloc"], optional = true }
+
+[dev-dependencies]
+near-sdk = { workspace = true, features = ["unit-testing"] }

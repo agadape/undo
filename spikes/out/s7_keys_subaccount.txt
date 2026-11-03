@@ -1,0 +1,416 @@
+AccountDoesNotExistError: Account agent.nh-spike-mvp62mw4.testnet does not exist at block height 274844487
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:906:14)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async JsonRpcProvider.viewAccount (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3179:18)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:35:7 {
+  accountId: 'agent.nh-spike-mvp62mw4.testnet',
+  blockHash: '3F4SmVq9QYnxwFkTBimFAuj2tZq4yrR9YTaG2GVcNpmn',
+  blockHeight: 274844487
+}
+AccountDoesNotExistError: Account agent.nh-spike-mvp62mw4.testnet does not exist at block height 274844488
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:906:14)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async JsonRpcProvider.viewAccount (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3179:18)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:35:7 {
+  accountId: 'agent.nh-spike-mvp62mw4.testnet',
+  blockHash: '2UnygBzHTJJsbBcfym3SCKinALAfucWfAXrcTp5fsYD3',
+  blockHeight: 274844488
+}
+AccountDoesNotExistError: Account agent.nh-spike-mvp62mw4.testnet does not exist at block height 274844495
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:906:14)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async JsonRpcProvider.viewAccount (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3179:18)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:35:7 {
+  accountId: 'agent.nh-spike-mvp62mw4.testnet',
+  blockHash: '4Wrvtkb7o2hEuVdFb4TmhTpw3Sz2F72YfThLkJgDocn3',
+  blockHeight: 274844495
+}
+{
+  "label": "create sub-account agent.nh-spike-mvp62mw4.testnet",
+  "ok": true,
+  "hash": "6JkGdGzQFk73iGX1Xc3WBsBCmQKRPrehjZxpoZdbAXGb",
+  "explorer": "https://testnet.nearblocks.io/txns/6JkGdGzQFk73iGX1Xc3WBsBCmQKRPrehjZxpoZdbAXGb",
+  "gasBurnt": 8349895375000,
+  "logs": []
+}
+
+[PASS] create sub-account — expected allowed, got allowed
+    agent.nh-spike-mvp62mw4.testnet
+sub-account balance: 0.3 NEAR
+{
+  "label": "add function-call key (guestbook.add_message, allowance 0.05 NEAR)",
+  "ok": true,
+  "hash": "4f8dLFAZv1Qy32QUpgUBLvg2bHjU1vXc97K38nh4ossV",
+  "explorer": "https://testnet.nearblocks.io/txns/4f8dLFAZv1Qy32QUpgUBLvg2bHjU1vXc97K38nh4ossV",
+  "gasBurnt": 420600457944,
+  "logs": []
+}
+{
+  "label": "FC key: call allowed method add_message",
+  "ok": true,
+  "hash": "E55YqLuAFMgyJVKt5kZDcpas5JrXNfJADuGykyx1vitN",
+  "explorer": "https://testnet.nearblocks.io/txns/E55YqLuAFMgyJVKt5kZDcpas5JrXNfJADuGykyx1vitN",
+  "gasBurnt": 1680600753299,
+  "logs": []
+}
+
+[PASS] FC key: call allowed method add_message — expected allowed, got allowed
+    {
+  "hash": "E55YqLuAFMgyJVKt5kZDcpas5JrXNfJADuGykyx1vitN",
+  "explorer": "https://testnet.nearblocks.io/txns/E55YqLuAFMgyJVKt5kZDcpas5JrXNfJADuGykyx1vitN"
+}
+AccessKeyRequiresFullAccessActionError: Access key requires full access
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1705:16)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null
+}
+AccessKeyRequiresFullAccessActionError: Access key requires full access
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1705:16)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null
+}
+AccessKeyRequiresFullAccessActionError: Access key requires full access
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1705:16)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null
+}
+
+[PASS] FC key: transfer NEAR — expected rejected, got rejected
+    RetriesExceeded: Exceeded 3 providers to execute request
+AccessKeyDepositWithFunctionCallActionError: Deposit is not allowed with function call
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1707:16)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null
+}
+AccessKeyDepositWithFunctionCallActionError: Deposit is not allowed with function call
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1707:16)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null
+}
+AccessKeyDepositWithFunctionCallActionError: Deposit is not allowed with function call
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1707:16)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null
+}
+
+[PASS] FC key: call allowed method WITH deposit — expected rejected, got rejected
+    RetriesExceeded: Exceeded 3 providers to execute request
+AccessKeyReceiverMismatchActionError: Access key receiver guestbook.near-examples.testnet does not match transaction receiver wrap.testnet
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1727:12)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null,
+  akReceiver: 'guestbook.near-examples.testnet',
+  txReceiver: 'wrap.testnet'
+}
+AccessKeyReceiverMismatchActionError: Access key receiver guestbook.near-examples.testnet does not match transaction receiver wrap.testnet
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1727:12)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null,
+  akReceiver: 'guestbook.near-examples.testnet',
+  txReceiver: 'wrap.testnet'
+}
+AccessKeyReceiverMismatchActionError: Access key receiver guestbook.near-examples.testnet does not match transaction receiver wrap.testnet
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1727:12)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null,
+  akReceiver: 'guestbook.near-examples.testnet',
+  txReceiver: 'wrap.testnet'
+}
+
+[PASS] FC key: call other contract (wrap.testnet near_deposit) — expected rejected, got rejected
+    RetriesExceeded: Exceeded 3 providers to execute request
+AccessKeyRequiresFullAccessActionError: Access key requires full access
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1705:16)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null
+}
+AccessKeyRequiresFullAccessActionError: Access key requires full access
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1705:16)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null
+}
+AccessKeyRequiresFullAccessActionError: Access key requires full access
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1705:16)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null
+}
+
+[PASS] FC key: add a full-access key to the account — expected rejected, got rejected
+    RetriesExceeded: Exceeded 3 providers to execute request
+
+FC key view after use: {
+  "block_hash": "9w7SgGTVVRTTNREQ8bRm1cahngj22DboQ9erhRaFYWFG",
+  "block_height": 274844542,
+  "nonce": "274844503000001",
+  "permission": {
+    "FunctionCall": {
+      "allowance": "49831939924670100000000",
+      "method_names": [
+        "add_message"
+      ],
+      "receiver_id": "guestbook.near-examples.testnet"
+    }
+  }
+}
+allowance remaining: 0.049831 of 0.05 NEAR
+{
+  "label": "delete FC key (revoke agent)",
+  "ok": true,
+  "hash": "6bCM2Qpd7ourUs5YiSbLmG5FjS1xxqy7uBq28TT96iqy",
+  "explorer": "https://testnet.nearblocks.io/txns/6bCM2Qpd7ourUs5YiSbLmG5FjS1xxqy7uBq28TT96iqy",
+  "gasBurnt": 406012250000,
+  "logs": []
+}
+AccessKeyNotFoundActionError: Access key ed25519:HqiyMAGFMXFuP56FvNivNq1cqPum3TSWadaVv3NH8rd9 does not exist on account nh-spike-mvp62mw4.testnet
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1718:12)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null,
+  accountId: 'nh-spike-mvp62mw4.testnet',
+  publicKey: _PublicKey {
+    ed25519Key: { keyType: 0, data: [Uint8Array] },
+    enum: 'ed25519Key'
+  }
+}
+AccessKeyNotFoundActionError: Access key ed25519:HqiyMAGFMXFuP56FvNivNq1cqPum3TSWadaVv3NH8rd9 does not exist on account nh-spike-mvp62mw4.testnet
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1718:12)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null,
+  accountId: 'nh-spike-mvp62mw4.testnet',
+  publicKey: _PublicKey {
+    ed25519Key: { keyType: 0, data: [Uint8Array] },
+    enum: 'ed25519Key'
+  }
+}
+AccessKeyNotFoundActionError: Access key ed25519:HqiyMAGFMXFuP56FvNivNq1cqPum3TSWadaVv3NH8rd9 does not exist on account nh-spike-mvp62mw4.testnet
+    at parseInvalidAccessKeyError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1718:12)
+    at parseInvalidTransactionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1776:12)
+    at parseTransactionExecutionError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:1240:19)
+    at parseHandlerError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:956:16)
+    at parseRpcError (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:881:14)
+    at JsonRpcProvider.sendJsonRpc (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:3538:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async FailoverRpcProvider.withBackoff (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:2013:16)
+    at async Account.signAndSendTransaction (file:///C:/Project_Dave/NEAR_Hackathon/spikes/node_modules/near-api-js/lib/index.js:4331:16)
+    at async attempt (file:///C:/Project_Dave/NEAR_Hackathon/spikes/s7_keys_subaccount.mjs:22:15) {
+  txHash: '',
+  blockHash: '',
+  actionIndex: null,
+  accountId: 'nh-spike-mvp62mw4.testnet',
+  publicKey: _PublicKey {
+    ed25519Key: { keyType: 0, data: [Uint8Array] },
+    enum: 'ed25519Key'
+  }
+}
+
+[PASS] FC key after revoke: call add_message — expected rejected, got rejected
+    RetriesExceeded: Exceeded 3 providers to execute request
+
+--- gas key probe ---
+{
+  "label": "add function-call GAS key",
+  "ok": true,
+  "hash": "Cfi28ZrcYp46a72s9ejnmjQ35cizLQNUvW7gxmWGbtci",
+  "explorer": "https://testnet.nearblocks.io/txns/Cfi28ZrcYp46a72s9ejnmjQ35cizLQNUvW7gxmWGbtci",
+  "gasBurnt": 706857748296,
+  "logs": []
+}
+
+[PASS] add gas key — expected allowed, got allowed
+    Cfi28ZrcYp46a72s9ejnmjQ35cizLQNUvW7gxmWGbtci
+{
+  "label": "fund gas key 0.05 NEAR",
+  "ok": true,
+  "hash": "Dof639MGFZH4jrejNqyKJZQNG8kPWM6rzu1CXXXXFiX2",
+  "explorer": "https://testnet.nearblocks.io/txns/Dof639MGFZH4jrejNqyKJZQNG8kPWM6rzu1CXXXXFiX2",
+  "gasBurnt": 577702382862,
+  "logs": []
+}
+
+[PASS] fund gas key — expected allowed, got allowed
+    Dof639MGFZH4jrejNqyKJZQNG8kPWM6rzu1CXXXXFiX2
+gas key nonces: {
+  "block_hash": "CuKunRma2b7SFjiK8SHvQrgu7zVgJx1BGWTnfw4priE2",
+  "block_height": 274844563,
+  "nonces": [
+    274844559000000,
+    274844559000000,
+    274844559000000,
+    274844559000000
+  ]
+}
+{
+  "label": "gas key: call add_message (gas paid from key balance)",
+  "ok": true,
+  "hash": "DDMqp9KTXh5u4B2DX6sPom5wzFoxjVWGVJWf3ArMoN6P",
+  "explorer": "https://testnet.nearblocks.io/txns/DDMqp9KTXh5u4B2DX6sPom5wzFoxjVWGVJWf3ArMoN6P",
+  "gasBurnt": 1680240982526,
+  "logs": []
+}
+
+[PASS] gas key: call add_message (gas paid from key balance) — expected allowed, got allowed
+    {
+  "hash": "DDMqp9KTXh5u4B2DX6sPom5wzFoxjVWGVJWf3ArMoN6P",
+  "explorer": "https://testnet.nearblocks.io/txns/DDMqp9KTXh5u4B2DX6sPom5wzFoxjVWGVJWf3ArMoN6P"
+}
+account balance delta during gas-key call (yocto): 0
+
+=== S7 summary ===
+PASS | create sub-account | expected allowed | got allowed
+PASS | FC key: call allowed method add_message | expected allowed | got allowed
+PASS | FC key: transfer NEAR | expected rejected | got rejected
+PASS | FC key: call allowed method WITH deposit | expected rejected | got rejected
+PASS | FC key: call other contract (wrap.testnet near_deposit) | expected rejected | got rejected
+PASS | FC key: add a full-access key to the account | expected rejected | got rejected
+PASS | FC key after revoke: call add_message | expected rejected | got rejected
+PASS | add gas key | expected allowed | got allowed
+PASS | fund gas key | expected allowed | got allowed
+PASS | gas key: call add_message (gas paid from key balance) | expected allowed | got allowed

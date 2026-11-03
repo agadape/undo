@@ -1,0 +1,55 @@
+verifier state: {
+  "fee": 1,
+  "current_salt": "252812b3"
+}
+
+fresh implicit signer: a7a2a74efdd0fe15980fc05fe0dc0bd9e232303fa2c9a165e99b0758b0113ae6
+
+[PASS] NEP-413, empty intents, fresh implicit account: accepted
+    {
+  "intents_executed": [
+    {
+      "intent_hash": "4i9QNAkNuXiC2CQE8uqCF5QLX7ajxsWVNjsaQpo66Tuw",
+      "account_id": "a7a2a74efdd0fe15980fc05fe0dc0bd9e232303fa2c9a165e99b0758b0113ae6",
+      "nonce": "Vij2xgAlKBKzQJT8DVVY4hhPZ/XxeLxKtyaXtUKGdQs="
+    }
+  ],
+  "state": {
+    "fee": 1,
+    "current_salt": "252812b3"
+  },
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"dip4\",\"version\":\"0.4.3\",\"event\":\"intents_executed\",\"data\":[{\"intent_hash\":\"4i9QNAkNuXiC2CQE8uqCF5QLX7ajxsWVNjsaQpo66Tuw\",\"account_id\":\"a7a2a74efdd0fe15980fc05fe0dc0bd9e232303fa2c9a165e99b0758b0113"
+  ]
+}
+
+[PASS] NEP-413, transfer 1 yocto wNEAR from empty account: rejected -> wasm execution failed with error: HostError(GuestPanic { panic_msg: "insufficient balance or overflow" })
+
+[PASS] NEP-413, tampered signature: rejected -> wasm execution failed with error: HostError(GuestPanic { panic_msg: "invalid signature" })
+
+MPC (testnet, signer nh-spike-mvp62mw4.testnet) signed ERC-191 digest in 5339 ms
+local EIP-191 recover: 0x2a01699f048133dce1035ddfbca7f423f39d566b == derived address ✅
+
+[PASS] ERC-191 by Chain Signatures MPC, empty intents: accepted
+    {
+  "intents_executed": [
+    {
+      "intent_hash": "97Sb5BcjCXnhMAfPgC9zFwzMH5riJipoUt4QdM2CiYZY",
+      "account_id": "0x2a01699f048133dce1035ddfbca7f423f39d566b",
+      "nonce": "Vij2xgAlKBKzQJT8DVVY4hiG2NynihnqWPpYswh71m8="
+    }
+  ],
+  "state": {
+    "fee": 1,
+    "current_salt": "252812b3"
+  },
+  "logs": [
+    "EVENT_JSON:{\"standard\":\"dip4\",\"version\":\"0.4.3\",\"event\":\"intents_executed\",\"data\":[{\"intent_hash\":\"97Sb5BcjCXnhMAfPgC9zFwzMH5riJipoUt4QdM2CiYZY\",\"account_id\":\"0x2a01699f048133dce1035ddfbca7f423f39d566b\",\"nonce\":\"Vij2xgAl"
+  ]
+}
+
+=== S6c summary ===
+PASS | NEP-413, empty intents, fresh implicit account | expected accepted | got accepted
+PASS | NEP-413, transfer 1 yocto wNEAR from empty account | expected rejected | got rejected | wasm execution failed with error: HostError(GuestPanic { panic_msg: "insufficient balance or overflow" })
+PASS | NEP-413, tampered signature | expected rejected | got rejected | wasm execution failed with error: HostError(GuestPanic { panic_msg: "invalid signature" })
+PASS | ERC-191 by Chain Signatures MPC, empty intents | expected accepted | got accepted

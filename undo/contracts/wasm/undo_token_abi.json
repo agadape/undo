@@ -1,0 +1,1164 @@
+{
+  "schema_version": "0.4.0",
+  "metadata": {
+    "name": "undo_token",
+    "version": "0.1.0",
+    "build": {
+      "compiler": "rustc 1.99.0",
+      "builder": "cargo-near cargo-near-build 0.11.5"
+    },
+    "wasm_hash": "5q9rRircqxg9Bko6gHa4k1ejQzvrb9zgQkkXaZSPsrGz"
+  },
+  "body": {
+    "functions": [
+      {
+        "name": "balance_of",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "account_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "$ref": "#/definitions/BalanceView"
+          }
+        }
+      },
+      {
+        "name": "cancel_recovery_change",
+        "doc": " Cancel a scheduled recovery change. Caller: the current recovery account (or the account\n itself if it has none yet).",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "account_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "commit_evidence",
+        "doc": " Commit the sha256 (hex) of your evidence envelope, once per side, before the evidence deadline.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "envelope_sha256_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "contest",
+        "doc": " Contest a panic freeze (attach exactly the bond). Receiver or sender of a frozen payment;\n the account owner for a frozen sweep. Opens a dispute; council silence keeps the panic.",
+        "kind": "call",
+        "modifiers": [
+          "payable"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "reason",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "contract_source_metadata",
+        "kind": "view"
+      },
+      {
+        "name": "finalize",
+        "doc": " Apply an uncontested freeze after its contest window: payments go back to the recovery\n account, a sweep reaches it. Anyone may call (optimistic undo, no vote).",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "ft_balance_of",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "account_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "ft_metadata",
+        "kind": "view",
+        "result": {
+          "serialization_type": "json",
+          "type_schema": true
+        }
+      },
+      {
+        "name": "ft_on_transfer",
+        "doc": " Called by the underlying USDC on `ft_transfer_call`: credits final rUSDC 1:1.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "sender_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            },
+            {
+              "name": "amount",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "msg",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "$ref": "#/definitions/PromiseOrValueString"
+          }
+        }
+      },
+      {
+        "name": "ft_total_supply",
+        "kind": "view",
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "get_account",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "account_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": true
+        }
+      },
+      {
+        "name": "get_config",
+        "kind": "view",
+        "result": {
+          "serialization_type": "json",
+          "type_schema": true
+        }
+      },
+      {
+        "name": "get_incoming",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "account_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Transfer"
+            }
+          }
+        }
+      },
+      {
+        "name": "get_outgoing",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "account_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            },
+            {
+              "name": "limit",
+              "type_schema": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "uint32",
+                "minimum": 0.0
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Transfer"
+            }
+          }
+        }
+      },
+      {
+        "name": "get_reputation",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "account_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0.0
+          }
+        }
+      },
+      {
+        "name": "get_reserve",
+        "doc": " J6: compare `total_supply` with `ft_balance_of(this contract)` on the underlying USDC.",
+        "kind": "view",
+        "result": {
+          "serialization_type": "json",
+          "type_schema": true
+        }
+      },
+      {
+        "name": "get_transfer",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/Transfer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "new",
+        "kind": "call",
+        "modifiers": [
+          "init"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "underlying",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            },
+            {
+              "name": "council",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            },
+            {
+              "name": "window_sec",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint32",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "contest_window_sec",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint32",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "evidence_window_sec",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint32",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "dispute_timeout_sec",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint32",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "recovery_delay_sec",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint32",
+                "minimum": 0.0
+              }
+            },
+            {
+              "name": "bond",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "storage_fee",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "on_withdraw",
+        "kind": "call",
+        "modifiers": [
+          "private"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "boolean"
+          }
+        }
+      },
+      {
+        "name": "panic",
+        "doc": " Panic (recovery account only, no deposit, so a function-call key can call it):\n lock the account, freeze its pending outgoing transfers, and freeze its remaining balance on\n its way to the recovery account. Everything frozen can be contested until `frozen_until`.\n Call again to freeze more (at most 100 transfers per call).",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "account_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": true
+        }
+      },
+      {
+        "name": "post_recommendation",
+        "doc": " Store a TEE recommendation (anyone may post; the court server needs no trust). Panics unless\n the attested model provably read the registered prompt, this case file and exactly the\n committed evidence (sender side first). Never moves money (J3).",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "signed_text",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "signature_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "system_envelope",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "system_eph_secret_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "evidence_envelopes",
+              "type_schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "name": "response_body",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "verdict_key_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "$ref": "#/definitions/Recommendation"
+          }
+        }
+      },
+      {
+        "name": "register_procedure",
+        "doc": " Council: register the court procedure (sha256 of the published system prompt + max_tokens).",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "prompt_sha256_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "max_tokens",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint32",
+                "minimum": 0.0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "register_tee_signer",
+        "doc": " Council: pin the attested model's ed25519 signing key (attestation checked off-chain).",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "model_id",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "signer_pk_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "release",
+        "doc": " \"Barang diterima\": the sender's recovery account releases a pending payment early.\n Only the recovery account may do this, so a stolen main key cannot skip the window.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "release_expired",
+        "doc": " After the dispute timeout, anyone can apply what council silence means (J3).",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "report",
+        "doc": " Report a pending payment as a scam (attach exactly the bond). Sender or its recovery account\n only; for your own unwrap only the recovery account. Council silence pays the receiver.",
+        "kind": "call",
+        "modifiers": [
+          "payable"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "reason",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "resolve",
+        "doc": " Council decision on a dispute (Sputnik DAO). `reverse = true` undoes the transfer.\n There is no destination argument: the contract decides where the money goes (J1).",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "reverse",
+              "type_schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "name": "reason",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "send_usdc",
+        "doc": " Pay anyone in plain USDC: it arrives after the window. The receiver does not need Undo.",
+        "kind": "call",
+        "modifiers": [
+          "payable"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "receiver_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            },
+            {
+              "name": "amount",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "memo",
+              "type_schema": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "set_recovery",
+        "doc": " Set or change your recovery account. Instant only for an empty account (onboarding);\n otherwise it takes effect after the recovery delay and the old recovery account can cancel it.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "recovery_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "settle",
+        "doc": " Move every matured incoming transfer of `account_id` into its final balance.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "account_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "transfer",
+        "doc": " Send rUSDC. The receiver sees it as pending until the window passes.",
+        "kind": "call",
+        "modifiers": [
+          "payable"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "receiver_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            },
+            {
+              "name": "amount",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "memo",
+              "type_schema": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "unlock",
+        "doc": " Unlock an account after its owner has replaced the stolen key (recovery account only).",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "account_id",
+              "type_schema": {
+                "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "unwrap",
+        "doc": " Unwrap to your own USDC after the window.",
+        "kind": "call",
+        "modifiers": [
+          "payable"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "amount",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "withdraw",
+        "doc": " Finish an Exit whose window has passed. Anyone may call; USDC goes to the Exit's receiver.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "$ref": "#/definitions/Promise"
+          }
+        }
+      }
+    ],
+    "root_schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "String",
+      "type": "string",
+      "definitions": {
+        "BalanceView": {
+          "type": "object",
+          "required": [
+            "available",
+            "disputed_in",
+            "frozen_in",
+            "locked",
+            "pending_exit",
+            "pending_in"
+          ],
+          "properties": {
+            "available": {
+              "description": "Spendable now (includes incoming transfers whose window has passed).",
+              "type": "string"
+            },
+            "disputed_in": {
+              "type": "string"
+            },
+            "frozen_in": {
+              "type": "string"
+            },
+            "locked": {
+              "type": "boolean"
+            },
+            "pending_exit": {
+              "type": "string"
+            },
+            "pending_in": {
+              "type": "string"
+            }
+          }
+        },
+        "Dispute": {
+          "type": "object",
+          "required": [
+            "bond",
+            "case_nonce",
+            "evidence_deadline",
+            "fallback_reverse",
+            "opened_at",
+            "opened_by",
+            "origin",
+            "reason",
+            "wants_reverse"
+          ],
+          "properties": {
+            "bond": {
+              "type": "string"
+            },
+            "case_nonce": {
+              "type": "string"
+            },
+            "council_reason": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "decided_by": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "evidence_deadline": {
+              "type": "string"
+            },
+            "evidence_receiver": {
+              "description": "sha256 (hex) of the receiver side's evidence envelope.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "evidence_sender": {
+              "description": "sha256 (hex) of the sender side's evidence envelope.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "fallback_reverse": {
+              "description": "What council silence means (J3): the state the dispute challenged.",
+              "type": "boolean"
+            },
+            "opened_at": {
+              "type": "string"
+            },
+            "opened_by": {
+              "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+              "type": "string"
+            },
+            "origin": {
+              "$ref": "#/definitions/Origin"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "recommendation": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Recommendation"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "wants_reverse": {
+              "description": "What the opener asks for: true = undo the transfer.",
+              "type": "boolean"
+            }
+          }
+        },
+        "Kind": {
+          "oneOf": [
+            {
+              "description": "rUSDC from one account to another.",
+              "type": "string",
+              "enum": [
+                "Transfer"
+              ]
+            },
+            {
+              "description": "rUSDC leaving as USDC to `to` (an unwrap when `to == from`, `send_usdc` otherwise).",
+              "type": "string",
+              "enum": [
+                "Exit"
+              ]
+            },
+            {
+              "description": "A panic moving the locked account's remaining balance to its recovery account.",
+              "type": "string",
+              "enum": [
+                "Sweep"
+              ]
+            }
+          ]
+        },
+        "Origin": {
+          "oneOf": [
+            {
+              "description": "The sender side says the payment was a scam.",
+              "type": "string",
+              "enum": [
+                "Report"
+              ]
+            },
+            {
+              "description": "Someone contests a panic freeze.",
+              "type": "string",
+              "enum": [
+                "Contest"
+              ]
+            }
+          ]
+        },
+        "Promise": true,
+        "PromiseOrValueString": {
+          "type": "string"
+        },
+        "Recommendation": {
+          "type": "object",
+          "required": [
+            "alasan_publik",
+            "confidence",
+            "curiga_injeksi",
+            "model_id",
+            "rekomendasi",
+            "response_hash"
+          ],
+          "properties": {
+            "alasan_publik": {
+              "type": "string"
+            },
+            "confidence": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            },
+            "curiga_injeksi": {
+              "type": "boolean"
+            },
+            "model_id": {
+              "type": "string"
+            },
+            "rekomendasi": {
+              "type": "string"
+            },
+            "response_hash": {
+              "type": "string"
+            }
+          }
+        },
+        "Status": {
+          "oneOf": [
+            {
+              "description": "Inside its window (or, for an Exit, waiting to be withdrawn).",
+              "type": "string",
+              "enum": [
+                "Pending"
+              ]
+            },
+            {
+              "description": "Frozen by a panic; can be contested until `frozen_until`.",
+              "type": "string",
+              "enum": [
+                "Frozen"
+              ]
+            },
+            {
+              "description": "In a dispute; decided by the council or by the timeout.",
+              "type": "string",
+              "enum": [
+                "Disputed"
+              ]
+            },
+            {
+              "description": "Paid to the receiver (or, for an Exit, USDC withdrawn).",
+              "type": "string",
+              "enum": [
+                "Settled"
+              ]
+            },
+            {
+              "description": "Undone: back with the sender side.",
+              "type": "string",
+              "enum": [
+                "Reversed"
+              ]
+            }
+          ]
+        },
+        "Transfer": {
+          "type": "object",
+          "required": [
+            "amount",
+            "created_at",
+            "from",
+            "id",
+            "kind",
+            "status",
+            "to",
+            "unlock_at"
+          ],
+          "properties": {
+            "amount": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "dispute": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Dispute"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "final_to": {
+              "description": "Who finally got the money (set when Settled or Reversed).",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "from": {
+              "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+              "type": "string"
+            },
+            "frozen_until": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "id": {
+              "type": "string"
+            },
+            "kind": {
+              "$ref": "#/definitions/Kind"
+            },
+            "memo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "status": {
+              "$ref": "#/definitions/Status"
+            },
+            "to": {
+              "description": "NEAR Account Identifier.\n\nThis is a unique, syntactically valid, human-readable account identifier on the NEAR network.\n\n[See the crate-level docs for information about validation.](index.html#account-id-rules)\n\nAlso see [Error kind precedence](AccountId#error-kind-precedence).\n\n## Examples\n\n``` use near_account_id::AccountId;\n\nlet alice: AccountId = \"alice.near\".parse().unwrap();\n\nassert!(\"ƒelicia.near\".parse::<AccountId>().is_err()); // (ƒ is not f) ```",
+              "type": "string"
+            },
+            "unlock_at": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

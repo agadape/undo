@@ -1,0 +1,90 @@
+{
+  "mode": "real",
+  "startedAt": "2026-11-02T09:25:29.903Z",
+  "modelKey": "5a0210f2442c79355784f9de021985429561da5bacc3a4424b01ac52b7e0caff",
+  "contract": "nh-s26r-mvz1zxfx.testnet",
+  "rows": [
+    {
+      "label": "open_case",
+      "pass": true,
+      "tgas": 1.846,
+      "tx": "https://testnet.nearblocks.io/txns/4EKgKdCZzSyhhKeG7nTRGYAvVYiPubCdhK3VE18nEvbv"
+    },
+    {
+      "label": "commit_evidence #0",
+      "pass": true,
+      "tgas": 1.818,
+      "tx": "https://testnet.nearblocks.io/txns/BmKx5GE5eT8W1e82pAq2i6gZtyvemCCk4BRmzQpye49x"
+    },
+    {
+      "label": "commit_evidence #1",
+      "pass": true,
+      "tgas": 1.826,
+      "tx": "https://testnet.nearblocks.io/txns/84NEjBuAZsxSyUVKk6Fb8gY5Lffz8Bm98KkdDthBbLpy"
+    },
+    {
+      "label": "ATTACK server drops the seller's evidence",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: every committed evidence must be included, and nothing else"
+    },
+    {
+      "label": "ATTACK evidence order swapped",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: evidence #0 does not match its commitment"
+    },
+    {
+      "label": "ATTACK wrong ephemeral secret",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: ephemeral secret does not match the system envelope"
+    },
+    {
+      "label": "ATTACK edited response",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: response does not match the signed hash"
+    },
+    {
+      "label": "HONEST post_recommendation",
+      "pass": true,
+      "tgas": 10.675,
+      "tx": "https://testnet.nearblocks.io/txns/8aQgvZubCrXeNdjhkF75R8tq6CpNoLp44Cuc7v5DdHbS"
+    }
+  ],
+  "case": {
+    "transferId": "tmvz203ni",
+    "amount": "150000000",
+    "nonce": "135d1f8fda0bb59d55ec5eec2851478e"
+  },
+  "chat": {
+    "status": 200,
+    "ms": 14480
+  },
+  "usage": {
+    "prompt_tokens": 316,
+    "total_tokens": 665,
+    "completion_tokens": 349,
+    "prompt_tokens_details": null,
+    "reasoning_tokens": 250,
+    "completion_tokens_details": {
+      "reasoning_tokens": 250
+    }
+  },
+  "estimatedCostUsd": 0.00019978,
+  "verdictOffchain": "{\"transfer_id\":\"tmvz203ni\",\"case_nonce\":\"135d1f8fda0bb59d55ec5eec2851478e\",\"rekomendasi\":\"kembalikan\",\"confidence\":88,\"curiga_injeksi\":true,\"alasan_publik\":\"Resi bertanggal sebelum transaksi terjadi dan terdapat upaya injeksi instruksi pada bukti penerima; indikasi kuat penipuan.\"}",
+  "sdkVerifyResponse": true,
+  "verdictOnchain": {
+    "rekomendasi": "kembalikan",
+    "confidence": 88,
+    "curiga_injeksi": true,
+    "alasan_publik": "Resi bertanggal sebelum transaksi terjadi dan terdapat upaya injeksi instruksi pada bukti penerima; indikasi kuat penipuan.",
+    "response_hash": "9cbb84c8baddc3d3256d37caa8b78554eb0df6dcc4881db608456d15fbe027a9"
+  },
+  "summary": "8/8 pass"
+}

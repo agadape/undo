@@ -1,0 +1,165 @@
+{
+  "schema_version": "0.4.0",
+  "metadata": {
+    "name": "s22_verifier",
+    "version": "0.1.0",
+    "build": {
+      "compiler": "rustc 1.99.0",
+      "builder": "cargo-near cargo-near-build 0.11.5"
+    },
+    "wasm_hash": "7qoTTpiW9kFkmQbRs6a9XFAawa5reSn4K4SZdTuyezGm"
+  },
+  "body": {
+    "functions": [
+      {
+        "name": "contract_source_metadata",
+        "kind": "view"
+      },
+      {
+        "name": "get_signer",
+        "kind": "view",
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "new",
+        "kind": "call",
+        "modifiers": [
+          "init"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "signer_pk_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "open",
+        "doc": " Check a signed response, then decrypt `content_hex` (which must be part of it) with `key_hex`.",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "signed_text",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "signature_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "response_body",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "content_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "key_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "verify",
+        "doc": " Check a signed NEAR AI response. Panics if anything does not match.",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "signed_text",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "signature_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "response_body",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "request_body",
+              "type_schema": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "$ref": "#/definitions/Verified"
+          }
+        }
+      }
+    ],
+    "root_schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "String",
+      "type": "string",
+      "definitions": {
+        "Verified": {
+          "type": "object",
+          "required": [
+            "request_hash",
+            "response_hash"
+          ],
+          "properties": {
+            "model": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "request_hash": {
+              "type": "string"
+            },
+            "response_hash": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

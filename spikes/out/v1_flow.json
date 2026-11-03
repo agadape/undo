@@ -1,0 +1,231 @@
+{
+  "startedAt": "2026-11-02T09:41:19.773Z",
+  "cfg": {
+    "window_sec": 90,
+    "contest_window_sec": 40,
+    "evidence_window_sec": 30,
+    "dispute_timeout_sec": 600,
+    "recovery_delay_sec": 60
+  },
+  "rows": [
+    {
+      "label": "DAO vote: Undo v1: pin court TEE key + procedure",
+      "pass": true,
+      "tgas": 10.49,
+      "tx": "https://testnet.nearblocks.io/txns/Fk4PB9n8NU7QQVYbHjC8kqxi3UHA6tHefPRQinwRwRZL"
+    },
+    {
+      "label": "council pinned the court key and procedure",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "alice sets recovery account (instant: empty account)",
+      "pass": true,
+      "tgas": 2.25,
+      "tx": "https://testnet.nearblocks.io/txns/FLEUEs6kL72mDqWyxYL3uhpsMR3f7yPy3wwFu5soxnjM"
+    },
+    {
+      "label": "alice wraps 1000 USDC -> rUSDC",
+      "pass": true,
+      "tgas": 6.87,
+      "tx": "https://testnet.nearblocks.io/txns/BGcRDddHjiF3vpHQgsYY3KojTi8RyN49FdbsxggF335f"
+    },
+    {
+      "label": "THIEF (alice's key) sends 900 rUSDC to itself",
+      "pass": true,
+      "tgas": 2.96,
+      "tx": "https://testnet.nearblocks.io/txns/7YaUHhxmhJ4ZjKTMkxiMouzWtZs1ZWXpxaHq25rg7KGD"
+    },
+    {
+      "label": "ATTACK thief tries to unwrap the pending 900",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: not enough available rUSDC (incoming funds unlock after the undo window)"
+    },
+    {
+      "label": "ATTACK thief swaps alice's recovery account",
+      "pass": true,
+      "tgas": 2.11,
+      "tx": "https://testnet.nearblocks.io/txns/3xuU8AaX2eUYoRc8cybKHjCv8ApQzYqWfQEWKR7iDXKH"
+    },
+    {
+      "label": "recovery swap is only scheduled, not active",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "PANIC via a function-call key limited to `panic`",
+      "pass": true,
+      "tgas": 3.52,
+      "tx": "https://testnet.nearblocks.io/txns/2BRgWxjkGNKvMUw6vW6f7FdtxEHQzGwgn1PXDns8dVw7"
+    },
+    {
+      "label": "theft frozen and remaining 100 swept (frozen)",
+      "pass": true,
+      "detail": "frozen [\n  \"0\"\n], swept 100000000"
+    },
+    {
+      "label": "ATTACK locked account sends again",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: account is locked (panic)"
+    },
+    {
+      "label": "ATTACK finalize before the contest window ends",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: the contest window is still open"
+    },
+    {
+      "label": "finalize theft (anyone, no vote)",
+      "pass": true,
+      "tgas": 2.36,
+      "tx": "https://testnet.nearblocks.io/txns/94ouctKaHGaXGudo4r8gPqY1ommz7cjS2tn3WsArSYuH"
+    },
+    {
+      "label": "finalize sweep",
+      "pass": true,
+      "tgas": 2.3,
+      "tx": "https://testnet.nearblocks.io/txns/2TspPGWJyGusQAm5QMWpMdoxh4KT7SoBMZhXsjwJEo1D"
+    },
+    {
+      "label": "alice's recovery account holds all 1000 rUSDC; thief 0",
+      "pass": true,
+      "detail": "hp 1000000000, thief 0"
+    },
+    {
+      "label": "buyer sets recovery account",
+      "pass": true,
+      "tgas": 2.26,
+      "tx": "https://testnet.nearblocks.io/txns/Eck7LdMsuAsWtzRAtdxpZEw3Nt3igm8zptG2aAnMNhMR"
+    },
+    {
+      "label": "buyer wraps 200",
+      "pass": true,
+      "tgas": 6.88,
+      "tx": "https://testnet.nearblocks.io/txns/D7FM8f7WHTRdeMaGWKemxBPb24L5JL8ifAku5AZ8SSur"
+    },
+    {
+      "label": "buyer pays the 'seller' 150 rUSDC",
+      "pass": true,
+      "tgas": 2.99,
+      "tx": "https://testnet.nearblocks.io/txns/9r2cn8eZyHMmWAjfByTuJMBLtUMBMrdz97G1kUxkEHTv"
+    },
+    {
+      "label": "ATTACK an outsider reports the payment",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: only the sender or its recovery account can report"
+    },
+    {
+      "label": "buyer reports the payment (bond 0.01 NEAR)",
+      "pass": true,
+      "tgas": 2.25,
+      "tx": "https://testnet.nearblocks.io/txns/C2n55XnnhR5nN76CnW4PPCkqKTXeChQWX4Apo95pr689"
+    },
+    {
+      "label": "buyer commits encrypted evidence",
+      "pass": true,
+      "tgas": 2.17,
+      "tx": "https://testnet.nearblocks.io/txns/E1DnhQnBFEFNNq9bEcy1SxxPRfA7hkqkwXyDzmbkJuu2"
+    },
+    {
+      "label": "seller commits encrypted evidence",
+      "pass": true,
+      "tgas": 2.26,
+      "tx": "https://testnet.nearblocks.io/txns/9Ae9yjpRUQhxTBjKMvB6R2rQisferFQcvSPfEe8MW2vD"
+    },
+    {
+      "label": "ATTACK court server drops the seller's evidence",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: every committed evidence must be included, and nothing else"
+    },
+    {
+      "label": "post_recommendation (anyone; procedure proven on-chain)",
+      "pass": true,
+      "tgas": 10.73,
+      "tx": "https://testnet.nearblocks.io/txns/5wYViWsDU5AmdoAJR7L6zZ57gp9uRiDiZByCYZVVvJfB"
+    },
+    {
+      "label": "recommendation stored, money not moved by the AI",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "DAO vote: Undo v1: resolve #2 (reverse, per TEE recommendation)",
+      "pass": true,
+      "tgas": 9.71,
+      "tx": "https://testnet.nearblocks.io/txns/3Lzqga5MTeEsVLwdfmUVHjCH91ygPyeDdb6BGi2LKe5G"
+    },
+    {
+      "label": "council reversed: 150 rUSDC at the buyer's recovery account",
+      "pass": true,
+      "detail": "150000000"
+    },
+    {
+      "label": "the seller's lost dispute is counted",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "label": "buyer pays a shop 20 USDC via send_usdc",
+      "pass": true,
+      "tgas": 2.85,
+      "tx": "https://testnet.nearblocks.io/txns/EQkAdDZWKBV8sxXt7h6KLXEQD9rnUcrRWqP9pdS2jPB6"
+    },
+    {
+      "label": "ATTACK buyer's main key releases early",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: only the sender's recovery account can release early"
+    },
+    {
+      "label": "ATTACK withdraw inside the window",
+      "pass": true,
+      "tgas": null,
+      "tx": null,
+      "failure": "Smart contract panicked: exit is still inside the undo window"
+    },
+    {
+      "label": "'Barang diterima' from the buyer's recovery account",
+      "pass": true,
+      "tgas": 2.17,
+      "tx": "https://testnet.nearblocks.io/txns/9Tzh8frCoNbs5n3jHdvyFe6a8tzTJiKGFtmo4GijjEXY"
+    },
+    {
+      "label": "withdraw (anyone): USDC goes to the shop",
+      "pass": true,
+      "tgas": 6.92,
+      "tx": "https://testnet.nearblocks.io/txns/HFNQSPCkxAgsQdjTKrVjhoe37qWcxgCDMgFx3n7wQi92"
+    },
+    {
+      "label": "the shop received 20 plain USDC",
+      "pass": true,
+      "detail": "20000000"
+    },
+    {
+      "label": "J6: rUSDC supply == USDC held by the contract",
+      "pass": true,
+      "detail": "1180000000 vs 1180000000"
+    }
+  ],
+  "contract": "nh-v1undo-mvz2j3bw.testnet",
+  "accounts": {
+    "alice": "alice.nh-v1undo-mvz2j3bw.testnet",
+    "alicehp": "alicehp.nh-v1undo-mvz2j3bw.testnet",
+    "thief": "thief.nh-v1undo-mvz2j3bw.testnet",
+    "buyer": "buyer.nh-v1undo-mvz2j3bw.testnet",
+    "buyerhp": "buyerhp.nh-v1undo-mvz2j3bw.testnet",
+    "seller": "seller.nh-v1undo-mvz2j3bw.testnet",
+    "shop": "shop.nh-v1undo-mvz2j3bw.testnet"
+  },
+  "summary": "35/35 pass"
+}

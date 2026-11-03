@@ -1,0 +1,95 @@
+{
+  "contract": "nh-s22-mvz0oawn.testnet",
+  "wasmBytes": 107476,
+  "decryptedMatchesPlaintext": true,
+  "rows": [
+    {
+      "label": "verify provider_tee (response only)",
+      "method": "verify",
+      "pass": true,
+      "expectFail": false,
+      "argBytes": 1058,
+      "tgas": 1.814,
+      "nearBurnt": 0.0001813570160018,
+      "tx": "https://testnet.nearblocks.io/txns/8b645aUpuTqeZjG4f8GoKAENpqUjaQh6zLZHwcL283uM",
+      "value": "{\"model\":\"z-ai/glm-5.3-flash\",\"request_hash\":\"06ef4cf1b5d1bdc62c80b53c243f12b81eae8bab1e6f1b36fff0cf297c2882bf\",\"respons"
+    },
+    {
+      "label": "verify provider_tee + request hash",
+      "method": "verify",
+      "pass": true,
+      "expectFail": false,
+      "argBytes": 2314,
+      "tgas": 1.957,
+      "nearBurnt": 0.0001956843225476,
+      "tx": "https://testnet.nearblocks.io/txns/5wHCDRofBm3JfFJ9PWshRhPXJ7E7rNs1m4xMGfy68k2N",
+      "value": "{\"model\":\"z-ai/glm-5.3-flash\",\"request_hash\":\"06ef4cf1b5d1bdc62c80b53c243f12b81eae8bab1e6f1b36fff0cf297c2882bf\",\"respons"
+    },
+    {
+      "label": "verify gateway + request hash",
+      "method": "verify",
+      "pass": true,
+      "expectFail": false,
+      "argBytes": 2301,
+      "tgas": 1.954,
+      "nearBurnt": 0.00019535503088780002,
+      "tx": "https://testnet.nearblocks.io/txns/F5kHKoT5dWbMF7zZAxTWZPxdEZykpkMJrFggyG4gp7U2",
+      "value": "{\"model\":null,\"request_hash\":\"746abe7d50c1c005fcaa7aa304d763c82873227071d6c929f20e1b0dc2cb0684\",\"response_hash\":\"8469938"
+    },
+    {
+      "label": "verify big (16 KB request, 12 KB response)",
+      "method": "verify",
+      "pass": true,
+      "expectFail": false,
+      "argBytes": 29330,
+      "tgas": 4.368,
+      "nearBurnt": 0.0004367935518008,
+      "tx": "https://testnet.nearblocks.io/txns/7JLPkFg1XeuuonEqKM755NAojez9mb7DjjoRAXHv8CRW",
+      "value": "{\"model\":\"z-ai/glm-5.3-flash\",\"request_hash\":\"c6c35eb0d7a985a3edecbb24a8ebfe063e142e522385e8f27c356d0e2ca09630\",\"respons"
+    },
+    {
+      "label": "open provider_tee (verify + decrypt)",
+      "method": "open",
+      "pass": true,
+      "expectFail": false,
+      "argBytes": 1634,
+      "tgas": 2,
+      "nearBurnt": 0.0002000254748828,
+      "tx": "https://testnet.nearblocks.io/txns/6PEcvBmRYVmyHioo5Rr6vU2xUeVYE5xifTY7f9ZrXXbe",
+      "value": "\"{\\\"transfer_id\\\":\\\"7\\\",\\\"case_nonce\\\":\\\"nonce-small\\\",\\\"rekomendasi\\\":\\\"kembalikan\\\",\\\"confidence\\\":92,\\\"curiga_injeksi"
+    },
+    {
+      "label": "open big (6 KB verdict)",
+      "method": "open",
+      "pass": true,
+      "expectFail": false,
+      "argBytes": 24948,
+      "tgas": 7.346,
+      "nearBurnt": 0.0007345590692438,
+      "tx": "https://testnet.nearblocks.io/txns/GeeUUy53jfkYQ9MKLA83j78fKML4LYqwwqUZpzgyGUsa",
+      "value": "\"{\\\"transfer_id\\\":\\\"7\\\",\\\"case_nonce\\\":\\\"nonce-big\\\",\\\"rekomendasi\\\":\\\"kembalikan\\\",\\\"confidence\\\":92,\\\"curiga_injeksi\\\""
+    },
+    {
+      "label": "NEG edited response",
+      "method": "verify",
+      "pass": true,
+      "expectFail": true,
+      "argBytes": 1058,
+      "tgas": null,
+      "nearBurnt": null,
+      "tx": null,
+      "failure": "Smart contract panicked: response does not match the signed hash"
+    },
+    {
+      "label": "NEG wrong key",
+      "method": "open",
+      "pass": true,
+      "expectFail": true,
+      "argBytes": 1634,
+      "tgas": null,
+      "nearBurnt": null,
+      "tx": null,
+      "failure": "Smart contract panicked: decryption failed: wrong key or tampered content"
+    }
+  ]
+}

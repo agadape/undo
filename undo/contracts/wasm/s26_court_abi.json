@@ -1,0 +1,284 @@
+{
+  "schema_version": "0.4.0",
+  "metadata": {
+    "name": "s26_court",
+    "version": "0.1.0",
+    "build": {
+      "compiler": "rustc 1.99.0",
+      "builder": "cargo-near cargo-near-build 0.11.5"
+    },
+    "wasm_hash": "7jzUUHXCM5DmJPrR5rb88ndtjNQE7Ehjcwu2Txdbs1Ln"
+  },
+  "body": {
+    "functions": [
+      {
+        "name": "commit_evidence",
+        "doc": " Commit one evidence envelope by its sha256 (hex of the envelope string). Spike: no party or\n deadline checks; the product contract restricts this to reporter and receiver, once each.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "envelope_sha256_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "contract_source_metadata",
+        "kind": "view"
+      },
+      {
+        "name": "get_case",
+        "kind": "view",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/Case"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "name": "get_config",
+        "kind": "view",
+        "result": {
+          "serialization_type": "json",
+          "type_schema": true
+        }
+      },
+      {
+        "name": "new",
+        "kind": "call",
+        "modifiers": [
+          "init"
+        ],
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "signer_pk_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "model_id",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "prompt_sha256_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "max_tokens",
+              "type_schema": {
+                "type": "integer",
+                "format": "uint32",
+                "minimum": 0.0
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "open_case",
+        "doc": " Open a dispute case. The case nonce comes from the block's random seed, so a verdict\n written for another case (or before this one existed) cannot be replayed.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "amount",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "type": "string"
+          }
+        }
+      },
+      {
+        "name": "post_recommendation",
+        "doc": " Anyone may post. Panics unless the TEE model provably read the registered prompt, this case\n file and exactly the committed evidence, and the verdict names this case.",
+        "kind": "call",
+        "params": {
+          "serialization_type": "json",
+          "args": [
+            {
+              "name": "transfer_id",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "signed_text",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "signature_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "system_envelope",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "system_eph_secret_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "evidence_envelopes",
+              "type_schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            {
+              "name": "response_body",
+              "type_schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "verdict_key_hex",
+              "type_schema": {
+                "type": "string"
+              }
+            }
+          ]
+        },
+        "result": {
+          "serialization_type": "json",
+          "type_schema": {
+            "$ref": "#/definitions/Verdict"
+          }
+        }
+      }
+    ],
+    "root_schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "String",
+      "type": "string",
+      "definitions": {
+        "Case": {
+          "type": "object",
+          "required": [
+            "amount",
+            "case_nonce",
+            "evidence",
+            "transfer_id"
+          ],
+          "properties": {
+            "amount": {
+              "type": "string"
+            },
+            "case_nonce": {
+              "type": "string"
+            },
+            "evidence": {
+              "description": "sha256 (hex) of each committed evidence envelope string, in commit order.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "transfer_id": {
+              "type": "string"
+            },
+            "verdict": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Verdict"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "Verdict": {
+          "type": "object",
+          "required": [
+            "alasan_publik",
+            "confidence",
+            "curiga_injeksi",
+            "rekomendasi",
+            "response_hash"
+          ],
+          "properties": {
+            "alasan_publik": {
+              "type": "string"
+            },
+            "confidence": {
+              "type": "integer",
+              "format": "uint8",
+              "minimum": 0.0
+            },
+            "curiga_injeksi": {
+              "type": "boolean"
+            },
+            "rekomendasi": {
+              "type": "string"
+            },
+            "response_hash": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
