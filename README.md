@@ -200,7 +200,7 @@ These are listed in full in [CLAIMS.md §7–8](CLAIMS.md#7-trust-boundaries-wha
 
 - The model's TEE attestation is verified off-chain; the contract checks signatures against the key the council pinned.
 - The council is a Sputnik DAO with one member (our team) during the hackathon.
-- The Coba Curi guard currently runs on one laptop, and the bait key is not published yet.
+- The Coba Curi guard runs on GitHub Actions every 15 minutes, so it reacts in minutes, not seconds (the bait's window is 2 hours). The bait key is not published yet.
 - Evidence is text only.
 - Testnet only.
 - Not built yet: trusted contacts, gasless panic, appeal keys, notifications for regular users, reproducible build, mainnet.
