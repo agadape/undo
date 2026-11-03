@@ -1,10 +1,19 @@
-# Backup guard for Coba Curi (the primary is the Cloudflare Worker, every minute).
-# GitHub cron runs at most every 5 minutes and may be delayed; the 2-hour window leaves ample margin.
+# Guard for Coba Curi: one idempotent tick (guard/guard.mjs) per run.
+# The bait's window is 2 hours, so a tick every 15 minutes leaves a wide margin even when GitHub delays cron.
+# 15 minutes keeps a private repo inside the free 2,000 Actions minutes a month (about 100 minutes a day).
+# Once the repo is public, Actions minutes are free and the cron can go to "*/5 * * * *".
 name: cobacuri-guard
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cobacuri-guard
+  cancel-in-progress: false
 
 jobs:
   tick:
@@ -18,9 +27,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: npm ci --no-audit --no-fund
+          cache: npm
+          cache-dependency-path: undo/app/package-lock.json
+      - run: npm ci --no-audit --no-fund --ignore-scripts
       - run: node guard/run-local.mjs --once
         env:
+          GUARD_RUNNER: github
           COBACURI_CONTRACT_ID: cobacuri.nh-s26f-mvz1xz1q.testnet
           COBACURI_DEMO_ID: curi.nh-s26f-mvz1xz1q.testnet
           COBACURI_GUARD_ID: nh-s26f-mvz1xz1q.testnet

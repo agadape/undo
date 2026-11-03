@@ -1,6 +1,6 @@
 "use client";
 import { Card, Notice, Pill, StatusBadge, usePoll } from "@/components/ui";
-import { ADDR } from "@/lib/config";
+import { ADDR, GUARD_RUNS_API } from "@/lib/config";
 import { useFmt, useLang, useT } from "@/lib/i18n";
 import { short } from "@/lib/near-client";
 import type { BalanceView } from "@/lib/types";
@@ -28,15 +28,29 @@ type Stats = {
   error?: string;
 };
 
+type GuardRun = { at: string; ok: boolean; url: string } | null;
+
+/** Last finished run of the guard workflow, read from the public GitHub API in the browser
+ * (no token; 404 while the repo is private). Polled every 5 minutes. */
+async function loadGuardRun(): Promise<GuardRun> {
+  const r = await fetch(GUARD_RUNS_API, { headers: { Accept: "application/vnd.github+json" } });
+  if (!r.ok) return null;
+  const run = ((await r.json()) as { workflow_runs?: { updated_at: string; conclusion: string; html_url: string }[] }).workflow_runs?.[0];
+  return run ? { at: run.updated_at, ok: run.conclusion === "success", url: run.html_url } : null;
+}
+
 export default function CobaCuriPage() {
   const t = useT();
   const lang = useLang();
   const fmt = useFmt();
   const [s] = usePoll(() => fetch("/api/cobacuri/stats").then((r) => r.json() as Promise<Stats>), [], 8000);
+  const [gh] = usePoll(loadGuardRun, [], 5 * 60_000);
+  const ago = (sec: number) => (sec < 120 ? t(`${sec} dtk`, `${sec} s`) : t(`${Math.round(sec / 60)} mnt`, `${Math.round(sec / 60)} min`));
   if (!s) return <p className="text-sm text-stone-500">{t("memuat tantangan…", "loading the challenge…")}</p>;
   if (s.error) return <Notice kind="error">{s.error}</Notice>;
   const avgReact = s.reactionSec.length ? Math.round(s.reactionSec.reduce((a, b) => a + b, 0) / s.reactionSec.length) : null;
   const hbAge = s.heartbeat ? Math.round((Date.now() - Date.parse(s.heartbeat.at)) / 1000) : null;
+  const ghAge = gh ? Math.round((Date.now() - Date.parse(gh.at)) / 1000) : null;
   const target = BigInt(s.balance.available) + BigInt(s.balance.pending_in) + BigInt(s.balance.frozen_in);
 
   return (
@@ -79,7 +93,16 @@ export default function CobaCuriPage() {
           </li>
           <li className="flex flex-wrap items-center gap-2">
             {t("Penjaga:", "Guard:")} <span className="mono text-xs">{short(s.guardId)}</span>
-            {hbAge === null ? <Pill>{t("tidak ada heartbeat lokal", "no local heartbeat")}</Pill> : <Pill tone={s.heartbeat?.ok && hbAge < 120 ? "ok" : "danger"}>{t(`terakhir aktif ${hbAge} dtk lalu`, `last active ${hbAge} s ago`)}</Pill>}
+            {gh && ghAge !== null ? (
+              <a href={gh.url} target="_blank" rel="noreferrer">
+                {/* The cron runs every 15 minutes and GitHub may delay it; 45 minutes still leaves most of the 2-hour window. */}
+                <Pill tone={gh.ok && ghAge < 45 * 60 ? "ok" : "danger"}>
+                  {t(`GitHub Actions: run terakhir ${ago(ghAge)} lalu${gh.ok ? "" : " (gagal)"}`, `GitHub Actions: last run ${ago(ghAge)} ago${gh.ok ? "" : " (failed)"}`)}
+                </Pill>
+              </a>
+            ) : null}
+            {hbAge !== null ? <Pill tone={s.heartbeat?.ok && hbAge < 120 ? "ok" : "danger"}>{t(`lokal: terakhir aktif ${ago(hbAge)} lalu`, `local: last active ${ago(hbAge)} ago`)}</Pill> : null}
+            {!gh && hbAge === null ? <Pill>{t("belum ada heartbeat", "no heartbeat yet")}</Pill> : null}
           </li>
           <li>
             {t("Diselamatkan sejauh ini:", "Saved so far:")} <b>{fmt(s.saved)} rUSDC</b> · {t("sedang dibekukan:", "frozen now:")} {s.frozenNow} · {t("dalam sengketa:", "in dispute:")} {s.inDispute}

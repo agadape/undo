@@ -1,6 +1,6 @@
 # DEPLOY — langkah untuk tim (testnet)
 
-Semua akun di sini NEAR **testnet**. Kunci hanya di `.env` (gitignored) dan di pengaturan rahasia Vercel / Cloudflare / GitHub. Jangan pernah commit `.env`.
+Semua akun di sini NEAR **testnet**. Kunci hanya di `.env` (gitignored) dan di pengaturan rahasia Vercel / GitHub. Jangan pernah commit `.env`.
 
 Status per 2 Nov 2026:
 - `next build` lolos.
@@ -46,18 +46,22 @@ Variabel yang dipakai server:
 - Batas Hobby: fungsi maksimal 300 detik, cukup untuk satu panggilan AI.
 - Setelah deploy, buka `/janji` dan `/dompet`, lalu jalankan latihan Panik sekali.
 
-## 3. Penjaga Coba Curi (pindah dari laptop)
-Saat ini penjaga jalan lokal (`node guard/run-local.mjs`).
-- **Utama:** Cloudflare Worker (`undo/app/guard/wrangler.toml`, cron).
+## 3. Penjaga Coba Curi (GitHub Actions)
+Penjaga jalan di GitHub Actions: `.github/workflows/cobacuri-guard.yml`, satu tick tiap 15 menit. Jendela akun umpan 2 jam, jadi keterlambatan cron GitHub masih aman.
+- **Secrets** (Settings → Secrets and variables → Actions): `COBACURI_GUARD_FC_KEY` (wajib), `COBACURI_GUARD_PRIVATE_KEY` dan `COBACURI_DEMO_PRIVATE_KEY` (untuk mengisi ulang umpan setelah satu ronde). Opsional: `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`. ID akun sudah tertulis di workflow.
+  Isi dari `.env` tanpa mencetak nilainya (PowerShell, dari root repo):
+  ```powershell
+  Get-Content .env | ForEach-Object { if ($_ -match '^(COBACURI_GUARD_FC_KEY|COBACURI_GUARD_PRIVATE_KEY|COBACURI_DEMO_PRIVATE_KEY)=(.+)$') { gh secret set $Matches[1] -R agadape/undo --body $Matches[2].Trim() } }
   ```
-  npx wrangler secret put COBACURI_GUARD_FC_KEY
-  ```
-  Lakukan hal yang sama untuk `COBACURI_GUARD_ID`, `COBACURI_CONTRACT_ID`, `COBACURI_DEMO_ID`. Lalu jalankan `npx wrangler deploy`.
-- **Cadangan:** `.github/workflows/cobacuri-guard.yml` (cron tiap 5 menit). Workflow ini **sedang dimatikan** supaya tidak gagal terus dan menghabiskan menit Actions. Isi dulu GitHub Secrets dengan nama yang sama, lalu nyalakan:
+- **Nyalakan dan jalankan sekali:**
   ```
   gh workflow enable cobacuri-guard -R agadape/undo
+  gh workflow run cobacuri-guard -R agadape/undo
   ```
-  Di repo private, cron tiap 5 menit memakan sekitar 300 menit Actions per hari, padahal jatah gratisnya 2000 menit per bulan. Nyalakan hanya saat repo publik atau menjelang demo.
+- **Menit Actions:** repo private dapat 2.000 menit gratis per bulan, dan cron 15 menit memakai sekitar 100 menit per hari. Setelah repo publik menit Actions gratis, jadi cron bisa diganti ke `*/5 * * * *`.
+- **Status:** riwayat run ada di https://github.com/agadape/undo/actions/workflows/cobacuri-guard.yml. Halaman `/coba-curi` menampilkan run terakhir lewat API publik GitHub; status ini baru muncul setelah repo publik. Run yang gagal (setelah satu kali coba ulang) ditandai merah.
+- **Lokal:** `node guard/run-local.mjs` dari `undo/app` (tick tiap 30 detik), misalnya saat merekam demo. Boleh jalan bersamaan dengan Actions karena tick-nya idempoten.
+- **Cloudflare Worker** (`guard/worker.mjs`, `guard/wrangler.toml`) tetap tersedia kalau suatu saat butuh tick tiap menit.
 - Kunci penjaga cuma function-call key (panic / finalize / unlock / release_expired), bukan full access.
 
 ## 4. Build reproducible (S25, opsional)

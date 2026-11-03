@@ -11,6 +11,9 @@ export const DAO = "nhspike-mvp6a0dx.sputnikv2.testnet";
 export const LOCKED_EXAMPLE = "lockedmvz3cg5t.nh-v1undo-mvz2j3bw.testnet";
 /** base58(sha256(undo_token.wasm)) of the published v1 build. */
 export const PUBLISHED_CODE_HASH = "5q9rRircqxg9Bko6gHa4k1ejQzvrb9zgQkkXaZSPsrGz";
+/** The Coba Curi guard runs as this GitHub Actions workflow. */
+export const GUARD_REPO = "agadape/undo";
+export const GUARD_RUNS_API = `https://api.github.com/repos/${GUARD_REPO}/actions/workflows/cobacuri-guard.yml/runs?per_page=1&status=completed`;
 export const TX = (hash: string) => `https://testnet.nearblocks.io/txns/${hash}`;
 export const ADDR = (id: string) => `https://testnet.nearblocks.io/address/${id}`;
 export const USDC_DECIMALS = 6;
