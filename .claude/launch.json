@@ -6,6 +6,18 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "undo/app", "run", "dev"],
       "port": 3100
+    },
+    {
+      "name": "undo-app-prod",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["undo/app/node_modules/next/dist/bin/next", "start", "undo/app", "-p", "3101"],
+      "port": 3101
+    },
+    {
+      "name": "kampus-3d",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "C:/Project_Dave/SIXTI_Building_Competition_26/kampus-3d", "run", "dev"],
+      "port": 5173
     }
   ]
 }

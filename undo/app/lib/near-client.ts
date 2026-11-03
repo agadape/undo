@@ -104,10 +104,12 @@ export async function createDemoAccount(label: string): Promise<DemoAccount> {
 }
 
 export const USD = (n: number) => String(Math.round(n * 1e6));
-export const fmt = (raw: string | bigint | null | undefined) => {
+/** 6-decimal token amount with 2 decimals: "1.234,56" (id) or "1,234.56" (en). In components use useFmt(). */
+export const formatAmount = (raw: string | bigint | null | undefined, lang: "id" | "en" = "id") => {
   const v = BigInt(raw ?? 0);
   const whole = v / 1_000_000n;
   const frac = (v % 1_000_000n).toString().padStart(6, "0").slice(0, 2);
-  return `${whole.toLocaleString("id-ID")},${frac}`;
+  return lang === "en" ? `${whole.toLocaleString("en-US")}.${frac}` : `${whole.toLocaleString("id-ID")},${frac}`;
 };
+export const fmt = (raw: string | bigint | null | undefined) => formatAmount(raw, "id");
 export const short = (id: string) => (id.length > 26 ? `${id.slice(0, 12)}…${id.slice(-12)}` : id);

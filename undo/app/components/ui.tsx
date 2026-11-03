@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { TX } from "@/lib/config";
+import { useT } from "@/lib/i18n";
 
 export function Card({ title, children, right, tone }: { title?: ReactNode; children: ReactNode; right?: ReactNode; tone?: "danger" | "accent" }) {
   const ring =
@@ -59,10 +60,18 @@ const STATUS: Record<string, string> = {
   Settled: "bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-200",
   Reversed: "bg-stone-200 text-stone-800 dark:bg-stone-800 dark:text-stone-200",
 };
-const LABEL: Record<string, string> = { Pending: "Pending", Frozen: "Dibekukan", Disputed: "Sengketa", Settled: "Final", Reversed: "Dibatalkan" };
+const LABEL: Record<string, [string, string]> = {
+  Pending: ["Pending", "Pending"],
+  Frozen: ["Dibekukan", "Frozen"],
+  Disputed: ["Sengketa", "Disputed"],
+  Settled: ["Final", "Final"],
+  Reversed: ["Dibatalkan", "Reversed"],
+};
 
 export function StatusBadge({ status }: { status: string }) {
-  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS[status] ?? ""}`}>{LABEL[status] ?? status}</span>;
+  const t = useT();
+  const l = LABEL[status];
+  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS[status] ?? ""}`}>{l ? t(l[0], l[1]) : status}</span>;
 }
 
 export function Pill({ children, tone = "neutral" }: { children: ReactNode; tone?: "neutral" | "danger" | "ok" }) {
@@ -85,7 +94,8 @@ export function TxLink({ hash, label }: { hash?: string; label?: string }) {
 }
 
 /** Live countdown to a nanosecond timestamp. */
-export function Countdown({ ns, done = "lewat" }: { ns: string | null | undefined; done?: string }) {
+export function Countdown({ ns, done }: { ns: string | null | undefined; done?: string }) {
+  const t = useT();
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -93,7 +103,7 @@ export function Countdown({ ns, done = "lewat" }: { ns: string | null | undefine
   }, []);
   if (!ns) return null;
   const left = Math.floor(Number(BigInt(ns) / 1_000_000n - BigInt(now)) / 1000);
-  if (left <= 0) return <span className="text-stone-500">{done}</span>;
+  if (left <= 0) return <span className="text-stone-500">{done ?? t("lewat", "passed")}</span>;
   const m = Math.floor(left / 60);
   const s = left % 60;
   return <span className="mono tabular-nums">{m > 0 ? `${m}m ${s}s` : `${s}s`}</span>;

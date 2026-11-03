@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { teraToGas } from "near-api-js";
 import { DAO, UNDO } from "@/lib/config";
+import { requestLang } from "@/lib/lang";
 import { optional } from "@/lib/server/env";
 import { courtAccount, send, view } from "@/lib/server/near";
 
@@ -14,7 +15,11 @@ export async function POST(req: Request) {
   // This route signs with the council member's key: on a public deployment it needs COUNCIL_PASSCODE.
   const expected = optional("COUNCIL_PASSCODE");
   if (expected ? passcode !== expected : !!process.env.VERCEL) {
-    return NextResponse.json({ error: expected ? "passcode dewan salah" : "aksi dewan dimatikan di deployment ini (COUNCIL_PASSCODE belum di-set)" }, { status: 403 });
+    const en = requestLang(req) === "en";
+    const error = expected
+      ? en ? "wrong council passcode" : "passcode dewan salah"
+      : en ? "council actions are disabled on this deployment (COUNCIL_PASSCODE is not set)" : "aksi dewan dimatikan di deployment ini (COUNCIL_PASSCODE belum di-set)";
+    return NextResponse.json({ error }, { status: 403 });
   }
   const why = (reason ?? "").slice(0, 300) || (reverse ? "Dewan: kembalikan" : "Dewan: teruskan ke penerima");
   try {

@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { AttestationClient, verifyModelAttestation } from "@nearai/inference-sdk/node";
 import { UNDO } from "@/lib/config";
 import { MODEL, PROMPT, buildRequest, caseFileV1, encryptTo, newClient, openWith, sha256hex, systemMessage, type Side } from "@/lib/court";
+import { requestLang } from "@/lib/lang";
 import { need } from "@/lib/server/env";
 import { courtAccount, send, view } from "@/lib/server/near";
 import { loadEnvelope, readRun, writeRun } from "@/lib/server/store";
@@ -80,7 +81,13 @@ async function handle(req: Request) {
   if (modelKey !== cfg.court.signer) return fail("the attested model key differs from the key pinned by the council (nothing was spent)", 502);
 
   // ---------- one paid call ----------
-  if (!allowPaidRun()) return fail("batas sidang per jam tercapai di server ini; coba lagi nanti (tidak ada biaya)", 429);
+  if (!allowPaidRun())
+    return fail(
+      requestLang(req) === "en"
+        ? "this server reached its hourly court limit; try again later (nothing was spent)"
+        : "batas sidang per jam tercapai di server ini; coba lagi nanti (tidak ada biaya)",
+      429,
+    );
   await writeRun(transferId, { status: "running", at: new Date().toISOString(), modelKey });
   let paid = false;
   try {

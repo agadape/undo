@@ -1,6 +1,6 @@
 # Undo — reversible USDC on NEAR, with a private AI court whose procedure is verified on-chain
 
-**Live app (NEAR testnet):** https://undo-cyan.vercel.app · **Every claim with its evidence:** [CLAIMS.md](CLAIMS.md) · Built at NEAR HACKATHON (1–14 Nov 2026)
+**Live app (NEAR testnet):** https://undo-cyan.vercel.app/?lang=en · **Every claim with its evidence:** [CLAIMS.md](CLAIMS.md) · Built at NEAR HACKATHON (1–14 Nov 2026)
 
 Undo is a wrapped-USDC token (`rUSDC`, 1:1) where every outgoing transfer waits in an undo window before it becomes final. It undoes two kinds of loss:
 
@@ -61,44 +61,44 @@ sequenceDiagram
 
 ## Try it (no wallet needed, about 5 minutes)
 
-The interface is in Indonesian, because our first users are Indonesian online shoppers. Each button below is given with its English meaning. Demo accounts and their keys live in your browser only.
+The interface is in English and Indonesian. It follows your browser's language, the **ID / EN** switch in the header changes it, and the links below add `?lang=en`. Our first users are Indonesian online shoppers, so the court's prompt and the AI's public reason are in Indonesian. Demo accounts and their keys live in your browser only.
 
 **A. A stolen key, undone without a vote**
 
-1. Open https://undo-cyan.vercel.app/dompet and click **Siapkan dompet demo** (set up demo wallet).
-   You should see two new testnet accounts: the main wallet and its recovery account. **Bisa dipakai** (available) shows 100.00 rUSDC.
-2. In the card **Uji Tombol Panik** (test the panic button), step 1, click **Simulasikan pencurian** (simulate theft).
-   You should see 90 rUSDC sent to a "Pencuri" (thief) account. The transfer is pending, so the thief cannot use it.
-3. Step 2, click **PANIK**. This step is signed by the recovery account.
+1. Open https://undo-cyan.vercel.app/dompet?lang=en and click **Set up demo wallet**.
+   You should see two new testnet accounts: the main wallet and its recovery account. **Available** shows 100.00 rUSDC.
+2. In the card **Test the panic button**, step 1, click **Simulate theft**.
+   You should see 90 rUSDC sent to a "Thief" account. The transfer is pending, so the thief cannot use it.
+3. Step 2, click **PANIC**. This step is signed by the recovery account.
    You should see the theft frozen, the wallet locked, and the remaining 10 rUSDC frozen toward the recovery account.
-4. Wait 120 seconds, then in step 3 click **Finalisasi** (finalize).
+4. Wait 120 seconds, then in step 3 click **Finalize**.
    You should see the recovery account holding all 100 rUSDC. Nobody voted.
-5. Step 4, **Buka kunci** (unlock). Optionally, step 5 **Kirim balik** (send back).
+5. Step 4, **Unlock**. Optionally, step 5 **Send back**.
 
 **B. A fake seller, judged by a private AI court** (about 10 minutes, one NEAR AI call)
 
-6. In **Akun demo lain** (other demo accounts), click **+ Buat akun "Penjual / toko"** (create a seller account).
-7. In **Kirim** (send), put the seller's account in **Penerima** (receiver), enter 30, keep "rUSDC", then click **Kirim**.
-8. Under **Riwayat → Keluar** (history → outgoing), click **Laporkan penipuan** (report fraud) on that payment, then **Buka sidang →** (open the court).
-9. On the court page, write the buyer's evidence and click **Enkripsi di browser & kirim** (encrypt in the browser and send).
+6. In **Other demo accounts**, click **+ Create "Seller / shop" account**.
+7. In **Send**, put the seller's account in **Receiver**, enter 30, keep "rUSDC (receiver uses Undo)", then click **Send**.
+8. Under **History → Outgoing**, click **Report fraud** on that payment, then **Open court case →**.
+9. On the court page, write the buyer's evidence and click **Encrypt in browser & send**.
    You should see the evidence hash committed on-chain. Only ciphertext reaches our server.
    To answer as the seller, switch the active account in the header to the seller and do the same.
-10. When both sides have answered, or after the 5-minute evidence window, click **Jalankan sidang (1 panggilan NEAR AI)** (run the court, one NEAR AI call).
-    You should see the recommendation: `rekomendasi` (`kembalikan` = return to the sender, `teruskan` = pay the receiver), confidence, `curiga_injeksi` (suspected injection) and a public reason. You also see the `post_recommendation` transaction. The money has not moved.
+10. When both sides have answered, or after the 5-minute evidence window, click **Run the court (1 NEAR AI call)**.
+    You should see the recommendation (`kembalikan` = return to the sender, `lanjutkan` = pay the receiver), its confidence, `curiga_injeksi` (suspected injection) and a public reason. You also see the `post_recommendation` transaction. The money has not moved.
 11. The council decides on `/dewan`. Council actions need a passcode held by the team.
-    If the council stays silent for 30 minutes, anyone can press **Terapkan diamnya dewan** (apply council silence) on the court page. For a fraud report, the money then goes to the receiver: the AI alone never moves money (J3).
+    If the council stays silent for 30 minutes, anyone can press **Apply council silence** on the court page. For a fraud report, the money then goes to the receiver: the AI alone never moves money (J3).
 
 **C. Check the promises and the challenge**
 
-12. https://undo-cyan.vercel.app/janji runs the J1–J7 checks live against the chain:
+12. https://undo-cyan.vercel.app/janji?lang=en runs the J1–J7 checks live against the chain:
     - 0 access keys on the contract;
     - code hash = published build;
     - reserve 1:1;
     - pinned model key;
     - the prompt hash recomputed in your browser matches the on-chain hash.
-13. https://undo-cyan.vercel.app/coba-curi ("try to steal") is a locked instance whose bait account key is meant to be published. A guard presses panic on every outgoing transfer. The page shows attempts, frozen transfers, money cashed out (0 so far) and reaction time.
+13. https://undo-cyan.vercel.app/coba-curi?lang=en ("try to steal") is a locked instance whose bait account key is meant to be published. A guard presses panic on every outgoing transfer. The page shows attempts, frozen transfers, money cashed out (0 so far) and reaction time.
 
-You can also click **Hubungkan wallet** (connect wallet) to use a real NEAR testnet wallet through NEAR Connect instead of the demo keys.
+You can also click **Connect wallet** to use a real NEAR testnet wallet through NEAR Connect instead of the demo keys.
 
 ## Tracks
 
@@ -116,8 +116,8 @@ You can also click **Hubungkan wallet** (connect wallet) to use a real NEAR test
 | Feature | Files | Try |
 |---|---|---|
 | Wrapped USDC 1:1 with a public reserve check (`get_reserve`) | `lib.rs` | `/janji` |
-| `send_usdc`: pay anyone in plain USDC after the window; the receiver does not need Undo | `send_usdc`, `withdraw` in `lib.rs` | **Kirim** with "USDC" selected |
-| "Barang diterima": a buyer releases payment early from the recovery account | `release` in `lib.rs` | **Barang diterima** on an outgoing payment |
+| `send_usdc`: pay anyone in plain USDC after the window; the receiver does not need Undo | `send_usdc`, `withdraw` in `lib.rs` | **Send** with "plain USDC (any receiver)" selected |
+| "Goods received": a buyer releases payment early from the recovery account | `release` in `lib.rs` | **Goods received** on an outgoing payment |
 | Business use: a treasury or payroll account where a payment to a fake invoice can still be undone | — | Scenario B |
 
 Not used: NEAR Intents (no testnet deployment) and meta-transactions (proven in spike S10, not wired into the product). See [CLAIMS.md §8](CLAIMS.md#8-not-built-).
