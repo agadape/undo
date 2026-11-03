@@ -295,7 +295,7 @@ export default function SidangPage() {
             </p>
             {d.council_reason && (
               <p className="text-stone-500">
-                {tr("Alasan publik", "Public reason")}: “{d.council_reason}”
+                {tr("Alasan publik", "Public reason")}: “{reason(d.council_reason)}”
               </p>
             )}
           </div>

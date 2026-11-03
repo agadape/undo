@@ -50,6 +50,7 @@ function PasscodeField() {
 export default function DewanPage() {
   const tr = useT();
   const fmt = useFmt();
+  const pickReason = useReason();
   const [items, refresh] = usePoll(loadDisputes, [], 5000);
   const open = items?.filter((t) => t.status === "Disputed") ?? [];
   const closed = items?.filter((t) => t.status !== "Disputed") ?? [];
@@ -88,7 +89,7 @@ export default function DewanPage() {
                 <span className="text-stone-500">
                   {tr("oleh", "decided by")} {t.dispute?.decided_by} → {t.final_to ? short(t.final_to) : "—"}
                 </span>
-                {t.dispute?.council_reason && <span className="text-stone-500">“{t.dispute.council_reason}”</span>}
+                {t.dispute?.council_reason && <span className="text-stone-500">“{pickReason(t.dispute.council_reason)}”</span>}
               </li>
             ))}
           </ul>
