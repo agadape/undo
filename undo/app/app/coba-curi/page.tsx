@@ -61,11 +61,11 @@ export default function CobaCuriPage() {
         <p className="max-w-2xl text-sm text-stone-600 dark:text-stone-300">
           {lang === "en" ? (
             <>
-              We publish this account&apos;s private key. Anyone may use it to send, unwrap, or change the account&apos;s recovery account. All money going out waits {Math.round(s.windowSec / 60)} min; the guard (the account&apos;s recovery account) presses Panic, and after {Math.round(s.contestSec / 60)} min with no contest the money comes back.
+              {s.publishedKey ? "We publish this account's private key." : "The team will publish this account's private key when the challenge opens."} Anyone holding it may send, unwrap, or change the account&apos;s recovery account. All money going out waits {Math.round(s.windowSec / 60)} min; the guard (the account&apos;s recovery account) presses Panic, and after {Math.round(s.contestSec / 60)} min with no contest the money comes back.
             </>
           ) : (
             <>
-              Kunci privat akun ini kami umumkan. Siapa pun boleh memakainya untuk mengirim, unwrap, atau mengganti akun pemulihannya. Setiap uang yang keluar menunggu {Math.round(s.windowSec / 60)} menit; penjaga (akun pemulihannya) menekan Panik, dan setelah {Math.round(s.contestSec / 60)} menit tanpa bantahan uangnya kembali.
+              {s.publishedKey ? "Kunci privat akun ini kami umumkan." : "Kunci privat akun ini akan diumumkan tim saat tantangan dibuka."} Siapa pun yang memegangnya boleh mengirim, unwrap, atau mengganti akun pemulihannya. Setiap uang yang keluar menunggu {Math.round(s.windowSec / 60)} menit; penjaga (akun pemulihannya) menekan Panik, dan setelah {Math.round(s.contestSec / 60)} menit tanpa bantahan uangnya kembali.
             </>
           )}
         </p>

@@ -68,8 +68,8 @@ The interface is in English and Indonesian. It follows your browser's language, 
 1. Open https://undo-cyan.vercel.app/dompet?lang=en and click **Set up demo wallet**.
    You should see two new testnet accounts: the main wallet and its recovery account. **Available** shows 100.00 rUSDC.
 2. In the card **Test the panic button**, step 1, click **Simulate theft**.
-   You should see 90 rUSDC sent to a "Thief" account. The transfer is pending, so the thief cannot use it.
-3. Step 2, click **PANIC**. This step is signed by the recovery account.
+   You should see 90 rUSDC sent to a "Thief" account. The transfer is pending, so the thief cannot use it. A red alert appears at the top of the page: "Money is leaving Main wallet. Was this you?".
+3. Click **No — PANIC** in the alert (or step 2, **PANIC**). This step is signed by the recovery account.
    You should see the theft frozen, the wallet locked, and the remaining 10 rUSDC frozen toward the recovery account.
 4. Wait 120 seconds, then in step 3 click **Finalize**.
    You should see the recovery account holding all 100 rUSDC. Nobody voted.
@@ -203,4 +203,4 @@ These are listed in full in [CLAIMS.md §7–8](CLAIMS.md#7-trust-boundaries-wha
 - The Coba Curi guard runs on GitHub Actions every 15 minutes, so it reacts in minutes, not seconds (the bait's window is 2 hours). The bait key is not published yet.
 - Evidence is text only.
 - Testnet only.
-- Not built yet: trusted contacts, gasless panic, appeal keys, notifications for regular users, reproducible build, mainnet.
+- Not built yet: trusted contacts, gasless panic, appeal keys, notifications outside the browser (the alert shows only where the recovery account's key is), reproducible build, mainnet.

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { cookies, headers } from "next/headers";
 import "./globals.css";
 import { AccountsProvider, AccountSwitcher } from "@/components/accounts";
+import { OutgoingAlerts } from "@/components/alerts";
 import { Footer, Nav } from "@/components/site-chrome";
 import { LangProvider, LangToggle } from "@/lib/i18n";
 import { LANG_COOKIE, pickLang, type Lang } from "@/lib/lang";
@@ -45,7 +46,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                 </div>
               </div>
             </header>
-            <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
+            <main className="mx-auto max-w-5xl px-4 py-6">
+              <OutgoingAlerts />
+              {children}
+            </main>
             <Footer />
           </AccountsProvider>
         </LangProvider>

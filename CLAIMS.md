@@ -46,6 +46,7 @@ All four Undo instances run the same wasm: code hash `5q9rRircqxg9Bko6gHa4k1ejQz
 | A stolen recovery account cannot just take the balance: the sweep is frozen, and the owner's main key can contest it | `contest` (541) | `a7_a_stolen_recovery_account_cannot_just_take_the_balance`, `a7_the_recovery_account_cannot_contest_its_own_freeze` | — | 🧪 |
 | Pending money cannot be moved early. "Barang diterima" (goods received, early release) works only from the sender's recovery account, never from the main key | `release` (419), check at l. 425; available-balance check at l. 931 | `a5_the_main_key_cannot_skip_the_window`, `a5_barang_diterima_from_the_recovery_account_pays_at_once` | Thief's unwrap of pending money rejected (step 5); main-key early release rejected (step 29); release from the recovery account [`9Tzh8frC…`](https://testnet.nearblocks.io/txns/9Tzh8frCoNbs5n3jHdvyFe6a8tzTJiKGFtmo4GijjEXY) | ✅ 🧪 |
 | A real NEAR testnet wallet (not a demo key) ran the whole drill from the web app: onboarding, simulated theft, panic, finalize, unlock | [`undo/app/app/dompet/page.tsx`](undo/app/app/dompet/page.tsx), [`undo/app/lib/wallet.ts`](undo/app/lib/wallet.ts) | — | Team wallet `smoothicon6710.testnet`, 2 Nov | ✅ |
+| Rule-based alert, no AI: any pending outgoing transfer or scheduled recovery change on an account whose recovery account is in this browser shows "Was this you?" on every page. **No — PANIC** signs `panic` with the recovery account. Transfers sent from the app's own Send form do not alert | [`undo/app/components/alerts.tsx`](undo/app/components/alerts.tsx) | — | 3 Nov, demo wallet `undo-hoi4gg.testnet`: own send #2 no alert; theft #3 (89.10 rUSDC) alerted; panic from the alert [`2CsqyyZu…`](https://testnet.nearblocks.io/txns/2CsqyyZu6MzZCmUj4vKdjFtuW5AjNs3sxyGBYZeXJHsB) froze #2, #3 and the sweep #4 | ✅ |
 
 ## 3. Private court with an on-chain procedure proof (J7)
 
@@ -124,7 +125,7 @@ In both answers, `result.result` is the returned JSON encoded as a byte array. T
 - Pending transfers as transferable NFTs — design only.
 - Image evidence (only text evidence today).
 - Appeal keys: revealing your evidence to the council after a decision.
-- Notifications for regular users. The guard has an optional Telegram hook, but it is not configured.
+- Notifications outside the browser. The in-app alert shows only in a browser that holds the recovery account; the guard's Telegram hook exists but is not configured.
 - Reproducible build (`cargo near build reproducible-wasm`).
 - Multisig recovery accounts. Today, if both keys are stolen, Undo cannot tell the owner from the thief (threat A8, out of scope).
 - Mainnet deployment.

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useAccounts } from "@/components/accounts";
 import { TransferList } from "@/components/transfers";
 import { Button, Card, Countdown, Notice, Pill, TxLink, usePoll } from "@/components/ui";
+import { ack, ackKey } from "@/lib/alerts";
 import { ADDR, UNDO, USDC } from "@/lib/config";
 import { useAccountLabel, useFmt, useLang, useT } from "@/lib/i18n";
 import { USD, call, createDemoAccount, parseOutcome, short, view, type DemoAccount } from "@/lib/near-client";
@@ -543,6 +544,8 @@ function SendCard({
       mode === "rusdc"
         ? await call(me, UNDO, "transfer", { receiver_id: target, amount: USD(amt) }, { deposit: fee, gasTera: "50" })
         : await call(me, UNDO, "send_usdc", { receiver_id: target, amount: USD(amt) }, { deposit: fee, gasTera: "50" });
+    // Sent from this form, so it is the owner: no "was this you?" alert for it.
+    if (r.ok && r.value != null) ack([ackKey(me.id, String(r.value))]);
     setMsg(
       r.ok
         ? { kind: "ok", text: t(`Terkirim — pending selama ${cfg.window_sec} detik`, `Sent — pending for ${cfg.window_sec} seconds`), hash: r.hash }
@@ -567,8 +570,8 @@ function SendCard({
         ? {
             kind: "ok",
             text: t(
-              `Pencuri memakai kunci dompet ini dan mengirim ${fmt(steal)} rUSDC ke ${short(thief.id)}. Uangnya masih pending — pindah ke akun pemulihan dan tekan PANIK.`,
-              `The thief used this wallet's key and sent ${fmt(steal)} rUSDC to ${short(thief.id)}. The money is still pending — switch to the recovery account and press PANIC.`,
+              `Pencuri memakai kunci dompet ini dan mengirim ${fmt(steal)} rUSDC ke ${short(thief.id)}. Uangnya masih pending — notifikasi muncul di atas: tekan “Bukan — PANIK”, atau pindah ke akun pemulihan dan tekan PANIK.`,
+              `The thief used this wallet's key and sent ${fmt(steal)} rUSDC to ${short(thief.id)}. The money is still pending — an alert appears at the top: press “No — PANIC”, or switch to the recovery account and press PANIC.`,
             ),
             hash: r.hash,
           }
