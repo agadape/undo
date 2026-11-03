@@ -6,6 +6,9 @@
 credentials/
 .near-credentials/
 
+# Vercel CLI link + pulled env files
+.vercel/
+
 # local runtime data (court evidence ciphertext, guard logs)
 .data/
 *.log
