@@ -14,10 +14,24 @@ Status per 2 Nov 2026:
 - Akhir baris dikunci ke LF (`.gitattributes`), supaya `build.sh` dan byte PROMPT pengadilan tidak berubah di Windows.
 - Sebelum push, cek ulang: `git status` tidak boleh memuat `.env`, `.data/`, atau `submission*.json`.
 
-## 2. Vercel (manusia buat akun, lalu impor repo)
-- Project → Import repo → **Root Directory: `undo/app`**. Framework: Next.js, Node **24.x** (sudah di `engines`).
-- Storage → Create **Blob** store, akses **Private**, lalu Connect ke project. Vercel mengisi `BLOB_STORE_ID` sendiri lewat OIDC (atau `BLOB_READ_WRITE_TOKEN`). Store ini menyimpan ciphertext bukti dan status sidang.
-- Environment Variables (Production), salin nilainya dari `.env`:
+## 2. Vercel
+✅ Sudah live: **https://undo-cyan.vercel.app**
+- Project `undo` di tim `daves-projects-3628ad99` (Hobby). Tersambung ke `agadape/undo`, root `undo/app`, Node 24.x lewat `engines`.
+- Setiap push ke `main` otomatis deploy ke produksi. URL preview dikunci Vercel Authentication; domain produksi publik.
+- Blob store `undo-court`: private, region iad1, tersambung ke production dan preview. Isinya ciphertext bukti dan catatan sidang.
+- Environment variables (production + preview) sudah diisi dari `.env`. Kunci dan API key bertipe *sensitive*, jadi tidak bisa dibaca balik dari dashboard.
+- `COUNCIL_PASSCODE` dibuat acak dan disimpan di `.env`. Masukkan nilainya di halaman `/dewan`.
+- Kunci umpan Coba Curi **tidak** dikirim ke Vercel. Kalau tim memutuskan mempublikasikannya, tambahkan `COBACURI_DEMO_PRIVATE_KEY` lalu set `COBACURI_PUBLISH_KEY=1`.
+- Diuji 3 Nov:
+  - semua halaman membalas 200;
+  - `/api/cobacuri/stats` membaca kontrak;
+  - passcode salah ditolak;
+  - pembuatan dompet demo di `/dompet` berhasil (100 rUSDC).
+- Isi ulang NEAR testnet sebelum demo:
+  - akun pengadilan `NEAR_ACCOUNT_ID` (≈1,9 NEAR per 3 Nov);
+  - faucet `nh-s21-mvz19hwe.testnet` (≈8,2 NEAR), cadangan kalau helper testnet kena batas.
+
+Variabel yang dipakai server:
 
 | Variabel | Keterangan |
 |---|---|
