@@ -6,7 +6,7 @@ import { useAccounts } from "@/components/accounts";
 import { Button, Card, Countdown, Notice, Pill, StatusBadge, TxLink, usePoll } from "@/components/ui";
 import { UNDO } from "@/lib/config";
 import { encryptTo, sha256hex, type Side } from "@/lib/court";
-import { useFmt, useLang, useT } from "@/lib/i18n";
+import { useFmt, useLang, useReason, useT } from "@/lib/i18n";
 import { call, short, view } from "@/lib/near-client";
 import type { AccountView, Config, Transfer } from "@/lib/types";
 
@@ -18,6 +18,7 @@ export default function SidangPage() {
   const tr = useT();
   const lang = useLang();
   const fmt = useFmt();
+  const reason = useReason();
   const { active } = useAccounts();
   const [cfg] = usePoll(() => view<Config>(UNDO, "get_config"), [], 15000);
   const [t, refreshT] = usePoll(() => view<Transfer | null>(UNDO, "get_transfer", { transfer_id: id }), [id], 5000);
@@ -232,7 +233,7 @@ export default function SidangPage() {
               {rec.curiga_injeksi && <Pill tone="danger">{tr("upaya injeksi terdeteksi", "injection attempt detected")}</Pill>}
             </div>
             <p>
-              {lang === "en" && <span className="text-xs text-stone-500">Public reason (written by the model): </span>}“{rec.alasan_publik}”
+              {lang === "en" && <span className="text-xs text-stone-500">Public reason (written by the model): </span>}“{reason(rec.alasan_publik)}”
             </p>
             <p className="text-xs text-stone-500">
               Model {rec.model_id} · {tr("hash respons", "response hash")} <span className="mono">{rec.response_hash.slice(0, 16)}…</span>{" "}

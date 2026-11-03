@@ -109,9 +109,12 @@ export default function JanjiPage() {
             </div>
             <details className="text-xs text-stone-500">
               <summary className="cursor-pointer">{t("Lihat prompt resmi", "View the official prompt")}</summary>
-              {lang === "en" && (
-                <p className="mt-1">The official prompt is in Indonesian and is shown unchanged: the contract checks its sha256 hash, so a translated copy would not match.</p>
-              )}
+              <p className="mt-1">
+                {t(
+                  "Prompt v2 (bahasa Inggris; model menulis alasan publik dalam dua bahasa). Kontrak memeriksa sha256 teks ini, jadi yang tampil di sini persis yang dibaca model. Kunci JSON dan nilai putusan tetap bahasa Indonesia karena dibaca kontrak.",
+                  "Prompt v2 (English; the model writes the public reason in both languages). The contract checks the sha256 of this exact text, so what you see is what the model reads. The JSON keys and verdict values stay Indonesian because the contract reads them.",
+                )}
+              </p>
               <pre className="mt-1 whitespace-pre-wrap rounded bg-stone-50 p-2 dark:bg-stone-950">{PROMPT}</pre>
             </details>
           </div>

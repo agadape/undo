@@ -3,7 +3,7 @@
 //   const t = useT();  t("Kirim", "Send")
 // The server picks the first language (cookie, else the browser's language), so there is no flash.
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { LANG_COOKIE, type Lang } from "./lang";
+import { LANG_COOKIE, splitReason, type Lang } from "./lang";
 import { formatAmount } from "./near-client";
 
 type Ctx = { lang: Lang; setLang: (l: Lang) => void };
@@ -41,6 +41,18 @@ export function useT() {
 export function useFmt() {
   const lang = useLang();
   return useCallback((raw: string | bigint | null | undefined) => formatAmount(raw, lang), [lang]);
+}
+
+/** Returns reason => the part of a bilingual court reason ("ID: … EN: …") in the chosen language. */
+export function useReason() {
+  const lang = useLang();
+  return useCallback(
+    (reason: string) => {
+      const r = splitReason(reason);
+      return r ? r[lang] : reason;
+    },
+    [lang],
+  );
 }
 
 // Demo account labels are stored in localStorage in Indonesian and also used as lookup keys

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button, Card, Notice, Pill, StatusBadge, TxLink, usePoll } from "@/components/ui";
 import { ADDR, DAO, UNDO } from "@/lib/config";
-import { useFmt, useLang, useT } from "@/lib/i18n";
+import { useFmt, useLang, useReason, useT } from "@/lib/i18n";
 import { short, view } from "@/lib/near-client";
 import type { Config, Transfer } from "@/lib/types";
 
@@ -101,10 +101,11 @@ export default function DewanPage() {
 function DisputeCard({ t, onDone }: { t: Transfer; onDone: () => void }) {
   const tr = useT();
   const lang = useLang();
+  const pickReason = useReason();
   const fmt = useFmt();
   const d = t.dispute!;
   const rec = d.recommendation;
-  const [reason, setReason] = useState(rec ? (tr("Mengikuti rekomendasi TEE: ", "Following the TEE recommendation: ") + rec.alasan_publik).slice(0, 280) : "");
+  const [reason, setReason] = useState(rec ? (tr("Mengikuti rekomendasi TEE: ", "Following the TEE recommendation: ") + pickReason(rec.alasan_publik)).slice(0, 280) : "");
   const [msg, setMsg] = useState<{ kind: "ok" | "error"; text: string; hash?: string }>();
   const sweep = t.kind === "Sweep";
 
@@ -158,7 +159,7 @@ function DisputeCard({ t, onDone }: { t: Transfer; onDone: () => void }) {
               {rec.curiga_injeksi && <Pill tone="danger">{tr("injeksi terdeteksi", "injection detected")}</Pill>}
             </div>
             <p className="mt-1">
-              {lang === "en" && <span className="text-xs text-stone-500">Public reason (written by the model): </span>}“{rec.alasan_publik}”
+              {lang === "en" && <span className="text-xs text-stone-500">Public reason (written by the model): </span>}“{pickReason(rec.alasan_publik)}”
             </p>
           </>
         ) : (
