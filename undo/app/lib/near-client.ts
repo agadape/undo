@@ -2,11 +2,13 @@
 // - "demo": throwaway testnet accounts whose keys live in this browser's localStorage;
 // - "wallet": a real wallet connected through NEAR Connect (it signs; we never see its key).
 // Never use this for real money.
-import { Account, FailoverRpcProvider, JsonRpcProvider, KeyPair, actions, teraToGas } from "near-api-js";
-import { RPCS } from "./config";
+import { Account, FailoverRpcProvider, JsonRpcProvider, KeyPair, actions, encodeSignedDelegate, teraToGas } from "near-api-js";
+import { GASLESS_METHODS, RPCS, UNDO } from "./config";
 import { walletFunctionCall } from "./wallet";
 
-export const provider = new FailoverRpcProvider(RPCS.map((url) => new JsonRpcProvider({ url })));
+// One quick retry per endpoint, then the next one: the library default (12 retries with backoff, also on
+// HTTP 429) can hold a single call for minutes and multiplies traffic while an RPC is failing.
+export const provider = new FailoverRpcProvider(RPCS.map((url) => new JsonRpcProvider({ url }, { retries: 1, wait: 300, backoff: 2 })));
 
 export type DemoAccount = { id: string; key: string; label: string; recoveryFor?: string; kind?: "demo" | "wallet" };
 const STORE = "undo.demo.accounts.v1";
@@ -31,7 +33,8 @@ export async function view<T = unknown>(contractId: string, method: string, args
   return (await provider.callFunction({ contractId, method, args })) as T;
 }
 
-export type CallResult = { ok: boolean; hash?: string; value?: unknown; error?: string };
+/** `gasless`: the Undo relayer paid the gas (NEP-366 meta-transaction); the signer's NEAR did not move. */
+export type CallResult = { ok: boolean; hash?: string; value?: unknown; error?: string; gasless?: boolean };
 
 function cleanError(e: unknown): string {
   const s = String((e as { message?: string })?.message ?? e);
@@ -41,7 +44,44 @@ function cleanError(e: unknown): string {
 
 type Outcome = { transaction: { hash: string }; status: { SuccessValue?: string; Failure?: unknown } | string };
 
-/** Sign and send one function call — from a demo account (local key) or the connected wallet. */
+/** Reject after `ms` so a hanging RPC or relayer never leaves a button spinning for minutes. */
+function withTimeout<T>(p: Promise<T>, ms: number, what: string): Promise<T> {
+  return Promise.race([p, new Promise<never>((_, reject) => setTimeout(() => reject(new Error(what)), ms))]);
+}
+
+/** Sign a delegate action and let the Undo relayer pay the gas. null = relayer unavailable (caller falls back). */
+async function callGasless(who: DemoAccount, method: string, args: Record<string, unknown>, gas: number): Promise<CallResult | null> {
+  let body: string;
+  try {
+    const { signedDelegate } = await withTimeout(
+      new Account(who.id, provider, who.key as `ed25519:${string}`).createSignedMetaTransaction({
+        receiverId: UNDO,
+        actions: [actions.functionCall(method, args, teraToGas(gas), 0n)],
+        blockHeightTtl: 120,
+      }),
+      20_000,
+      "timeout",
+    );
+    let bin = "";
+    encodeSignedDelegate(signedDelegate).forEach((b) => (bin += String.fromCharCode(b)));
+    body = JSON.stringify({ signedDelegate: btoa(bin) });
+  } catch {
+    return null;
+  }
+  try {
+    const res = await fetch("/api/relay", { method: "POST", headers: { "Content-Type": "application/json" }, body, signal: AbortSignal.timeout(60_000) });
+    const j = (await res.json().catch(() => ({}))) as { ok?: boolean; hash?: string; value?: unknown; error?: string };
+    // 400 = the policy or the contract's rules refuse it: paying the gas ourselves would fail the same way.
+    if (res.status === 400) return { ok: false, error: j.error ?? "refused by the relayer" };
+    if (!res.ok || typeof j.ok !== "boolean") return null;
+    return { ok: j.ok, hash: j.hash, value: j.value, error: j.error, gasless: true };
+  } catch {
+    return null;
+  }
+}
+
+/** Sign and send one function call — from a demo account (local key) or the connected wallet.
+ * Undo's safety actions from a demo account go gasless through our relayer, with a normal signed call as fallback. */
 export async function call(
   who: DemoAccount,
   receiverId: string,
@@ -51,13 +91,21 @@ export async function call(
 ): Promise<CallResult> {
   try {
     const gas = Number(opts.gasTera ?? "100");
+    if (who.kind !== "wallet" && receiverId === UNDO && GASLESS_METHODS.includes(method) && !opts.deposit) {
+      const g = await callGasless(who, method, args, gas);
+      if (g) return g;
+    }
     const r: Outcome =
       who.kind === "wallet"
         ? await walletFunctionCall(receiverId, method, args, opts.deposit ?? 0n, gas)
-        : ((await new Account(who.id, provider, who.key as `ed25519:${string}`).signAndSendTransaction({
-            receiverId,
-            actions: [actions.functionCall(method, args, teraToGas(gas), opts.deposit ?? 0n)],
-          })) as unknown as Outcome);
+        : ((await withTimeout(
+            new Account(who.id, provider, who.key as `ed25519:${string}`).signAndSendTransaction({
+              receiverId,
+              actions: [actions.functionCall(method, args, teraToGas(gas), opts.deposit ?? 0n)],
+            }),
+            90_000,
+            "no answer from the RPC after 90 s: check the history before trying again",
+          )) as unknown as Outcome);
     return parseOutcome(r);
   } catch (e) {
     return { ok: false, error: cleanError(e) };

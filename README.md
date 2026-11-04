@@ -69,7 +69,7 @@ The interface is in English and Indonesian. It follows your browser's language, 
    You should see two new testnet accounts: the main wallet and its recovery account. **Available** shows 100.00 rUSDC.
 2. In the card **Test the panic button**, step 1, click **Simulate theft**.
    You should see 90 rUSDC sent to a "Thief" account. The transfer is pending, so the thief cannot use it. A red alert appears at the top of the page: "Money is leaving Main wallet. Was this you?".
-3. Click **No — PANIC** in the alert (or step 2, **PANIC**). This step is signed by the recovery account.
+3. Click **No — PANIC** in the alert (or step 2, **PANIC**). This step is signed by the recovery account; the message ends with "gasless: paid by the Undo relayer".
    You should see the theft frozen, the wallet locked, and the remaining 10 rUSDC frozen toward the recovery account.
 4. Wait 120 seconds, then in step 3 click **Finalize**.
    You should see the recovery account holding all 100 rUSDC. Nobody voted.
@@ -119,8 +119,9 @@ You can also click **Connect wallet** to use a real NEAR testnet wallet through 
 | `send_usdc`: pay anyone in plain USDC after the window; the receiver does not need Undo | `send_usdc`, `withdraw` in `lib.rs` | **Send** with "plain USDC (any receiver)" selected |
 | "Goods received": a buyer releases payment early from the recovery account | `release` in `lib.rs` | **Goods received** on an outgoing payment |
 | Business use: a treasury or payroll account where a payment to a fake invoice can still be undone | — | Scenario B |
+| Gasless safety actions (NEP-366 meta-transactions): the recovery account on your phone needs no NEAR for gas. Panic, finalize, unlock, goods received, cancelling a recovery change and applying council silence go through our relayer, which checks the signature, the access key, the nonce, the expiry and that the contract will accept the call before it pays. If the relayer is down, the app signs a normal transaction instead | [`undo/app/lib/server/relay.ts`](undo/app/lib/server/relay.ts), [`undo/app/lib/near-client.ts`](undo/app/lib/near-client.ts) | Scenario A: the panic card shows the recovery account's NEAR, unchanged after steps 2–4 |
 
-Not used: NEAR Intents (no testnet deployment) and meta-transactions (proven in spike S10, not wired into the product). See [CLAIMS.md §8](CLAIMS.md#8-not-built-).
+Not used: NEAR Intents (no testnet deployment). See [CLAIMS.md §8](CLAIMS.md#8-not-built-).
 
 ### `security` — Function-call keys, TEE attestation
 
@@ -135,6 +136,7 @@ Not used: NEAR Intents (no testnet deployment) and meta-transactions (proven in 
 
 - **Cheap on-chain crypto.** `env::ed25519_verify` and `env::sha256` are host functions. Verifying a TEE signature, rebuilding a 2.4 KB request, two X25519 operations and two decryptions cost about **10.7 Tgas (≈ 0.001 NEAR)** per verdict.
 - **NEAR AI Cloud.** It provides attested TEE models with end-to-end encrypted requests and per-field response keys. That makes "verdict open, reasoning sealed" possible. One court run costs about $0.0002–0.0005.
+- **Meta-transactions (NEP-366).** The recovery account signs a delegate action and our relayer pays the gas, so a phone account needs no NEAR to press panic. The contract still sees the recovery account as the caller.
 - **Accounts and keys.** Function-call keys power the panic-only guard. The challenge's bait account is a sub-account of the guard, so nobody else can recreate it.
 - **Sputnik DAO.** The council is a DAO. Every decision is a public proposal and vote, and its power is limited by J1–J3.
 - **NEAR Connect** for wallet sign-in. The app also works with in-browser demo keys.
@@ -203,4 +205,4 @@ These are listed in full in [CLAIMS.md §7–8](CLAIMS.md#7-trust-boundaries-wha
 - The Coba Curi guard runs on GitHub Actions every 15 minutes, so it reacts in minutes, not seconds (the bait's window is 2 hours). The bait key is not published yet.
 - Evidence is text only.
 - Testnet only.
-- Not built yet: trusted contacts, gasless panic, appeal keys, notifications outside the browser (the alert shows only where the recovery account's key is), reproducible build, mainnet.
+- Not built yet: trusted contacts, appeal keys, notifications outside the browser (the alert shows only where the recovery account's key is), reproducible build, mainnet.

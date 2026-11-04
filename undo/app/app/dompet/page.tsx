@@ -5,8 +5,8 @@ import { TransferList } from "@/components/transfers";
 import { Button, Card, Countdown, Notice, Pill, TxLink, usePoll } from "@/components/ui";
 import { ack, ackKey } from "@/lib/alerts";
 import { ADDR, UNDO, USDC } from "@/lib/config";
-import { useAccountLabel, useFmt, useLang, useT } from "@/lib/i18n";
-import { USD, call, createDemoAccount, parseOutcome, short, view, type DemoAccount } from "@/lib/near-client";
+import { useAccountLabel, useFmt, useGasNote, useLang, useT } from "@/lib/i18n";
+import { USD, call, createDemoAccount, parseOutcome, provider, short, view, type DemoAccount } from "@/lib/near-client";
 import { walletBatch } from "@/lib/wallet";
 import type { AccountView, BalanceView, Config, Transfer } from "@/lib/types";
 
@@ -230,25 +230,35 @@ function PanicTest({
   const t = useT();
   const lang = useLang();
   const fmt = useFmt();
+  const gasNote = useGasNote();
   const [guardBal, refreshGuard] = usePoll(() => view<BalanceView>(UNDO, "balance_of", { account_id: guard.id }), [guard.id]);
+  const [guardNear, refreshNear] = usePoll(() => provider.viewAccount({ accountId: guard.id }).then((a) => String(a.amount)), [guard.id], 10000);
+  const nearText = guardNear ? (Number(BigInt(guardNear) / 10n ** 18n) / 1e6).toLocaleString(lang === "en" ? "en-US" : "id-ID", { maximumFractionDigits: 6 }) : "…";
   const [msg, setMsg] = useState<{ kind: "ok" | "error"; text: string; hash?: string }>();
   const fee = BigInt(cfg.storage_fee) > 0n ? BigInt(cfg.storage_fee) : 1n;
   const now = BigInt(Date.now()) * 1_000_000n;
   const stolen = outgoing?.filter((t) => t.kind !== "Sweep" && t.status === "Pending" && BigInt(t.unlock_at) > now) ?? [];
+  const thiefId = accounts.find((a) => a.label === "Pencuri")?.id;
   const frozen = outgoing?.filter((t) => t.status === "Frozen") ?? [];
-  const ready = frozen.filter((t) => t.frozen_until && BigInt(t.frozen_until) <= now);
+  // 3 s after frozen_until, so the relayer's own 2 s margin has passed too.
+  const ready = frozen.filter((t) => t.frozen_until && BigInt(t.frozen_until) + 3_000_000_000n <= now);
   const nextFrozen = frozen.map((t) => t.frozen_until!).sort()[0];
-  const report = (label: string, r: { ok: boolean; hash?: string; error?: string }) => {
-    setMsg(r.ok ? { kind: "ok", text: label, hash: r.hash } : { kind: "error", text: r.error ?? t("gagal", "failed"), hash: r.hash });
+  const report = (label: string, r: { ok: boolean; hash?: string; error?: string; gasless?: boolean }) => {
+    setMsg(r.ok ? { kind: "ok", text: label + gasNote(r), hash: r.hash } : { kind: "error", text: r.error ?? t("gagal", "failed"), hash: r.hash });
     onDone();
     refreshGuard();
+    refreshNear();
   };
 
   async function steal() {
     let thief = accounts.find((a) => a.label === "Pencuri");
     if (!thief) {
       setMsg({ kind: "ok", text: t("Membuat akun pencuri demo…", "Creating the demo Thief account…") });
-      thief = await createDemoAccount("Pencuri");
+      try {
+        thief = await createDemoAccount("Pencuri");
+      } catch (e) {
+        return setMsg({ kind: "error", text: String((e as Error)?.message ?? e) });
+      }
       onAdd(thief);
     }
     const amount = (BigInt(bal.available) * 9n) / 10n;
@@ -264,14 +274,18 @@ function PanicTest({
       await call(guard, UNDO, "panic", { account_id: me.id }, { gasTera: "150" }),
     );
   async function finalizeAll() {
-    let last: { ok: boolean; hash?: string; error?: string } = { ok: true };
+    let last: { ok: boolean; hash?: string; error?: string; gasless?: boolean } = { ok: true };
+    let done = 0;
+    let allGasless = true;
     for (const t of ready) {
       last = await call(guard, UNDO, "finalize", { transfer_id: t.id }, { gasTera: "50" });
       if (!last.ok) break;
+      done += 1;
+      allGasless &&= !!last.gasless;
     }
     report(
-      t(`Finalisasi ${ready.length} transfer tanpa voting: uangnya sekarang di akun pemulihan.`, `Finalized ${ready.length} transfer(s) with no vote: the money is now in the recovery account.`),
-      last,
+      t(`Finalisasi ${done} dari ${ready.length} transfer tanpa voting: uangnya sekarang di akun pemulihan.`, `Finalized ${done} of ${ready.length} transfer(s) with no vote: the money is now in the recovery account.`),
+      last.ok ? { ...last, gasless: allGasless } : last,
     );
   }
   const unlock = async () => report(t("Akun dibuka kembali.", "Account unlocked."), await call(guard, UNDO, "unlock", { account_id: me.id }, { gasTera: "30" }));
@@ -287,7 +301,7 @@ function PanicTest({
   return (
     <Card title={t("Uji Tombol Panik", "Test the panic button")} tone="danger" right={<span className="text-xs text-stone-500">{t("akun pemulihan:", "recovery account:")} {short(guard.id)}</span>}>
       <ol className="space-y-2">
-        <Step n={1} title={t("Pura-pura kuncimu dicuri: kirim 90% saldo ke akun Pencuri", "Pretend your key was stolen: send 90% of the balance to the Thief account")} done={stolen.length > 0 || frozen.length > 0 || bal.locked}>
+        <Step n={1} title={t("Pura-pura kuncimu dicuri: kirim 90% saldo ke akun Pencuri", "Pretend your key was stolen: send 90% of the balance to the Thief account")} done={stolen.some((x) => x.to === thiefId) || frozen.length > 0 || bal.locked}>
           <Button small variant="danger" onClick={steal} disabled={bal.locked || bal.available === "0"}>
             {t("Simulasikan pencurian", "Simulate theft")}
           </Button>
@@ -333,6 +347,12 @@ function PanicTest({
           </Button>
         </Step>
       </ol>
+      <p className="mt-3 text-xs text-stone-500">
+        {t(
+          `NEAR akun pemulihan: ${nearText}. Langkah 2–4 (Panik, finalisasi, buka kunci) dikirim lewat relayer Undo (meta-transaction NEP-366), jadi langkah itu tidak mengurangi NEAR ini. Langkah 5 transfer biasa dan memakai gas sendiri.`,
+          `Recovery account NEAR: ${nearText}. Steps 2–4 (panic, finalize, unlock) go through the Undo relayer (NEP-366 meta-transaction), so they do not use this NEAR. Step 5 is a normal transfer and pays its own gas.`,
+        )}
+      </p>
       {msg && (
         <div className="mt-3">
           <Notice kind={msg.kind}>
@@ -558,7 +578,11 @@ function SendCard({
     let thief = accounts.find((a) => a.label === "Pencuri");
     if (!thief) {
       setMsg({ kind: "ok", text: t("Membuat akun pencuri…", "Creating the Thief account…") });
-      thief = await createDemoAccount("Pencuri");
+      try {
+        thief = await createDemoAccount("Pencuri");
+      } catch (e) {
+        return setMsg({ kind: "error", text: String((e as Error)?.message ?? e) });
+      }
       onAddAccount(thief);
     }
     const avail = BigInt(available ?? 0);
@@ -635,8 +659,9 @@ const fmtNear = (yocto: string) => (Number(BigInt(yocto) / 10n ** 18n) / 1e6).to
 function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId: string; cfg: Config }) {
   const t = useT();
   const fmt = useFmt();
-  const [out, refresh] = usePoll(() => view<Transfer[]>(UNDO, "get_outgoing", { account_id: protectedId, limit: 20 }), [protectedId], 3000);
-  const [acct, refreshAcct] = usePoll(() => view<AccountView>(UNDO, "get_account", { account_id: protectedId }), [protectedId], 3000);
+  const gasNote = useGasNote();
+  const [out, refresh] = usePoll(() => view<Transfer[]>(UNDO, "get_outgoing", { account_id: protectedId, limit: 20 }), [protectedId], 5000);
+  const [acct, refreshAcct] = usePoll(() => view<AccountView>(UNDO, "get_account", { account_id: protectedId }), [protectedId], 5000);
   const [msg, setMsg] = useState<{ kind: "ok" | "error"; text: string; hash?: string }>();
   const open = out?.filter((t) => (t.status === "Pending" && BigInt(t.unlock_at) > BigInt(Date.now()) * 1_000_000n) || t.status === "Frozen" || t.status === "Disputed");
 
@@ -650,7 +675,7 @@ function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId:
             text: t(
               `Panik! ${v?.frozen?.length ?? 0} transfer keluar dibekukan, sisa ${fmt(v?.swept)} rUSDC dibekukan menuju akun ini. Tanpa bantahan dalam ${cfg.contest_window_sec} detik, tekan Finalisasi.`,
               `Panic! ${v?.frozen?.length ?? 0} outgoing transfer(s) frozen; the remaining ${fmt(v?.swept)} rUSDC is frozen on its way to this account. If nobody contests within ${cfg.contest_window_sec} seconds, press Finalize.`,
-            ),
+            ) + gasNote(r),
             hash: r.hash,
           }
         : { kind: "error", text: r.error ?? t("gagal", "failed"), hash: r.hash },
@@ -661,7 +686,7 @@ function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId:
 
   async function unlock() {
     const r = await call(me, UNDO, "unlock", { account_id: protectedId }, { gasTera: "30" });
-    setMsg(r.ok ? { kind: "ok", text: t("Akun dibuka kembali.", "Account unlocked."), hash: r.hash } : { kind: "error", text: r.error ?? t("gagal", "failed") });
+    setMsg(r.ok ? { kind: "ok", text: t("Akun dibuka kembali.", "Account unlocked.") + gasNote(r), hash: r.hash } : { kind: "error", text: r.error ?? t("gagal", "failed") });
     refreshAcct();
   }
 
@@ -701,6 +726,7 @@ function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId:
             refresh();
             refreshAcct();
           }}
+          onMessage={setMsg}
           empty={t("Tidak ada transfer keluar yang pending.", "No pending outgoing transfers.")}
         />
       </div>

@@ -118,19 +118,30 @@ export function usePoll<T>(load: () => Promise<T>, deps: unknown[], ms = 6000): 
   const [tick, setTick] = useState(0);
   useEffect(() => {
     let alive = true;
-    const run = () =>
-      loadRef
-        .current()
-        .then((v) => alive && (setValue(v), setError(undefined)))
-        .catch((e) => alive && setError(String(e?.message ?? e)));
-    run();
-    // Skip polls while the tab is hidden (saves the free RPC quota).
-    const t = setInterval(() => {
-      if (typeof document === "undefined" || !document.hidden) run();
-    }, ms);
+    let fails = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const run = async (first: boolean) => {
+      // Skip polls while the tab is hidden (saves the free RPC quota).
+      if (first || typeof document === "undefined" || !document.hidden) {
+        try {
+          const v = await loadRef.current();
+          if (!alive) return;
+          setValue(v);
+          setError(undefined);
+          fails = 0;
+        } catch (e) {
+          if (!alive) return;
+          setError(String((e as Error)?.message ?? e));
+          fails = Math.min(fails + 1, 5);
+        }
+      }
+      // Back off while the RPC refuses (e.g. HTTP 429 on the free tier): 2x, 4x … up to 60 s.
+      if (alive) timer = setTimeout(() => run(false), Math.min(60_000, ms * 2 ** fails));
+    };
+    run(true);
     return () => {
       alive = false;
-      clearInterval(t);
+      clearTimeout(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, tick, ms]);

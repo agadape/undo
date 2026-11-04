@@ -37,6 +37,12 @@ export function useT() {
   return useCallback((id: string, en: string) => (lang === "en" ? en : id), [lang]);
 }
 
+/** Returns r => " · gasless: paid by the Undo relayer" when a call went through the relayer, else "". */
+export function useGasNote() {
+  const t = useT();
+  return useCallback((r: { gasless?: boolean }) => (r.gasless ? t(" · tanpa gas: dibayar relayer Undo", " · gasless: paid by the Undo relayer") : ""), [t]);
+}
+
 /** Returns fmt(raw) for 6-decimal amounts in the chosen language's number format. */
 export function useFmt() {
   const lang = useLang();

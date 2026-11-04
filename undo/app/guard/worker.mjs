@@ -3,7 +3,7 @@
 import { FailoverRpcProvider, JsonRpcProvider } from "near-api-js";
 import { tick, telegram } from "./guard.mjs";
 
-const RPCS = ["https://rpc.testnet.fastnear.com", "https://test.rpc.fastnear.com", "https://rpc.testnet.near.org"];
+const RPCS = ["https://rpc.testnet.fastnear.com", "https://test.rpc.fastnear.com", "https://near-testnet.drpc.org"];
 
 export default {
   async scheduled(_event, env, ctx) {
@@ -18,7 +18,10 @@ export default {
         demoKey: env.COBACURI_DEMO_PRIVATE_KEY,
         guardKey: env.COBACURI_GUARD_PRIVATE_KEY,
         notify: telegram(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID),
-      }).then((r) => console.log(JSON.stringify(r))),
+      }).then(
+        (r) => console.log(JSON.stringify(r)),
+        (e) => console.error("tick failed:", e?.stack ?? String(e)),
+      ),
     );
   },
 };

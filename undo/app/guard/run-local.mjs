@@ -22,8 +22,8 @@ for (const k of ["COBACURI_CONTRACT_ID", "COBACURI_DEMO_ID", "COBACURI_GUARD_ID"
   }
 }
 const provider = new FailoverRpcProvider(
-  // rpc.testnet.near.org is deprecated, so it is only the last fallback.
-  ["https://test.rpc.fastnear.com", "https://rpc.testnet.fastnear.com", "https://rpc.testnet.near.org"].map((url) => new JsonRpcProvider({ url })),
+  // rpc.testnet.near.org is deprecated and rate-limits, so dRPC is the last fallback.
+  ["https://test.rpc.fastnear.com", "https://rpc.testnet.fastnear.com", "https://near-testnet.drpc.org"].map((url) => new JsonRpcProvider({ url })),
 );
 const cfg = {
   provider,

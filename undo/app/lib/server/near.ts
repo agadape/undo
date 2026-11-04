@@ -4,8 +4,9 @@ import { RPCS } from "../config";
 import { need, optional } from "./env";
 
 // The server starts on the second fastnear endpoint so it does not share the browsers' first choice.
-// rpc.testnet.near.org is deprecated (it answers with a "stop using it" error), so it is the last fallback.
-export const provider = new FailoverRpcProvider([RPCS[1], RPCS[0], RPCS[2]].map((url) => new JsonRpcProvider({ url })));
+// The last fallback is dRPC: rpc.testnet.near.org is deprecated and now rate-limits with a "stop using it" error.
+// One quick retry per endpoint, then fail over (the library default retries 12 times, minutes on a 429).
+export const provider = new FailoverRpcProvider([RPCS[1], RPCS[0], RPCS[2]].map((url) => new JsonRpcProvider({ url }, { retries: 1, wait: 300, backoff: 2 })));
 
 /** Our main testnet account: posts court recommendations and is the (only) S8 DAO council member. */
 export const courtAccount = () => new Account(need("NEAR_ACCOUNT_ID"), provider, need("NEAR_PRIVATE_KEY") as `ed25519:${string}`);

@@ -1,11 +1,14 @@
 // Public configuration (testnet). Safe for the browser.
 export const RPC = "https://rpc.testnet.fastnear.com";
 /** Failover order; the free fastnear tier rate-limits bursts (HTTP 429). */
-export const RPCS = [RPC, "https://test.rpc.fastnear.com", "https://rpc.testnet.near.org"];
+export const RPCS = [RPC, "https://test.rpc.fastnear.com", "https://near-testnet.drpc.org"];
 /** Public demo contract: locked (0 keys), 5-minute window, court pinned to the attested NEAR AI key.
  * The earlier dev contract with 90 s windows is nh-v1undo-mvz2j3bw.testnet. */
 export const UNDO = process.env.NEXT_PUBLIC_UNDO_CONTRACT ?? "demo.nh-s26r-mvz1zxfx.testnet";
 export const USDC = "usdc.fakes.testnet";
+/** Safety actions the Undo relayer sends gasless (NEP-366). None takes a deposit, so the locked v1 contract
+ * accepts them as meta-transactions and still sees the signer (e.g. the recovery account) as the caller. */
+export const GASLESS_METHODS = ["panic", "unlock", "release", "cancel_recovery_change", "finalize", "release_expired"];
 export const DAO = "nhspike-mvp6a0dx.sputnikv2.testnet";
 /** A copy of the same v1 wasm deployed and locked (no keys) in S25. */
 export const LOCKED_EXAMPLE = "lockedmvz3cg5t.nh-v1undo-mvz2j3bw.testnet";

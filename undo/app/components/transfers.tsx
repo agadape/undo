@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { UNDO, USDC } from "@/lib/config";
-import { useFmt, useLang, useT } from "@/lib/i18n";
+import { useFmt, useGasNote, useLang, useT } from "@/lib/i18n";
 import { call, short, view, type DemoAccount } from "@/lib/near-client";
 import type { Config, Transfer } from "@/lib/types";
 import { Button, Countdown, Notice, StatusBadge, TxLink } from "./ui";
@@ -14,26 +14,33 @@ const nowNs = () => BigInt(Date.now()) * 1_000_000n;
 
 type Mode = "self" | "recovery";
 
-export function TransferRow({ t, me, cfg, mode, onDone }: { t: Transfer; me: DemoAccount; cfg: Config; mode: Mode; onDone: () => void }) {
+type Msg = { kind: "ok" | "error"; text: string; hash?: string };
+
+/** `onMessage`: show results in the parent instead (for lists whose rows disappear once acted on). */
+export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transfer; me: DemoAccount; cfg: Config; mode: Mode; onDone: () => void; onMessage?: (m: Msg) => void }) {
   // `t` is the transfer here, so the translator is `tr`.
   const tr = useT();
   const lang = useLang();
   const fmt = useFmt();
+  const gasNote = useGasNote();
   const router = useRouter();
-  const [msg, setMsg] = useState<{ kind: "ok" | "error"; text: string; hash?: string }>();
+  const [ownMsg, setOwnMsg] = useState<Msg>();
+  const msg = onMessage ? undefined : ownMsg;
+  const setMsg = (m: Msg) => (onMessage ? onMessage(m) : setOwnMsg(m));
   const now = nowNs();
   const inWindow = t.status === "Pending" && now < BigInt(t.unlock_at);
   const ownUnwrap = t.kind === "Exit" && t.to === t.from;
   const frozenOpen = t.status === "Frozen" && t.frozen_until && now < BigInt(t.frozen_until);
-  const frozenDone = t.status === "Frozen" && t.frozen_until && now >= BigInt(t.frozen_until);
+  // Finalize 3 s after frozen_until, so the relayer's own 2 s margin has passed too.
+  const frozenDone = t.status === "Frozen" && t.frozen_until && now >= BigInt(t.frozen_until) + 3_000_000_000n;
   const exitReady = t.kind === "Exit" && t.status === "Pending" && now >= BigInt(t.unlock_at);
   const isSender = t.from === me.id;
   const isReceiver = t.to === me.id;
   const canContest = frozenOpen && (t.kind === "Sweep" ? isSender : isSender || isReceiver);
 
-  async function act(label: string, fn: () => Promise<{ ok: boolean; hash?: string; error?: string }>, then?: () => void) {
+  async function act(label: string, fn: () => Promise<{ ok: boolean; hash?: string; error?: string; gasless?: boolean }>, then?: () => void) {
     const r = await fn();
-    setMsg(r.ok ? { kind: "ok", text: tr(`${label} berhasil`, `${label}: done`), hash: r.hash } : { kind: "error", text: r.error ?? tr("gagal", "failed"), hash: r.hash });
+    setMsg(r.ok ? { kind: "ok", text: tr(`${label} berhasil`, `${label}: done`) + gasNote(r), hash: r.hash } : { kind: "error", text: r.error ?? tr("gagal", "failed"), hash: r.hash });
     onDone();
     if (r.ok && then) then();
   }
@@ -120,7 +127,25 @@ export function TransferRow({ t, me, cfg, mode, onDone }: { t: Transfer; me: Dem
   );
 }
 
-export function TransferList({ title, items, me, cfg, mode, onDone, empty }: { title: string; items: Transfer[] | undefined; me: DemoAccount; cfg: Config; mode: Mode; onDone: () => void; empty: string }) {
+export function TransferList({
+  title,
+  items,
+  me,
+  cfg,
+  mode,
+  onDone,
+  empty,
+  onMessage,
+}: {
+  title: string;
+  items: Transfer[] | undefined;
+  me: DemoAccount;
+  cfg: Config;
+  mode: Mode;
+  onDone: () => void;
+  empty: string;
+  onMessage?: (m: Msg) => void;
+}) {
   const tr = useT();
   return (
     <div>
@@ -132,7 +157,7 @@ export function TransferList({ title, items, me, cfg, mode, onDone, empty }: { t
       ) : (
         <ul>
           {items.map((t) => (
-            <TransferRow key={t.id} t={t} me={me} cfg={cfg} mode={mode} onDone={onDone} />
+            <TransferRow key={t.id} t={t} me={me} cfg={cfg} mode={mode} onDone={onDone} onMessage={onMessage} />
           ))}
         </ul>
       )}

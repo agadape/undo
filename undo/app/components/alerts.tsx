@@ -7,7 +7,7 @@ import { useAccounts } from "@/components/accounts";
 import { Button, Countdown, TxLink, usePoll } from "@/components/ui";
 import { ACK_EVENT, ack, ackKey, loadAcks, recoveryAckKey } from "@/lib/alerts";
 import { UNDO } from "@/lib/config";
-import { useAccountLabel, useFmt, useT } from "@/lib/i18n";
+import { useAccountLabel, useFmt, useGasNote, useT } from "@/lib/i18n";
 import { call, short, view } from "@/lib/near-client";
 import type { AccountView, Transfer } from "@/lib/types";
 
@@ -19,6 +19,7 @@ export function OutgoingAlerts() {
   const t = useT();
   const fmt = useFmt();
   const accountLabel = useAccountLabel();
+  const gasNote = useGasNote();
   const ids = [...new Set([...(wallet ? [wallet.id] : []), ...accounts.flatMap((a) => (a.recoveryFor ? [a.recoveryFor] : []))])].sort();
   const [acks, setAcks] = useState<Set<string>>(() => new Set());
   const [results, setResults] = useState<Record<string, Result>>({});
@@ -80,7 +81,7 @@ export function OutgoingAlerts() {
                   text: t(
                     "PANIK terkirim: transfer keluar dibekukan dan akun dikunci. Setelah jendela bantah lewat tanpa bantahan, siapa pun bisa finalize dan uangnya masuk ke akun pemulihan.",
                     "PANIC sent: outgoing transfers are frozen and the account is locked. Once the contest window passes with no contest, anyone can finalize and the money goes to the recovery account.",
-                  ),
+                  ) + gasNote(r),
                   hash: r.hash,
                 }
               : { ok: false, text: r.error ?? t("gagal", "failed"), hash: r.hash },

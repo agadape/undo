@@ -6,7 +6,7 @@ import { useAccounts } from "@/components/accounts";
 import { Button, Card, Countdown, Notice, Pill, StatusBadge, TxLink, usePoll } from "@/components/ui";
 import { UNDO } from "@/lib/config";
 import { encryptTo, sha256hex, type Side } from "@/lib/court";
-import { useFmt, useLang, useReason, useT } from "@/lib/i18n";
+import { useFmt, useGasNote, useLang, useReason, useT } from "@/lib/i18n";
 import { call, short, view } from "@/lib/near-client";
 import type { AccountView, Config, Transfer } from "@/lib/types";
 
@@ -16,6 +16,7 @@ const pendingKey = (id: string, side: Side) => `undo.evidence.${id}.${side}`;
 export default function SidangPage() {
   const { id } = useParams<{ id: string }>();
   const tr = useT();
+  const gasNote = useGasNote();
   const lang = useLang();
   const fmt = useFmt();
   const reason = useReason();
@@ -120,7 +121,7 @@ export default function SidangPage() {
     const r = await call(active, UNDO, "release_expired", { transfer_id: id }, { gasTera: "50" });
     setMsg(
       r.ok
-        ? { kind: "ok", text: tr("Diamnya dewan diterapkan: keadaan yang dibantah tetap berlaku.", "Council silence applied: the contested state stays in effect."), hash: r.hash }
+        ? { kind: "ok", text: tr("Diamnya dewan diterapkan: keadaan yang dibantah tetap berlaku.", "Council silence applied: the contested state stays in effect.") + gasNote(r), hash: r.hash }
         : { kind: "error", text: r.error ?? tr("gagal", "failed") },
     );
     refreshT();

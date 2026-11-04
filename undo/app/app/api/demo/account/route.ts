@@ -29,6 +29,7 @@ export async function POST(req: Request) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ newAccountId: helperId, newAccountPublicKey: publicKey }),
+      signal: AbortSignal.timeout(10_000),
     });
     if (res.ok) return NextResponse.json({ accountId: helperId, via: "testnet helper (10 NEAR)" });
   } catch {
