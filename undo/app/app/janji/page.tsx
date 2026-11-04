@@ -120,6 +120,23 @@ export default function JanjiPage() {
           </div>
         )}
       </PromiseCard>
+
+      {cfg?.contact_delay_sec !== undefined && (
+        <PromiseCard id="T0" title={t("Kontak tepercaya: cepat, tapi tidak bisa diserobot pencuri", "Trusted contacts: fast, but a thief cannot just add himself")} tests="t0_*, property (add_contact, cancel_contact)" live>
+          <p>
+            {t(
+              `Pembayaran ke kontak yang sudah aktif langsung final, tanpa jendela, jadi tidak bisa dibatalkan (J2 tetap berlaku karena memang tidak ada jendela). Kontak baru baru aktif setelah ${Math.round(cfg.contact_delay_sec / 60)} menit (jendela transfer: ${Math.round(cfg.window_sec / 60)} menit). Kontrak menolak jeda yang lebih pendek dari jendela saat deploy. Panik membatalkan semua kontak yang belum aktif, dan akun pemulihan bisa menghapus kontak mana pun tanpa Panik.`,
+              `A payment to an active contact is final at once, with no window, so it cannot be undone (J2 still holds: there is no window). A new contact becomes active only after ${Math.round(cfg.contact_delay_sec / 60)} min (transfer window: ${Math.round(cfg.window_sec / 60)} min). The contract refuses a delay shorter than the window at deployment. Panic cancels every contact that is not active yet, and the recovery account can remove any contact without a panic.`,
+            )}
+          </p>
+          <p className="mt-1">
+            {t("Jeda kontak on-chain:", "Contact delay on chain:")} <b>{cfg.contact_delay_sec} {t("dtk", "s")}</b> ·{" "}
+            <Pill tone={cfg.contact_delay_sec >= cfg.window_sec ? "ok" : "danger"}>
+              {cfg.contact_delay_sec >= cfg.window_sec ? t("≥ jendela", "≥ window") : t("lebih pendek dari jendela", "shorter than the window")}
+            </Pill>
+          </p>
+        </PromiseCard>
+      )}
     </div>
   );
 }

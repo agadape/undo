@@ -1,0 +1,108 @@
+{
+  "wasmBytes": 307544,
+  "steps": {
+    "deploy": {
+      "tx": "https://testnet.nearblocks.io/txns/D55Nqf6AuHCzKhX6NahR1z1nWnmqBcZJRukwHnxAv8tm"
+    },
+    "config": {
+      "window_sec": 120,
+      "contact_delay_sec": 60,
+      "recovery_delay_sec": 60
+    },
+    "set_recovery": {
+      "ok": true,
+      "hash": "4ef7bvS2VMPNfNd1w3KVmaZae6LNoZiDe8Ls4uKmgM2N",
+      "value": null
+    },
+    "wrap": {
+      "ok": true,
+      "hash": "AWguAkTC4t5YkfqJVHpHjXFkkv2qoNJEWtYDBq4oSKRt",
+      "value": "100000000"
+    },
+    "add_contact": {
+      "ok": true,
+      "hash": "8YQrJXAAiyEQhJui9CAp7UizevKS31ZUbYFL2ZHftRDE",
+      "value": "1793786280570058507"
+    },
+    "pay_before_active": {
+      "ok": true,
+      "hash": "6npAPivRzJPUZg7dQ2pZLuZf3X4qDRgHhR4obwfw4m36",
+      "value": "0",
+      "status": "Pending"
+    },
+    "contacts_after_delay": [
+      {
+        "contact": "shop.v2dev2w1yl4.nh-s26r-mvz1zxfx.testnet",
+        "active_at": "1793786280570058507",
+        "active": true
+      }
+    ],
+    "pay_active_contact": {
+      "ok": true,
+      "hash": "2N9RehDMj8LSaPzheMSa7RGtRu8tjBfEyP1s8f53Yr9u",
+      "value": "1",
+      "status": "Settled",
+      "final_to": "shop.v2dev2w1yl4.nh-s26r-mvz1zxfx.testnet",
+      "shopAvailableBefore": "0",
+      "shopAvailableAfter": "20000000"
+    },
+    "report_contact_payment": {
+      "ok": false,
+      "error": "only pending transfers can be reported"
+    },
+    "send_usdc_contact": {
+      "send": {
+        "ok": true,
+        "hash": "7xNxzNuAUniNbxCgsywtWcyTKYPJ5TXKWH7Uo1qXqHZW",
+        "value": "2"
+      },
+      "unlockEqualsCreated": true,
+      "withdraw": {
+        "ok": true,
+        "hash": "6orkkBLngzCuZgAXHsxfvhsMmrAAgunyDBE8yacNw7yE",
+        "value": true
+      },
+      "shopUsdc": "5000000"
+    },
+    "pay_non_contact": {
+      "ok": true,
+      "hash": "4fpg7urkFc3AmKwYVBrZgf1LRW4BzqaA7WDNfAbXVZqP",
+      "value": "3",
+      "status": "Pending"
+    },
+    "thief_adds_contact": {
+      "ok": true,
+      "hash": "8TfxiykGwYiiJVCLKAmgu3LjfwuZWMLBwgBKoPmFcfBg",
+      "value": "1793786368889488730"
+    },
+    "panic": {
+      "ok": true,
+      "hash": "9pgcuJNerpvABCg5De8Bs87cBTMevUgvqc4nEGN94AFr",
+      "value": {
+        "account_id": "alice.v2dev2w1yl4.nh-s26r-mvz1zxfx.testnet",
+        "recovery": "hp.v2dev2w1yl4.nh-s26r-mvz1zxfx.testnet",
+        "frozen": [
+          "0",
+          "3"
+        ],
+        "sweep": "4",
+        "swept": "60000000",
+        "contacts_cancelled": 1
+      }
+    },
+    "contacts_after_panic": [
+      {
+        "contact": "shop.v2dev2w1yl4.nh-s26r-mvz1zxfx.testnet",
+        "active_at": "1793786280570058507",
+        "active": true
+      }
+    ],
+    "locked_add_contact": {
+      "ok": false,
+      "error": "account is locked (panic)"
+    }
+  },
+  "contract": "v2dev2w1yl4.nh-s26r-mvz1zxfx.testnet",
+  "via": "sub-account",
+  "allChecksPass": true
+}

@@ -1,4 +1,4 @@
-// Shapes returned by the undo-token v1 contract views.
+// Shapes returned by the undo-token contract views (v1; v2 adds trusted contacts).
 export type Kind = "Transfer" | "Exit" | "Sweep";
 export type Status = "Pending" | "Frozen" | "Disputed" | "Settled" | "Reversed";
 
@@ -67,9 +67,14 @@ export type Config = {
   evidence_window_sec: number;
   dispute_timeout_sec: number;
   recovery_delay_sec: number;
+  /** v2 only: trusted contacts become active after this delay. */
+  contact_delay_sec?: number;
   bond: string;
   storage_fee: string;
   total_supply: string;
   next_id: string;
   court: { model_id: string; signer: string | null; signer_x25519: string; prompt_sha256: string | null; max_tokens: number };
 };
+
+/** v2: a trusted contact. Payments to an active contact are final at once. */
+export type Contact = { contact: string; active_at: string; active: boolean };

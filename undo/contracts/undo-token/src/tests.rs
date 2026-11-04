@@ -6,7 +6,7 @@ use near_sdk::testing_env;
 const SEC: u64 = 1_000_000_000;
 const T0: u64 = 1_000;
 const BOND: u128 = 100;
-// setup(): window 120 s, contest 60 s, evidence 30 s, dispute timeout 3600 s, recovery delay 300 s.
+// setup(): window 120 s, contest 60 s, evidence 30 s, dispute timeout 3600 s, recovery delay 300 s, contact delay 200 s.
 
 fn acc(s: &str) -> AccountId {
     s.parse().unwrap()
@@ -24,7 +24,7 @@ fn ctx(predecessor: &str, t: u64, deposit: u128) {
 
 fn setup() -> Contract {
     ctx("deployer.testnet", T0, 0);
-    Contract::new(acc("usdc.testnet"), acc("dao.testnet"), 120, 60, 30, 3_600, 300, U128(BOND), U128(0))
+    Contract::new(acc("usdc.testnet"), acc("dao.testnet"), 120, 60, 30, 3_600, 300, U128(BOND), U128(0), Some(200))
 }
 
 fn wrap(c: &mut Contract, who: &str, amount: u128, t: u64) {
@@ -51,6 +51,225 @@ fn alice_with_recovery(c: &mut Contract) {
 fn send(c: &mut Contract, from: &str, to: &str, amount: u128, t: u64) -> U64 {
     ctx(from, t, 1);
     c.transfer(acc(to), U128(amount), None)
+}
+
+// ---------- T0 trusted contacts ----------
+
+fn add_contact(c: &mut Contract, owner: &str, contact: &str, t: u64) -> U64 {
+    ctx(owner, t, 1);
+    c.add_contact(acc(contact))
+}
+
+fn contacts(c: &Contract, who: &str, t: u64) -> Vec<near_sdk::serde_json::Value> {
+    ctx("viewer.testnet", t, 0);
+    c.get_contacts(acc(who))
+}
+
+#[test]
+fn t0_a_new_contact_waits_for_the_delay() {
+    let mut c = setup();
+    wrap(&mut c, "alice.testnet", 100, T0);
+    let at = add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    assert_eq!(at.0, (T0 + 200) * SEC);
+    assert_eq!(contacts(&c, "alice.testnet", T0 + 199)[0]["active"], near_sdk::serde_json::json!(false));
+    let id = send(&mut c, "alice.testnet", "shop.testnet", 10, T0 + 199);
+    assert_eq!(status(&c, id), Status::Pending);
+}
+
+#[test]
+fn t0_a_payment_to_an_active_contact_is_final_at_once() {
+    let mut c = setup();
+    wrap(&mut c, "alice.testnet", 100, T0);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    let id = send(&mut c, "alice.testnet", "shop.testnet", 30, T0 + 200);
+    let tr = c.get_transfer(id).unwrap();
+    assert_eq!(tr.status, Status::Settled);
+    assert_eq!(tr.final_to, Some(acc("shop.testnet")));
+    assert_eq!(avail(&c, "shop.testnet", T0 + 200), 30);
+    assert_eq!(avail(&c, "alice.testnet", T0 + 200), 70);
+    ctx("viewer.testnet", T0 + 200, 0);
+    assert!(c.get_incoming(acc("shop.testnet")).is_empty());
+}
+
+#[test]
+#[should_panic(expected = "only pending transfers can be reported")]
+fn t0_a_contact_payment_cannot_be_reported() {
+    let mut c = setup();
+    alice_with_recovery(&mut c);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    let id = send(&mut c, "alice.testnet", "shop.testnet", 30, T0 + 200);
+    ctx("alice.testnet", T0 + 201, BOND);
+    c.report(id, "scam".into());
+}
+
+#[test]
+fn t0_panic_cannot_undo_a_contact_payment() {
+    let mut c = setup();
+    alice_with_recovery(&mut c);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    let id = send(&mut c, "alice.testnet", "shop.testnet", 30, T0 + 201);
+    ctx("alice-hp.testnet", T0 + 202, 0);
+    c.panic(acc("alice.testnet"));
+    assert_eq!(status(&c, id), Status::Settled);
+    assert_eq!(avail(&c, "shop.testnet", T0 + 202), 30);
+}
+
+#[test]
+fn t0_panic_cancels_a_contact_the_thief_added() {
+    let mut c = setup();
+    alice_with_recovery(&mut c);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0); // the owner's own, active from T0 + 200
+    add_contact(&mut c, "alice.testnet", "thief.testnet", T0 + 250); // the thief, holding alice's key
+    ctx("alice-hp.testnet", T0 + 300, 0);
+    let out = c.panic(acc("alice.testnet"));
+    assert_eq!(out["contacts_cancelled"], near_sdk::serde_json::json!(1));
+    let left = contacts(&c, "alice.testnet", T0 + 1_000);
+    assert_eq!(left.len(), 1);
+    assert_eq!(left[0]["contact"], near_sdk::serde_json::json!("shop.testnet"));
+    // After the owner unlocks, a payment to the thief goes through the window again.
+    ctx("alice-hp.testnet", T0 + 400, 0);
+    c.unlock(acc("alice.testnet"));
+    wrap(&mut c, "alice.testnet", 50, T0 + 400);
+    let id = send(&mut c, "alice.testnet", "thief.testnet", 50, T0 + 1_000);
+    assert_eq!(status(&c, id), Status::Pending);
+}
+
+#[test]
+#[should_panic(expected = "account is locked")]
+fn t0_a_locked_account_cannot_add_contacts() {
+    let mut c = setup();
+    alice_with_recovery(&mut c);
+    ctx("alice-hp.testnet", T0 + 1, 0);
+    c.panic(acc("alice.testnet"));
+    add_contact(&mut c, "alice.testnet", "thief.testnet", T0 + 2);
+}
+
+#[test]
+fn t0_removing_a_contact_takes_effect_at_once() {
+    let mut c = setup();
+    wrap(&mut c, "alice.testnet", 100, T0);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    ctx("alice.testnet", T0 + 300, 0);
+    c.remove_contact(acc("shop.testnet"));
+    assert!(contacts(&c, "alice.testnet", T0 + 300).is_empty());
+    let id = send(&mut c, "alice.testnet", "shop.testnet", 10, T0 + 300);
+    assert_eq!(status(&c, id), Status::Pending);
+}
+
+#[test]
+fn t0_send_usdc_to_an_active_contact_can_be_withdrawn_at_once() {
+    let mut c = setup();
+    wrap(&mut c, "alice.testnet", 100, T0);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    ctx("alice.testnet", T0 + 200, 1);
+    let id = c.send_usdc(acc("shop.testnet"), U128(40), None);
+    let tr = c.get_transfer(id).unwrap();
+    assert_eq!(tr.kind, Kind::Exit);
+    assert_eq!(tr.unlock_at, tr.created_at);
+    ctx("anyone.testnet", T0 + 200, 0);
+    let _ = c.withdraw(id);
+    assert_eq!(status(&c, id), Status::Settled);
+}
+
+#[test]
+fn t0_contacts_belong_to_one_owner() {
+    let mut c = setup();
+    wrap(&mut c, "alice.testnet", 100, T0);
+    wrap(&mut c, "bob.testnet", 100, T0);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    let id = send(&mut c, "bob.testnet", "shop.testnet", 10, T0 + 300);
+    assert_eq!(status(&c, id), Status::Pending);
+}
+
+#[test]
+#[should_panic(expected = "you cannot be your own contact")]
+fn t0_you_cannot_be_your_own_contact() {
+    let mut c = setup();
+    add_contact(&mut c, "alice.testnet", "alice.testnet", T0);
+}
+
+#[test]
+#[should_panic(expected = "already a contact")]
+fn t0_no_duplicate_contacts() {
+    let mut c = setup();
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0 + 1);
+}
+
+#[test]
+#[should_panic(expected = "at most 20 contacts")]
+fn t0_at_most_20_contacts() {
+    let mut c = setup();
+    for i in 0..21 {
+        add_contact(&mut c, "alice.testnet", &format!("c{i}.testnet"), T0);
+    }
+}
+
+#[test]
+#[should_panic(expected = "storage fee")]
+fn t0_adding_a_contact_needs_the_storage_fee() {
+    ctx("deployer.testnet", T0, 0);
+    let mut c = Contract::new(acc("usdc.testnet"), acc("dao.testnet"), 120, 60, 30, 3_600, 300, U128(BOND), U128(5), Some(200));
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0); // 1 yocto instead of 5
+}
+
+#[test]
+#[should_panic(expected = "contact delay must be at least the window")]
+fn t0_the_contact_delay_cannot_be_shorter_than_the_window() {
+    ctx("deployer.testnet", T0, 0);
+    Contract::new(acc("usdc.testnet"), acc("dao.testnet"), 120, 60, 30, 3_600, 300, U128(BOND), U128(0), Some(60));
+}
+
+#[test]
+fn t0_the_recovery_account_can_cancel_a_contact() {
+    let mut c = setup();
+    alice_with_recovery(&mut c);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    ctx("alice-hp.testnet", T0 + 300, 0);
+    c.cancel_contact(acc("alice.testnet"), acc("shop.testnet"));
+    assert!(near_sdk::test_utils::get_logs().iter().any(|l| l.contains("contact_removed") && l.contains("recovery")));
+    let id = send(&mut c, "alice.testnet", "shop.testnet", 10, T0 + 300);
+    assert_eq!(status(&c, id), Status::Pending);
+}
+
+#[test]
+#[should_panic(expected = "only the recovery account can cancel a contact")]
+fn t0_only_the_recovery_account_can_cancel_a_contact() {
+    let mut c = setup();
+    alice_with_recovery(&mut c);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    ctx("thief.testnet", T0 + 300, 0);
+    c.cancel_contact(acc("alice.testnet"), acc("shop.testnet"));
+}
+
+#[test]
+fn t0_panic_logs_each_cancelled_contact() {
+    let mut c = setup();
+    alice_with_recovery(&mut c);
+    add_contact(&mut c, "alice.testnet", "thief.testnet", T0);
+    ctx("alice-hp.testnet", T0 + 10, 0);
+    c.panic(acc("alice.testnet"));
+    assert!(near_sdk::test_utils::get_logs().iter().any(|l| l.contains("contact_removed") && l.contains("panic") && l.contains("thief.testnet")));
+}
+
+#[test]
+fn t0_the_send_usdc_event_has_the_real_unlock_time() {
+    let mut c = setup();
+    wrap(&mut c, "alice.testnet", 100, T0);
+    add_contact(&mut c, "alice.testnet", "shop.testnet", T0);
+    ctx("alice.testnet", T0 + 200, 1);
+    c.send_usdc(acc("shop.testnet"), U128(40), None);
+    let now = ((T0 + 200) * SEC).to_string();
+    let logs = near_sdk::test_utils::get_logs();
+    assert!(logs.iter().any(|l| l.contains("\"send_usdc\"") && l.contains(&format!("\"unlock_at\":\"{now}\""))), "{logs:?}");
+    assert!(logs.iter().any(|l| l.contains("contact_payment") && l.contains("\"kind\":\"send_usdc\"") && l.contains("\"amount\":\"40\"")), "{logs:?}");
+}
+
+#[test]
+fn t0_the_contact_delay_defaults_to_the_recovery_delay() {
+    ctx("deployer.testnet", T0, 0);
+    let c = Contract::new(acc("usdc.testnet"), acc("dao.testnet"), 120, 60, 30, 3_600, 300, U128(BOND), U128(0), None);
+    assert_eq!(c.get_config()["contact_delay_sec"], near_sdk::serde_json::json!(300));
 }
 
 // ---------- basics ----------
@@ -81,7 +300,7 @@ fn receiver_cannot_spend_pending() {
 #[should_panic(expected = "storage fee")]
 fn storage_fee_is_required() {
     ctx("deployer.testnet", T0, 0);
-    let mut c = Contract::new(acc("usdc.testnet"), acc("dao.testnet"), 120, 60, 30, 3_600, 300, U128(BOND), U128(5));
+    let mut c = Contract::new(acc("usdc.testnet"), acc("dao.testnet"), 120, 60, 30, 3_600, 300, U128(BOND), U128(5), Some(200));
     wrap(&mut c, "alice.testnet", 50, T0);
     send(&mut c, "alice.testnet", "bob.testnet", 10, T0); // 1 yocto instead of 5
 }

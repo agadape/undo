@@ -86,6 +86,10 @@ export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transf
               {tr("bantah dalam", "contest within")} <Countdown ns={t.frozen_until} />
             </span>
           )}
+          {t.kind === "Transfer" && t.status === "Settled" && t.unlock_at === t.created_at && t.dispute === null && (
+            <span className="text-stone-500">{tr("langsung final (kontak)", "final at once (contact)")}</span>
+          )}
+          {t.kind === "Exit" && t.to !== t.from && t.unlock_at === t.created_at && <span className="text-stone-500">{tr("tanpa jendela (kontak)", "no window (contact)")}</span>}
           {t.final_to && <span className="text-stone-500">→ {short(t.final_to)}</span>}
         </div>
       </div>

@@ -95,7 +95,7 @@ impl World {
         let now = self.now * SEC; // contract timestamps are in nanoseconds
         self.at(&acc("viewer.testnet"), 0); // read state at the current time
         let ts = self.transfers();
-        match rng.below(18) {
+        match rng.below(21) {
             0 | 1 => {
                 let who = rng.pick(&Self::senders())?;
                 let amount = 1 + rng.below(1_000) as u128;
@@ -111,8 +111,9 @@ impl World {
                 let to = rng.pick(&Self::all_accounts().into_iter().filter(|a| *a != from).collect::<Vec<_>>())?;
                 let amount = 1 + rng.below(avail as u64) as u128;
                 self.at(&from, 1);
+                let contact = self.c.is_active_contact(&from, &to);
                 self.c.transfer(to, U128(amount), None);
-                Some("transfer")
+                Some(if contact { "transfer_to_contact" } else { "transfer" })
             }
             5 => {
                 let from = rng.pick(&Self::senders())?;
@@ -207,6 +208,33 @@ impl World {
                 self.withdrawn += t.amount.0;
                 Some("withdraw")
             }
+            18 => {
+                let who = rng.pick(&Self::senders())?;
+                if self.locked(&who) { return None; }
+                let list = self.c.contacts.get(&who).cloned().unwrap_or_default();
+                if list.len() >= MAX_CONTACTS { return None; }
+                let to = rng.pick(&Self::all_accounts().into_iter().filter(|a| *a != who && !list.iter().any(|(c, _)| c == a)).collect::<Vec<_>>())?;
+                self.at(&who, 1);
+                self.c.add_contact(to);
+                Some("add_contact")
+            }
+            19 => {
+                let who = rng.pick(&Self::senders())?;
+                let list = self.c.contacts.get(&who).cloned().unwrap_or_default();
+                let (c, _) = rng.pick(&list)?;
+                self.at(&who, 0);
+                self.c.remove_contact(c);
+                Some("remove_contact")
+            }
+            20 => {
+                let who = rng.pick(&PEOPLE.iter().map(|s| acc(s)).collect::<Vec<_>>())?;
+                let rec = self.c.current_recovery(&who)?;
+                let list = self.c.contacts.get(&who).cloned().unwrap_or_default();
+                let (c, _) = rng.pick(&list)?;
+                self.at(&rec, 0);
+                self.c.cancel_contact(who, c);
+                Some("cancel_contact")
+            }
             _ => {
                 let t = rng.pick(&ts.iter().filter(|t| t.status == Status::Disputed && now < t.dispute.as_ref().unwrap().evidence_deadline.0).cloned().collect::<Vec<_>>())?;
                 let d = t.dispute.clone().unwrap();
@@ -267,7 +295,7 @@ fn run_seed(seed: u64) -> BTreeMap<&'static str, u32> {
     let s = seed as u8;
     ctx(&acc("deployer.testnet"), 1_000, 0, s);
     // window 120 s, contest 60 s, evidence 30 s, timeout 600 s, recovery delay 90 s
-    let c = Contract::new(acc("usdc.testnet"), acc(COUNCIL), 120, 60, 30, 600, 90, U128(BOND), U128(0));
+    let c = Contract::new(acc("usdc.testnet"), acc(COUNCIL), 120, 60, 30, 600, 90, U128(BOND), U128(0), Some(120));
     let mut w = World { c, now: 1_000, wrapped: 0, withdrawn: 0, ever_recovery: HashMap::new(), finals: HashMap::new(), matured: HashSet::new(), seed: s };
     let mut rng = Rng(0x9E37_79B9_7F4A_7C15 ^ seed.wrapping_mul(0x2545_F491_4F6C_DD1D));
     for i in 0..STEPS {
@@ -293,7 +321,7 @@ fn property_j1_j2_j6_hold_under_random_actions() {
         }
     }
     println!("actions executed over {n} seeds x {STEPS} steps: {totals:?}");
-    for must in ["transfer", "report", "contest", "panic", "finalize", "resolve", "release_expired", "release", "withdraw", "set_recovery", "commit_evidence"] {
+    for must in ["transfer", "report", "contest", "panic", "finalize", "resolve", "release_expired", "release", "withdraw", "set_recovery", "commit_evidence", "add_contact", "transfer_to_contact"] {
         assert!(totals.get(must).copied().unwrap_or(0) >= 1 + n as u32 / 4, "fuzzer barely exercised `{must}`: {totals:?}");
     }
 }

@@ -1,14 +1,14 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccounts } from "@/components/accounts";
 import { TransferList } from "@/components/transfers";
 import { Button, Card, Countdown, Notice, Pill, TxLink, usePoll } from "@/components/ui";
-import { ack, ackKey } from "@/lib/alerts";
+import { ack, ackKey, contactAckKey } from "@/lib/alerts";
 import { ADDR, UNDO, USDC } from "@/lib/config";
 import { useAccountLabel, useFmt, useGasNote, useLang, useT } from "@/lib/i18n";
 import { USD, call, createDemoAccount, parseOutcome, provider, short, view, type DemoAccount } from "@/lib/near-client";
 import { walletBatch } from "@/lib/wallet";
-import type { AccountView, BalanceView, Config, Transfer } from "@/lib/types";
+import type { AccountView, BalanceView, Config, Contact, Transfer } from "@/lib/types";
 
 export default function DompetPage() {
   const { accounts, active, ready } = useAccounts();
@@ -17,7 +17,7 @@ export default function DompetPage() {
   if (!ready) return null;
   if (accounts.length === 0 || !active) return <Setup />;
   if (!cfg) return <p className="text-sm text-stone-500">{t("memuat kontrak…", "loading contract…")}</p>;
-  return <Wallet me={active} cfg={cfg} />;
+  return <Wallet key={active.id} me={active} cfg={cfg} />;
 }
 
 // ---------- first run: one click creates a protected wallet + its recovery account ----------
@@ -105,11 +105,15 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
   const [acct, refreshAcct] = usePoll(() => view<AccountView>(UNDO, "get_account", { account_id: me.id }), [me.id]);
   const [incoming, refreshIn] = usePoll(() => view<Transfer[]>(UNDO, "get_incoming", { account_id: me.id }), [me.id]);
   const [outgoing, refreshOut] = usePoll(() => view<Transfer[]>(UNDO, "get_outgoing", { account_id: me.id, limit: 20 }), [me.id]);
+  // Trusted contacts exist only on v2 contracts (get_config has contact_delay_sec).
+  const hasContacts = cfg.contact_delay_sec !== undefined;
+  const [contacts, refreshContacts] = usePoll(() => (hasContacts ? view<Contact[]>(UNDO, "get_contacts", { account_id: me.id }) : Promise.resolve([] as Contact[])), [me.id, hasContacts], 10000);
   const refresh = () => {
     refreshBal();
     refreshAcct();
     refreshIn();
     refreshOut();
+    refreshContacts();
   };
   const protectedId = me.recoveryFor;
 
@@ -167,7 +171,9 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
         return guard && bal ? <PanicTest me={me} guard={guard} cfg={cfg} accounts={accounts} bal={bal} outgoing={outgoing} onAdd={add} onDone={refresh} /> : null;
       })()}
 
-      <SendCard me={me} cfg={cfg} accounts={accounts} available={bal?.available} onDone={refresh} onAddAccount={add} />
+      {hasContacts && <ContactsCard me={me} cfg={cfg} accounts={accounts} contacts={contacts} locked={!!bal?.locked} onDone={refresh} />}
+
+      <SendCard me={me} cfg={cfg} accounts={accounts} available={bal?.available} contacts={contacts} onDone={refresh} onAddAccount={add} />
 
 
       <Card title={t("Riwayat", "History")}>
@@ -531,11 +537,115 @@ function AddAccount({ label, onAdd }: { label: string; onAdd: (a: DemoAccount) =
   );
 }
 
+function ContactsCard({
+  me,
+  cfg,
+  accounts,
+  contacts,
+  locked,
+  onDone,
+}: {
+  me: DemoAccount;
+  cfg: Config;
+  accounts: DemoAccount[];
+  contacts: Contact[] | undefined;
+  locked: boolean;
+  onDone: () => void;
+}) {
+  const t = useT();
+  const [id, setId] = useState("");
+  const [msg, setMsg] = useState<{ kind: "ok" | "error"; text: string; hash?: string }>();
+  const fee = BigInt(cfg.storage_fee) > 0n ? BigInt(cfg.storage_fee) : 1n;
+  const minutes = Math.round((cfg.contact_delay_sec ?? 0) / 60);
+  const others = accounts.filter((a) => a.id !== me.id && a.label !== "Pencuri");
+
+  async function add() {
+    const contactId = id.trim();
+    if (!contactId) return setMsg({ kind: "error", text: t("isi akun kontak", "enter the contact account") });
+    const r = await call(me, UNDO, "add_contact", { contact_id: contactId }, { deposit: fee, gasTera: "30" });
+    // Added from this form, so it is the owner: no "was this you?" alert for it.
+    if (r.ok && r.value != null) ack([contactAckKey(me.id, contactId, String(r.value))]);
+    setMsg(
+      r.ok
+        ? { kind: "ok", text: t(`Kontak ditambahkan; aktif dalam ${minutes} menit.`, `Contact added; active in ${minutes} min.`), hash: r.hash }
+        : { kind: "error", text: r.error ?? t("gagal", "failed"), hash: r.hash },
+    );
+    if (r.ok) setId("");
+    onDone();
+  }
+
+  async function remove(contactId: string) {
+    const r = await call(me, UNDO, "remove_contact", { contact_id: contactId }, { gasTera: "30" });
+    setMsg(r.ok ? { kind: "ok", text: t("Kontak dihapus.", "Contact removed."), hash: r.hash } : { kind: "error", text: r.error ?? t("gagal", "failed"), hash: r.hash });
+    onDone();
+  }
+
+  return (
+    <Card title={t("Kontak tepercaya", "Trusted contacts")}>
+      <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
+        {t(
+          `Pembayaran ke kontak yang sudah aktif langsung final, tanpa jendela undo, jadi tidak bisa dibatalkan. Cocok untuk toko langganan atau keluarga. Kontak baru aktif setelah ${minutes} menit, supaya pencuri yang menambahkan dirinya harus menunggu; Panik membatalkan kontak yang belum aktif.`,
+          `Payments to an active contact are final at once, with no undo window, so they cannot be undone. Good for a regular shop or family. A new contact becomes active after ${minutes} min, so a thief who adds himself has to wait; panic cancels contacts that are not active yet.`,
+        )}
+      </p>
+      {contacts && contacts.length > 0 ? (
+        <ul className="mb-3 space-y-1">
+          {contacts.map((c) => (
+            <li key={c.contact} className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="mono text-xs">{short(c.contact)}</span>
+              {c.active || BigInt(c.active_at) <= BigInt(Date.now()) * 1_000_000n ? (
+                <Pill tone="ok">{t("aktif", "active")}</Pill>
+              ) : (
+                <Pill>
+                  <Countdown ns={c.active_at} prefix={t("aktif dalam ", "active in ")} done={t("aktif", "active")} />
+                </Pill>
+              )}
+              <Button small variant="ghost" onClick={() => remove(c.contact)}>
+                {t("Hapus", "Remove")}
+              </Button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mb-3 text-sm text-stone-500">{contacts === undefined ? t("memuat kontak…", "loading contacts…") : t("Belum ada kontak.", "No contacts yet.")}</p>
+      )}
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="w-full text-sm sm:w-auto">
+          <span className="block text-xs text-stone-500">{t("Akun kontak", "Contact account")}</span>
+          <input
+            list="contact-candidates"
+            value={id}
+            placeholder={others[0]?.id ?? t("toko.testnet", "shop.testnet")}
+            onChange={(e) => setId(e.target.value.trim())}
+            className="mono w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-xs sm:w-72 dark:border-stone-700 dark:bg-stone-950"
+          />
+          <datalist id="contact-candidates">
+            {others.map((a) => (
+              <option key={a.id} value={a.id} />
+            ))}
+          </datalist>
+        </label>
+        <Button onClick={add} disabled={locked}>
+          {t("Tambah kontak", "Add contact")}
+        </Button>
+      </div>
+      {msg && (
+        <div className="mt-3">
+          <Notice kind={msg.kind}>
+            {msg.text} <TxLink hash={msg.hash} />
+          </Notice>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 function SendCard({
   me,
   cfg,
   accounts,
   available,
+  contacts,
   onDone,
   onAddAccount,
 }: {
@@ -543,6 +653,7 @@ function SendCard({
   cfg: Config;
   accounts: DemoAccount[];
   available?: string;
+  contacts?: Contact[];
   onDone: () => void;
   onAddAccount: (a: DemoAccount) => void;
 }) {
@@ -556,6 +667,15 @@ function SendCard({
   const [msg, setMsg] = useState<{ kind: "ok" | "error"; text: string; hash?: string }>();
   const fee = BigInt(cfg.storage_fee) > 0n ? BigInt(cfg.storage_fee) : 1n;
   const target = to || others[0]?.id || "";
+  const contact = contacts?.find((c) => c.contact === target);
+  const [, rerender] = useState(0);
+  useEffect(() => {
+    if (!contact || contact.active) return;
+    const ms = Number(BigInt(contact.active_at) / 1_000_000n) - Date.now();
+    if (ms <= 0) return;
+    const id = setTimeout(() => rerender((x) => x + 1), ms + 50);
+    return () => clearTimeout(id);
+  }, [contact?.active_at, contact?.active]);
 
   async function send() {
     const amt = Number(amount.replace(",", "."));
@@ -566,9 +686,20 @@ function SendCard({
         : await call(me, UNDO, "send_usdc", { receiver_id: target, amount: USD(amt) }, { deposit: fee, gasTera: "50" });
     // Sent from this form, so it is the owner: no "was this you?" alert for it.
     if (r.ok && r.value != null) ack([ackKey(me.id, String(r.value))]);
+    // Ask the contract what it did (a contact may have become active between polls).
+    const sent = r.ok && r.value != null ? await view<Transfer | null>(UNDO, "get_transfer", { transfer_id: String(r.value) }).catch(() => null) : null;
+    const instant = !!sent && sent.unlock_at === sent.created_at;
     setMsg(
       r.ok
-        ? { kind: "ok", text: t(`Terkirim — pending selama ${cfg.window_sec} detik`, `Sent — pending for ${cfg.window_sec} seconds`), hash: r.hash }
+        ? {
+            kind: "ok",
+            text: instant
+              ? mode === "rusdc"
+                ? t("Terkirim ke kontak tepercaya — langsung final", "Sent to a trusted contact — final at once")
+                : t("Terkirim ke kontak tepercaya — USDC bisa langsung dicairkan", "Sent to a trusted contact — the USDC can be withdrawn at once")
+              : t(`Terkirim — pending selama ${cfg.window_sec} detik`, `Sent — pending for ${cfg.window_sec} seconds`),
+            hash: r.hash,
+          }
         : { kind: "error", text: r.error ?? t("gagal", "failed"), hash: r.hash },
     );
     onDone();
@@ -637,6 +768,19 @@ function SendCard({
           {t("Simulasikan kunci dicuri", "Simulate a stolen key")}
         </Button>
       </div>
+      {contact && (
+        <p className="mt-2 text-xs">
+          {contact.active || BigInt(contact.active_at) <= BigInt(Date.now()) * 1_000_000n ? (
+            <span className="text-amber-700 dark:text-amber-300">{t("⚡ Kontak tepercaya: pembayaran ini langsung final dan tidak bisa dibatalkan.", "⚡ Trusted contact: this payment is final at once and cannot be undone.")}</span>
+          ) : (
+            <span className="text-stone-500">
+              {t("Kontak ini belum aktif (aktif dalam ", "This contact is not active yet (active in ")}
+              <Countdown ns={contact.active_at} done={t("sekarang", "now")} />
+              {t(`): pembayaran masih menunggu ${cfg.window_sec} detik.`, `): the payment still waits ${cfg.window_sec} seconds.`)}
+            </span>
+          )}
+        </p>
+      )}
       <p className="mt-2 text-xs text-stone-500">
         {t(
           `Biaya storage ${fmtNear(cfg.storage_fee)} NEAR per transfer. Uang masuk pending ${cfg.window_sec} detik di kontrak demo ini.`,
@@ -664,6 +808,18 @@ function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId:
   const [acct, refreshAcct] = usePoll(() => view<AccountView>(UNDO, "get_account", { account_id: protectedId }), [protectedId], 5000);
   const [msg, setMsg] = useState<{ kind: "ok" | "error"; text: string; hash?: string }>();
   const open = out?.filter((t) => (t.status === "Pending" && BigInt(t.unlock_at) > BigInt(Date.now()) * 1_000_000n) || t.status === "Frozen" || t.status === "Disputed");
+  const hasContacts = cfg.contact_delay_sec !== undefined;
+  const [contacts, refreshContacts] = usePoll(() => (hasContacts ? view<Contact[]>(UNDO, "get_contacts", { account_id: protectedId }) : Promise.resolve([] as Contact[])), [protectedId, hasContacts], 10000);
+
+  async function cancelContact(contactId: string) {
+    const r = await call(me, UNDO, "cancel_contact", { account_id: protectedId, contact_id: contactId }, { gasTera: "30" });
+    setMsg(
+      r.ok
+        ? { kind: "ok", text: t(`Kontak ${short(contactId)} dihapus dari dompet utama.`, `Contact ${short(contactId)} removed from the main wallet.`) + gasNote(r), hash: r.hash }
+        : { kind: "error", text: r.error ?? t("gagal", "failed"), hash: r.hash },
+    );
+    refreshContacts();
+  }
 
   async function panic() {
     const r = await call(me, UNDO, "panic", { account_id: protectedId }, { gasTera: "150" });
@@ -713,6 +869,28 @@ function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId:
           <Notice kind={msg.kind}>
             {msg.text} <TxLink hash={msg.hash} />
           </Notice>
+        </div>
+      )}
+      {hasContacts && contacts && contacts.length > 0 && (
+        <div className="mt-4">
+          <h3 className="mb-1 text-sm font-semibold">{t("Kontak tepercaya dompet utama", "The main wallet's trusted contacts")}</h3>
+          <ul className="space-y-1">
+            {contacts.map((c) => (
+              <li key={c.contact} className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="mono text-xs">{short(c.contact)}</span>
+                {c.active || BigInt(c.active_at) <= BigInt(Date.now()) * 1_000_000n ? (
+                  <Pill tone="ok">{t("aktif", "active")}</Pill>
+                ) : (
+                  <Pill>
+                    <Countdown ns={c.active_at} prefix={t("aktif dalam ", "active in ")} done={t("aktif", "active")} />
+                  </Pill>
+                )}
+                <Button small variant="ghost" onClick={() => cancelContact(c.contact)} title={t("Akun pemulihan menghapus kontak ini tanpa Panik", "The recovery account removes this contact without a panic")}>
+                  {t("Hapus kontak", "Remove contact")}
+                </Button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
       <div className="mt-4">

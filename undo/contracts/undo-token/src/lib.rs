@@ -1,4 +1,5 @@
-//! Undo token v1 (rUSDC): wrapped USDC (1:1) whose money can be undone while it is inside its window.
+//! Undo token v2 (rUSDC): wrapped USDC (1:1) whose money can be undone while it is inside its window.
+//! v2 adds trusted contacts (T0): a payment to an active contact is final at once. v1 is git tag contract-v1.
 //!
 //! Promises this contract enforces (PLAN_UNDO.md §1):
 //! - J1 Money that is still pending ends at its receiver, or back with the sender side (the sender's
@@ -12,6 +13,9 @@
 //! - J6 rUSDC supply = USDC held by this contract (check `get_reserve` against usdc.ft_balance_of).
 //! - J7 Court level 2: a recommendation is stored only if the attested model provably read the
 //!   registered prompt, this case file and every committed (still encrypted) evidence item.
+//! - T0 Trusted contacts: a new contact is active only after `contact_delay` (a thief who adds himself
+//!   must wait, and a panic cancels contacts that are not active yet). A payment to an active contact
+//!   has no window: it is final at once and cannot be undone (J2 holds: there is no window to touch).
 use chacha20poly1305::aead::{Aead, KeyInit};
 use chacha20poly1305::{Key, XChaCha20Poly1305, XNonce};
 use curve25519_dalek::edwards::CompressedEdwardsY;
@@ -29,6 +33,8 @@ const GAS_ON_WITHDRAW: Gas = Gas::from_tgas(10);
 const MAX_TEXT: usize = 500;
 /// Pending outgoing transfers frozen per `panic` call (call again to continue).
 const MAX_FREEZE_PER_CALL: usize = 100;
+/// Trusted contacts per account.
+const MAX_CONTACTS: usize = 20;
 const HKDF_INFO: &[u8] = b"ed25519_encryption";
 /// The court system message is `<registered prompt><CASE_SEPARATOR><case file JSON>`.
 pub const CASE_SEPARATOR: &str = "\n\nBERKAS KASUS: ";
@@ -43,6 +49,7 @@ enum StorageKey {
     Incoming,
     Outgoing,
     ActiveOut,
+    Contacts,
 }
 
 #[near(serializers = [borsh, json])]
@@ -192,6 +199,9 @@ pub struct Contract {
     next_id: u64,
     total_supply: u128,
     court: Court,
+    contact_delay_ns: u64,
+    /// Trusted contacts per account: (contact, active from, ns).
+    contacts: LookupMap<AccountId, Vec<(AccountId, u64)>>,
 }
 
 // ---------- free helpers ----------
@@ -199,7 +209,7 @@ pub struct Contract {
 fn emit(event: &str, data: Value) {
     env::log_str(&format!(
         "EVENT_JSON:{}",
-        json!({ "standard": "undo", "version": "1.0.0", "event": event, "data": [data] })
+        json!({ "standard": "undo", "version": "2.0.0", "event": event, "data": [data] })
     ));
 }
 
@@ -293,17 +303,22 @@ impl Contract {
         recovery_delay_sec: u32,
         bond: U128,
         storage_fee: U128,
+        contact_delay_sec: Option<u32>,
     ) -> Self {
+        let contact_delay_sec = contact_delay_sec.unwrap_or(recovery_delay_sec.max(window_sec));
         for (v, name) in [
             (window_sec, "window"),
             (contest_window_sec, "contest window"),
             (evidence_window_sec, "evidence window"),
             (dispute_timeout_sec, "dispute timeout"),
             (recovery_delay_sec, "recovery delay"),
+            (contact_delay_sec, "contact delay"),
         ] {
             require!(v > 0, format!("{name} must be positive"));
         }
         require!(evidence_window_sec < dispute_timeout_sec, "evidence window must end before the dispute timeout");
+        // A thief who adds himself as a contact must wait at least as long as a normal pending transfer.
+        require!(contact_delay_sec >= window_sec, "contact delay must be at least the window");
         let s = |x: u32| x as u64 * 1_000_000_000;
         Self {
             underlying,
@@ -324,6 +339,8 @@ impl Contract {
             next_id: 0,
             total_supply: 0,
             court: Court { signer: None, signer_x25519: [0; 32], model_id: String::new(), prompt_sha256: None, max_tokens: 0 },
+            contact_delay_ns: s(contact_delay_sec),
+            contacts: LookupMap::new(StorageKey::Contacts),
         }
     }
 
@@ -349,6 +366,9 @@ impl Contract {
             require!(m.len() <= MAX_TEXT, "memo too long");
         }
         self.spend(&sender, amount.0);
+        if self.is_active_contact(&sender, &receiver_id) {
+            return U64(self.new_contact_payment(sender, receiver_id, amount.0, memo));
+        }
         U64(self.new_transfer(Kind::Transfer, sender, receiver_id, amount.0, memo, Status::Pending))
     }
 
@@ -371,7 +391,13 @@ impl Contract {
             require!(m.len() <= MAX_TEXT, "memo too long");
         }
         self.spend(&sender, amount.0);
-        U64(self.new_transfer(Kind::Exit, sender, receiver_id, amount.0, memo, Status::Pending))
+        // To an active contact the exit has no window: it can be withdrawn at once.
+        let contact = self.is_active_contact(&sender, &receiver_id);
+        let id = self.new_transfer_with(Kind::Exit, sender.clone(), receiver_id.clone(), amount.0, memo, Status::Pending, contact);
+        if contact {
+            emit("contact_payment", json!({ "id": U64(id), "kind": "send_usdc", "from": sender, "to": receiver_id, "amount": amount }));
+        }
+        U64(id)
     }
 
     /// Finish an Exit whose window has passed. Anyone may call; USDC goes to the Exit's receiver.
@@ -436,6 +462,42 @@ impl Contract {
             self.transfers.insert(id.0, t);
         }
         emit("release", json!({ "id": id, "to": to, "amount": U128(amount) }));
+    }
+
+    // ---------- trusted contacts (T0) ----------
+
+    /// Add a trusted contact (attach the storage fee). It becomes active after `contact_delay`; from then
+    /// on payments to it are final at once. A panic cancels contacts that are not active yet.
+    #[payable]
+    pub fn add_contact(&mut self, contact_id: AccountId) -> U64 {
+        self.take_fee();
+        let owner = env::predecessor_account_id();
+        require!(contact_id != owner, "you cannot be your own contact");
+        require!(!self.state(&owner).locked, "account is locked (panic)");
+        let mut list = self.contacts.get(&owner).cloned().unwrap_or_default();
+        require!(!list.iter().any(|(c, _)| *c == contact_id), "already a contact");
+        require!(list.len() < MAX_CONTACTS, "at most 20 contacts");
+        let at = env::block_timestamp() + self.contact_delay_ns;
+        list.push((contact_id.clone(), at));
+        self.contacts.insert(owner.clone(), list);
+        emit("contact_added", json!({ "account_id": owner, "contact": contact_id, "active_at": U64(at) }));
+        U64(at)
+    }
+
+    /// Remove a trusted contact. Takes effect at once (it only ever makes the account safer).
+    pub fn remove_contact(&mut self, contact_id: AccountId) {
+        let owner = env::predecessor_account_id();
+        self.drop_contact(&owner, &contact_id, "owner");
+    }
+
+    /// The recovery account removes a contact (waiting or active) of the account it protects, without a
+    /// panic: e.g. a contact it does not recognise. No deposit, so it can be gasless.
+    pub fn cancel_contact(&mut self, account_id: AccountId, contact_id: AccountId) {
+        require!(
+            self.current_recovery(&account_id).as_ref() == Some(&env::predecessor_account_id()),
+            "only the recovery account can cancel a contact"
+        );
+        self.drop_contact(&account_id, &contact_id, "recovery");
     }
 
     // ---------- recovery account + panic ----------
@@ -520,7 +582,21 @@ impl Contract {
             self.transfers.insert(id, t);
             sweep = Some(U64(id));
         }
-        let out = json!({ "account_id": account_id, "recovery": recovery, "frozen": frozen, "sweep": sweep, "swept": U128(balance) });
+        // A contact the thief may have added is not active yet: cancel every contact still waiting.
+        let mut contacts_cancelled = 0u32;
+        if let Some(list) = self.contacts.get(&account_id).cloned() {
+            let keep: Vec<(AccountId, u64)> = list.iter().filter(|(_, at)| *at <= now).cloned().collect();
+            contacts_cancelled = (list.len() - keep.len()) as u32;
+            for (c, _) in list.iter().filter(|(_, at)| *at > now) {
+                emit("contact_removed", json!({ "account_id": account_id, "contact": c, "reason": "panic" }));
+            }
+            if keep.is_empty() {
+                self.contacts.remove(&account_id);
+            } else if contacts_cancelled > 0 {
+                self.contacts.insert(account_id.clone(), keep);
+            }
+        }
+        let out = json!({ "account_id": account_id, "recovery": recovery, "frozen": frozen, "sweep": sweep, "swept": U128(balance), "contacts_cancelled": contacts_cancelled });
         emit("panic", out.clone());
         out
     }
@@ -778,6 +854,7 @@ impl Contract {
             "evidence_window_sec": sec(self.evidence_window_ns),
             "dispute_timeout_sec": sec(self.dispute_timeout_ns),
             "recovery_delay_sec": sec(self.recovery_delay_ns),
+            "contact_delay_sec": sec(self.contact_delay_ns),
             "bond": U128(self.bond),
             "storage_fee": U128(self.storage_fee),
             "total_supply": U128(self.total_supply),
@@ -795,6 +872,15 @@ impl Contract {
     /// J6: compare `total_supply` with `ft_balance_of(this contract)` on the underlying USDC.
     pub fn get_reserve(&self) -> Value {
         json!({ "total_supply": U128(self.total_supply), "underlying": self.underlying, "holder": env::current_account_id() })
+    }
+
+    /// Trusted contacts of an account: [{contact, active_at (ns), active}].
+    pub fn get_contacts(&self, account_id: AccountId) -> Vec<Value> {
+        let now = env::block_timestamp();
+        self.contacts
+            .get(&account_id)
+            .map(|l| l.iter().map(|(c, at)| json!({ "contact": c, "active_at": U64(*at), "active": *at <= now })).collect())
+            .unwrap_or_default()
     }
 
     pub fn get_account(&self, account_id: AccountId) -> Value {
@@ -953,7 +1039,57 @@ impl Contract {
         raw == 0 && !busy_in && !busy_out
     }
 
+    fn drop_contact(&mut self, owner: &AccountId, contact_id: &AccountId, reason: &str) {
+        let mut list = self.contacts.get(owner).cloned().unwrap_or_default();
+        let before = list.len();
+        list.retain(|(c, _)| c != contact_id);
+        require!(list.len() < before, "not a contact");
+        if list.is_empty() {
+            self.contacts.remove(owner);
+        } else {
+            self.contacts.insert(owner.clone(), list);
+        }
+        emit("contact_removed", json!({ "account_id": owner, "contact": contact_id, "reason": reason }));
+    }
+
+    fn is_active_contact(&self, owner: &AccountId, to: &AccountId) -> bool {
+        let now = env::block_timestamp();
+        self.contacts.get(owner).map(|l| l.iter().any(|(c, at)| c == to && *at <= now)).unwrap_or(false)
+    }
+
+    /// A payment to an active trusted contact: final at once (Settled, credited now, never in a window).
+    fn new_contact_payment(&mut self, from: AccountId, to: AccountId, amount: u128, memo: Option<String>) -> u64 {
+        let id = self.next_id;
+        self.next_id += 1;
+        let now = env::block_timestamp();
+        let t = Transfer {
+            id: U64(id),
+            kind: Kind::Transfer,
+            from: from.clone(),
+            to: to.clone(),
+            amount: U128(amount),
+            memo,
+            created_at: U64(now),
+            unlock_at: U64(now),
+            status: Status::Settled,
+            frozen_until: None,
+            dispute: None,
+            final_to: Some(to.clone()),
+        };
+        self.transfers.insert(id, t);
+        self.outgoing.entry(from.clone()).or_default().push(id);
+        self.credit(&to, amount);
+        emit("contact_payment", json!({ "id": U64(id), "kind": "transfer", "from": from, "to": to, "amount": U128(amount) }));
+        id
+    }
+
     fn new_transfer(&mut self, kind: Kind, from: AccountId, to: AccountId, amount: u128, memo: Option<String>, status: Status) -> u64 {
+        self.new_transfer_with(kind, from, to, amount, memo, status, false)
+    }
+
+    /// `instant`: no window (an exit to an active trusted contact).
+    #[allow(clippy::too_many_arguments)]
+    fn new_transfer_with(&mut self, kind: Kind, from: AccountId, to: AccountId, amount: u128, memo: Option<String>, status: Status, instant: bool) -> u64 {
         let id = self.next_id;
         self.next_id += 1;
         let now = env::block_timestamp();
@@ -965,7 +1101,7 @@ impl Contract {
             amount: U128(amount),
             memo,
             created_at: U64(now),
-            unlock_at: U64(if kind == Kind::Sweep { now } else { now + self.window_ns }),
+            unlock_at: U64(if kind == Kind::Sweep || instant { now } else { now + self.window_ns }),
             status,
             frozen_until: None,
             dispute: None,

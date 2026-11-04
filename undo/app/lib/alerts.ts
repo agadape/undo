@@ -5,6 +5,7 @@ export const ACK_EVENT = "undo:alerts-ack";
 
 export const ackKey = (account: string, transferId: string) => `${account}:${transferId}`;
 export const recoveryAckKey = (account: string, pending: [string, string]) => `${account}:recovery:${pending[0]}:${pending[1]}`;
+export const contactAckKey = (account: string, contact: string, activeAt: string) => `${account}:contact:${contact}:${activeAt}`;
 
 export function loadAcks(): Set<string> {
   try {

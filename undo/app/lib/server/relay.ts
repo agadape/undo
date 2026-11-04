@@ -15,13 +15,14 @@ const MAX_BYTES = 2048;
 const GLOBAL_PER_HOUR = Number(optional("RELAY_MAX_PER_HOUR") ?? 120);
 const SENDER_PER_HOUR = 20;
 /** The one argument each relayed method takes. */
-const ARG: Record<string, "account_id" | "transfer_id"> = {
-  panic: "account_id",
-  unlock: "account_id",
-  cancel_recovery_change: "account_id",
-  release: "transfer_id",
-  finalize: "transfer_id",
-  release_expired: "transfer_id",
+const ARG: Record<string, string[]> = {
+  panic: ["account_id"],
+  unlock: ["account_id"],
+  cancel_recovery_change: ["account_id"],
+  cancel_contact: ["account_id", "contact_id"],
+  release: ["transfer_id"],
+  finalize: ["transfer_id"],
+  release_expired: ["transfer_id"],
 };
 const ED25519_SPKI_PREFIX = Buffer.from("302a300506032b6570032100", "hex");
 
@@ -68,12 +69,12 @@ export function checkDelegate(b64: string): Checked {
     throw new PolicyError("function call args must be JSON");
   }
   const want = ARG[fc.methodName];
-  const v = args && typeof args === "object" && !Array.isArray(args) ? args[want] : undefined;
+  const isObj = !!args && typeof args === "object" && !Array.isArray(args);
   const okArgs =
-    Object.keys(args ?? {}).join() === want &&
-    typeof v === "string" &&
-    (want === "account_id" ? /^[a-z0-9._-]{2,64}$/.test(v) : /^\d{1,19}$/.test(v));
-  if (!okArgs) throw new PolicyError(`${fc.methodName} takes exactly {${want}}`);
+    isObj &&
+    Object.keys(args).sort().join() === [...want].sort().join() &&
+    want.every((k) => typeof args[k] === "string" && (k === "transfer_id" ? /^\d{1,19}$/.test(args[k] as string) : /^[a-z0-9._-]{2,64}$/.test(args[k] as string)));
+  if (!okArgs) throw new PolicyError(`${fc.methodName} takes exactly {${want.join(", ")}}`);
 
   // The signature covers sha256(NEP-366 prefix + DelegateAction); only ed25519 keys are relayed.
   const pk = da.publicKey.ed25519Key?.data;
@@ -148,6 +149,11 @@ export async function precheck({ sd, senderId, publicKey, method, args }: Checke
     const a = await acct(args.account_id);
     if (a.recovery !== senderId) throw new PolicyError(`only the recovery account of ${args.account_id} can call ${method}`);
     if (method === "unlock" && !a.locked) throw new PolicyError("account is not locked");
+  } else if (method === "cancel_contact") {
+    const a = await acct(args.account_id);
+    if (a.recovery !== senderId) throw new PolicyError(`only the recovery account of ${args.account_id} can cancel a contact`);
+    const list = await view<{ contact: string }[]>(UNDO, "get_contacts", { account_id: args.account_id });
+    if (!list.some((c) => c.contact === args.contact_id)) throw new PolicyError("not a contact");
   } else if (method === "cancel_recovery_change") {
     const a = await acct(args.account_id);
     if (!a.pending_recovery) throw new PolicyError("no scheduled change");

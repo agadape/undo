@@ -94,7 +94,7 @@ export function TxLink({ hash, label }: { hash?: string; label?: string }) {
 }
 
 /** Live countdown to a nanosecond timestamp. */
-export function Countdown({ ns, done }: { ns: string | null | undefined; done?: string }) {
+export function Countdown({ ns, done, prefix }: { ns: string | null | undefined; done?: ReactNode; prefix?: ReactNode }) {
   const t = useT();
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -106,7 +106,12 @@ export function Countdown({ ns, done }: { ns: string | null | undefined; done?: 
   if (left <= 0) return <span className="text-stone-500">{done ?? t("lewat", "passed")}</span>;
   const m = Math.floor(left / 60);
   const s = left % 60;
-  return <span className="mono tabular-nums">{m > 0 ? `${m}m ${s}s` : `${s}s`}</span>;
+  return (
+    <span>
+      {prefix}
+      <span className="mono tabular-nums">{m > 0 ? `${m}m ${s}s` : `${s}s`}</span>
+    </span>
+  );
 }
 
 /** Re-run an async loader every `ms`; returns the latest value and a manual refresh. */
