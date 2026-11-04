@@ -28,3 +28,5 @@ submission*.json
 recon/
 spikes/out/ref/
 .wrangler/
+# temporary secret files for wrangler secret bulk
+*.tmp.json

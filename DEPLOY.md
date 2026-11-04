@@ -1,6 +1,6 @@
 # DEPLOY — langkah untuk tim (testnet)
 
-Semua akun di sini NEAR **testnet**. Kunci hanya di `.env` (gitignored) dan di pengaturan rahasia Vercel / GitHub. Jangan pernah commit `.env`.
+Semua akun di sini NEAR **testnet**. Kunci hanya di `.env` (gitignored) dan di pengaturan rahasia Vercel / GitHub / Cloudflare. Jangan pernah commit `.env`.
 
 Status per 2 Nov 2026:
 - `next build` lolos.
@@ -46,22 +46,25 @@ Variabel yang dipakai server:
 - Batas Hobby: fungsi maksimal 300 detik, cukup untuk satu panggilan AI.
 - Setelah deploy, buka `/janji` dan `/dompet`, lalu jalankan latihan Panik sekali.
 
-## 3. Penjaga Coba Curi (GitHub Actions)
-Penjaga jalan di GitHub Actions: `.github/workflows/cobacuri-guard.yml`, satu tick tiap 15 menit. Jendela akun umpan 2 jam, jadi keterlambatan cron GitHub masih aman.
-- **Secrets** (Settings → Secrets and variables → Actions): `COBACURI_GUARD_FC_KEY` (wajib), `COBACURI_GUARD_PRIVATE_KEY` dan `COBACURI_DEMO_PRIVATE_KEY` (untuk mengisi ulang umpan setelah satu ronde). Opsional: `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`. ID akun sudah tertulis di workflow.
-  Isi dari `.env` tanpa mencetak nilainya (PowerShell, dari root repo):
+## 3. Penjaga Coba Curi (Cloudflare Worker + GitHub Actions)
+Penjaga utama adalah Cloudflare Worker `undo-cobacuri-guard` (`undo/app/guard/worker.mjs`, `wrangler.toml`): satu tick tiap menit. GitHub Actions (`.github/workflows/cobacuri-guard.yml`) tetap jalan sebagai cadangan, walaupun jadwal GitHub di repo yang sepi bisa berjam-jam jaraknya. Tick-nya idempoten, jadi keduanya boleh jalan bersamaan.
+- **Status:** https://undo-cobacuri-guard.agadape.workers.dev mengembalikan heartbeat terakhir `{at, ok, actions}` (ditulis ke KV tiap 2 menit; batas gratis KV 1.000 tulisan per hari). Halaman `/coba-curi` menampilkannya.
+- **Deploy ulang** (PowerShell, dari `undo/app/guard`; pakai `npx.cmd` karena kebijakan skrip PowerShell memblokir `npx.ps1`):
+  ```powershell
+  npx.cmd --yes wrangler@4 login
+  npx.cmd --yes wrangler@4 deploy
+  ```
+  Perubahan jadwal cron bisa butuh sampai ~25 menit sebelum tick pertama jalan.
+- **Secrets Cloudflare** (`COBACURI_GUARD_FC_KEY`, `COBACURI_GUARD_PRIVATE_KEY`, `COBACURI_DEMO_PRIVATE_KEY`), dari `.env` tanpa mencetak nilainya:
+  ```powershell
+  cd C:\Project_Dave\NEAR_Hackathon\undo\app\guard; $s=@{}; Get-Content ..\..\..\.env | ForEach-Object { if ($_ -match '^(COBACURI_GUARD_FC_KEY|COBACURI_GUARD_PRIVATE_KEY|COBACURI_DEMO_PRIVATE_KEY)=(.+)$') { $s[$Matches[1]] = $Matches[2].Trim() } }; [IO.File]::WriteAllText("$PWD\secrets.tmp.json", ($s | ConvertTo-Json)); npx.cmd --yes wrangler@4 secret bulk secrets.tmp.json; Remove-Item secrets.tmp.json
+  ```
+- **Secrets GitHub** (nama sama) untuk cadangan:
   ```powershell
   Get-Content .env | ForEach-Object { if ($_ -match '^(COBACURI_GUARD_FC_KEY|COBACURI_GUARD_PRIVATE_KEY|COBACURI_DEMO_PRIVATE_KEY)=(.+)$') { gh secret set $Matches[1] -R agadape/undo --body $Matches[2].Trim() } }
   ```
-- **Nyalakan dan jalankan sekali:**
-  ```
-  gh workflow enable cobacuri-guard -R agadape/undo
-  gh workflow run cobacuri-guard -R agadape/undo
-  ```
-- **Menit Actions:** repo private dapat 2.000 menit gratis per bulan, dan cron 15 menit memakai sekitar 100 menit per hari. Setelah repo publik menit Actions gratis, jadi cron bisa diganti ke `*/5 * * * *`.
-- **Status:** riwayat run ada di https://github.com/agadape/undo/actions/workflows/cobacuri-guard.yml. Halaman `/coba-curi` menampilkan run terakhir lewat API publik GitHub; status ini baru muncul setelah repo publik. Run yang gagal (setelah satu kali coba ulang) ditandai merah.
-- **Lokal:** `node guard/run-local.mjs` dari `undo/app` (tick tiap 30 detik), misalnya saat merekam demo. Boleh jalan bersamaan dengan Actions karena tick-nya idempoten.
-- **Cloudflare Worker** (`guard/worker.mjs`, `guard/wrangler.toml`) tetap tersedia kalau suatu saat butuh tick tiap menit.
+  Menit Actions: repo private dapat 2.000 menit gratis per bulan; cron 15 menit memakai sekitar 100 menit per hari. Setelah repo publik menitnya gratis.
+- **Lokal** (misalnya saat merekam demo, tick tiap 30 detik): `node guard/run-local.mjs` dari `undo/app`.
 - Kunci penjaga cuma function-call key (panic / finalize / unlock / release_expired), bukan full access.
 
 ## 4. Build reproducible (S25, opsional)

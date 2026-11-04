@@ -1,6 +1,6 @@
 "use client";
 import { Card, Notice, Pill, StatusBadge, usePoll } from "@/components/ui";
-import { ADDR, GUARD_RUNS_API } from "@/lib/config";
+import { ADDR, GUARD_HEARTBEAT_URL, GUARD_RUNS_API } from "@/lib/config";
 import { useFmt, useLang, useT } from "@/lib/i18n";
 import { short } from "@/lib/near-client";
 import type { BalanceView } from "@/lib/types";
@@ -45,12 +45,15 @@ export default function CobaCuriPage() {
   const fmt = useFmt();
   const [s] = usePoll(() => fetch("/api/cobacuri/stats").then((r) => r.json() as Promise<Stats>), [], 8000);
   const [gh] = usePoll(loadGuardRun, [], 5 * 60_000);
+  // Primary guard: the Cloudflare Worker writes a heartbeat every 2 minutes.
+  const [cf] = usePoll(() => fetch(GUARD_HEARTBEAT_URL, { cache: "no-store" }).then((r) => (r.ok ? (r.json() as Promise<{ at: string; ok: boolean } | null>) : null)), [], 60_000);
   const ago = (sec: number) => (sec < 120 ? t(`${sec} dtk`, `${sec} s`) : t(`${Math.round(sec / 60)} mnt`, `${Math.round(sec / 60)} min`));
   if (!s) return <p className="text-sm text-stone-500">{t("memuat tantangan…", "loading the challenge…")}</p>;
   if (s.error) return <Notice kind="error">{s.error}</Notice>;
   const avgReact = s.reactionSec.length ? Math.round(s.reactionSec.reduce((a, b) => a + b, 0) / s.reactionSec.length) : null;
   const hbAge = s.heartbeat ? Math.round((Date.now() - Date.parse(s.heartbeat.at)) / 1000) : null;
   const ghAge = gh ? Math.round((Date.now() - Date.parse(gh.at)) / 1000) : null;
+  const cfAge = cf ? Math.round((Date.now() - Date.parse(cf.at)) / 1000) : null;
   const target = BigInt(s.balance.available) + BigInt(s.balance.pending_in) + BigInt(s.balance.frozen_in);
 
   return (
@@ -93,16 +96,22 @@ export default function CobaCuriPage() {
           </li>
           <li className="flex flex-wrap items-center gap-2">
             {t("Penjaga:", "Guard:")} <span className="mono text-xs">{short(s.guardId)}</span>
+            {cf && cfAge !== null ? (
+              // Written every 2 minutes, so 5 minutes without one means the Worker stopped.
+              <Pill tone={cf.ok && cfAge < 300 ? "ok" : "danger"}>
+                {t(`Cloudflare (tiap menit): tick terakhir ${ago(cfAge)} lalu${cf.ok ? "" : " (gagal)"}`, `Cloudflare (every minute): last tick ${ago(cfAge)} ago${cf.ok ? "" : " (failed)"}`)}
+              </Pill>
+            ) : null}
             {gh && ghAge !== null ? (
               <a href={gh.url} target="_blank" rel="noreferrer">
-                {/* The cron runs every 15 minutes and GitHub may delay it; 45 minutes still leaves most of the 2-hour window. */}
-                <Pill tone={gh.ok && ghAge < 45 * 60 ? "ok" : "danger"}>
-                  {t(`GitHub Actions: run terakhir ${ago(ghAge)} lalu${gh.ok ? "" : " (gagal)"}`, `GitHub Actions: last run ${ago(ghAge)} ago${gh.ok ? "" : " (failed)"}`)}
+                {/* Backup only: GitHub runs scheduled workflows irregularly (hours apart on a quiet repo). */}
+                <Pill tone={gh.ok ? "ok" : "danger"}>
+                  {t(`GitHub Actions (cadangan): run terakhir ${ago(ghAge)} lalu${gh.ok ? "" : " (gagal)"}`, `GitHub Actions (backup): last run ${ago(ghAge)} ago${gh.ok ? "" : " (failed)"}`)}
                 </Pill>
               </a>
             ) : null}
             {hbAge !== null ? <Pill tone={s.heartbeat?.ok && hbAge < 120 ? "ok" : "danger"}>{t(`lokal: terakhir aktif ${ago(hbAge)} lalu`, `local: last active ${ago(hbAge)} ago`)}</Pill> : null}
-            {!gh && hbAge === null ? <Pill>{t("belum ada heartbeat", "no heartbeat yet")}</Pill> : null}
+            {!cf && !gh && hbAge === null ? <Pill>{t("belum ada heartbeat", "no heartbeat yet")}</Pill> : null}
           </li>
           <li>
             {t("Diselamatkan sejauh ini:", "Saved so far:")} <b>{fmt(s.saved)} rUSDC</b> · {t("sedang dibekukan:", "frozen now:")} {s.frozenNow} · {t("dalam sengketa:", "in dispute:")} {s.inDispute}

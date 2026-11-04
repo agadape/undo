@@ -1,11 +1,23 @@
-# Cloudflare Worker for the Coba Curi guard (primary). Deploy from undo/app/guard: npx wrangler deploy
+# Cloudflare Worker for the Coba Curi guard (primary, cron every minute). Deploy from undo/app/guard:
+#   npx wrangler deploy
 name = "undo-cobacuri-guard"
 main = "worker.mjs"
 compatibility_date = "2026-10-01"
 compatibility_flags = ["nodejs_compat"]
+# Public read-only heartbeat at https://undo-cobacuri-guard.<subdomain>.workers.dev (the /coba-curi page shows it).
+workers_dev = true
+preview_urls = false
 
 [triggers]
 crons = ["* * * * *"]
+
+# Heartbeat {at, ok, actions} written every 2 minutes (KV free tier: 1,000 writes a day).
+[[kv_namespaces]]
+binding = "GUARD_HB"
+id = "6d477ce093794b44b29c955568f5d0db"
+
+[observability]
+enabled = true
 
 [vars]
 COBACURI_CONTRACT_ID = "cobacuri.nh-s26f-mvz1xz1q.testnet"

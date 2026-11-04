@@ -8,7 +8,7 @@ export const UNDO = process.env.NEXT_PUBLIC_UNDO_CONTRACT ?? "demo.nh-s26r-mvz1z
 export const USDC = "usdc.fakes.testnet";
 /** Safety actions the Undo relayer sends gasless (NEP-366). None takes a deposit, so the locked v1 contract
  * accepts them as meta-transactions and still sees the signer (e.g. the recovery account) as the caller. */
-export const GASLESS_METHODS = ["panic", "unlock", "release", "cancel_recovery_change", "finalize", "release_expired"];
+export const GASLESS_METHODS = ["panic", "unlock", "release", "cancel_recovery_change", "cancel_contact", "finalize", "release_expired"];
 export const DAO = "nhspike-mvp6a0dx.sputnikv2.testnet";
 /** A copy of the same v1 wasm deployed and locked (no keys) in S25. */
 export const LOCKED_EXAMPLE = "lockedmvz3cg5t.nh-v1undo-mvz2j3bw.testnet";
@@ -16,6 +16,8 @@ export const LOCKED_EXAMPLE = "lockedmvz3cg5t.nh-v1undo-mvz2j3bw.testnet";
 export const PUBLISHED_CODE_HASH = "5q9rRircqxg9Bko6gHa4k1ejQzvrb9zgQkkXaZSPsrGz";
 /** The Coba Curi guard runs as this GitHub Actions workflow. */
 export const GUARD_REPO = "agadape/undo";
+/** The Cloudflare Worker guard (cron every minute) publishes its last heartbeat here (CORS open). */
+export const GUARD_HEARTBEAT_URL = "https://undo-cobacuri-guard.agadape.workers.dev/";
 export const GUARD_RUNS_API = `https://api.github.com/repos/${GUARD_REPO}/actions/workflows/cobacuri-guard.yml/runs?per_page=1&status=completed`;
 export const TX = (hash: string) => `https://testnet.nearblocks.io/txns/${hash}`;
 export const ADDR = (id: string) => `https://testnet.nearblocks.io/address/${id}`;
