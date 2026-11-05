@@ -1,11 +1,13 @@
-// council_resolve — the council (S8 DAO, our main account is its member) decides one dispute on the
-// public demo contract: the same DAO proposal + vote as /api/council/resolve, without the web passcode.
+// council_resolve — our council member (the main account) proposes a decision on one dispute of the public
+// demo contract and votes for it: the same DAO proposal + vote as /api/council/resolve, without the web
+// passcode. With 3 members a decision needs 2 votes: another member approves with their wallet on /dewan.
+// Contract: UNDO_CONTRACT, else NEAR_UNDO_V2_CONTRACT_ID (v2), else NEAR_UNDO_DEMO_CONTRACT_ID (v1).
 //   node council_resolve.mjs <transferId> <reverse:true|false> "<public reason>"          (dry run)
 //   node council_resolve.mjs <transferId> <reverse:true|false> "<public reason>" --send   (proposal + vote)
 import { actions, teraToGas } from "near-api-js";
 import { account as main, provider, sleep, EXPLORER } from "./lib.mjs";
 
-const UNDO = process.env.NEAR_UNDO_DEMO_CONTRACT_ID;
+const UNDO = process.env.UNDO_CONTRACT ?? process.env.NEAR_UNDO_V2_CONTRACT_ID ?? process.env.NEAR_UNDO_DEMO_CONTRACT_ID;
 const DAO = "nhspike-mvp6a0dx.sputnikv2.testnet";
 const [id, rev, reason] = process.argv.slice(2);
 if (!/^\d+$/.test(id ?? "") || !["true", "false"].includes(rev) || !reason) {
@@ -30,7 +32,9 @@ const kind = { FunctionCall: { receiver_id: UNDO, actions: [{ method_name: "reso
 const prop = await main.signAndSendTransaction({ receiverId: DAO, actions: [actions.functionCall("add_proposal", { proposal: { description: `Undo demo #${id}: ${reason}`.slice(0, 900), kind } }, teraToGas("100"), BigInt(policy.proposal_bond))] });
 const pid = Number(Buffer.from(prop.status.SuccessValue, "base64").toString());
 const vote = await main.signAndSendTransaction({ receiverId: DAO, actions: [actions.functionCall("act_proposal", { id: pid, action: "VoteApprove", proposal: kind }, teraToGas("250"), 0n)] });
-console.log("proposal:", pid, "| vote:", EXPLORER + vote.transaction.hash);
+console.log("proposal:", pid, "| propose:", EXPLORER + prop.transaction.hash, "| vote:", EXPLORER + vote.transaction.hash);
+const p = await provider.callFunction({ contractId: DAO, method: "get_proposal", args: { id: pid } });
+console.log(JSON.stringify({ proposalStatus: p.status, votes: p.votes }));
 await sleep(2500);
 const after = await provider.callFunction({ contractId: UNDO, method: "get_transfer", args: { transfer_id: id } });
 console.log(JSON.stringify({ status: after.status, final_to: after.final_to, decided_by: after.dispute?.decided_by, council_reason: after.dispute?.council_reason }));
