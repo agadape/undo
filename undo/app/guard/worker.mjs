@@ -6,6 +6,7 @@ import { tick, telegram } from "./guard.mjs";
 
 const RPCS = ["https://rpc.testnet.fastnear.com", "https://test.rpc.fastnear.com", "https://near-testnet.drpc.org"];
 const HB_KEY = "heartbeat";
+const ERR_KEY = "last_error";
 
 async function run(env) {
   const provider = new FailoverRpcProvider(RPCS.map((url) => new JsonRpcProvider({ url }, { retries: 1, wait: 300, backoff: 2 })));
@@ -21,10 +22,12 @@ async function run(env) {
       notify: telegram(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID),
     });
     console.log(JSON.stringify(r));
-    return { at: r.at, ok: true, actions: r.done.length };
+    const errors = r.done.filter((d) => d.error).map((d) => `${d.action}${d.id ? ` #${d.id}` : ""}: ${d.error}`);
+    return { at: r.at, ok: true, actions: r.done.length, errors };
   } catch (e) {
     console.error("tick failed:", e?.stack ?? String(e));
-    return { at: new Date().toISOString(), ok: false, error: String(e?.message ?? e).slice(0, 200) };
+    const error = String(e?.message ?? e).slice(0, 200);
+    return { at: new Date().toISOString(), ok: false, error, errors: [`tick: ${error}`] };
   }
 }
 
@@ -32,9 +35,23 @@ export default {
   async scheduled(_event, env, ctx) {
     ctx.waitUntil(
       run(env).then(async (hb) => {
+        // Telegram: a problem once when it starts or changes, and once when it is over (not every minute).
+        if (env.GUARD_HB) {
+          const notify = telegram(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_CHAT_ID);
+          const sig = hb.errors.length ? hb.errors.join(" | ").slice(0, 300) : "";
+          const prev = (await env.GUARD_HB.get(ERR_KEY)) ?? "";
+          if (sig && sig !== prev) {
+            await notify(`⚠️ Penjaga Coba Curi bermasalah:\n${hb.errors.join("\n")}`);
+            await env.GUARD_HB.put(ERR_KEY, sig);
+          } else if (!sig && prev) {
+            await notify("✅ Penjaga Coba Curi pulih, tick berjalan normal lagi.");
+            await env.GUARD_HB.delete(ERR_KEY);
+          }
+        }
         // Every 2nd minute, or at once when something happened or failed (KV free tier: 1,000 writes a day).
         if (env.GUARD_HB && (new Date().getUTCMinutes() % 2 === 0 || !hb.ok || hb.actions > 0)) {
-          await env.GUARD_HB.put(HB_KEY, JSON.stringify({ ...hb, runner: "cloudflare", everySec: 60 }));
+          const { errors: _e, ...pub } = hb;
+          await env.GUARD_HB.put(HB_KEY, JSON.stringify({ ...pub, runner: "cloudflare", everySec: 60 }));
         }
       }),
     );

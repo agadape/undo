@@ -6,6 +6,8 @@
 import { Account, actions, teraToGas } from "near-api-js";
 
 const ns = () => BigInt(Date.now()) * 1_000_000n;
+const txUrl = (h) => `https://testnet.nearblocks.io/txns/${h}`;
+const usd = (raw) => (Number(BigInt(raw)) / 1e6).toFixed(2);
 const USDC = "usdc.fakes.testnet";
 
 async function send(acct, receiverId, method, args, deposit = 0n, gas = 150) {
@@ -43,7 +45,7 @@ export async function tick(c) {
     const r = await send(fc, c.contractId, "panic", { account_id: c.demoId });
     const reacted = attacks.map((t) => Number((now - BigInt(t.created_at)) / 1_000_000_000n));
     done.push({ action: "panic", tx: r.hash, frozen: r.value?.frozen ?? [], swept: r.value?.swept, reactionSec: reacted, recoverySwap: !!acct.pending_recovery });
-    await notify(`🚨 Coba Curi: ${attacks.length} transfer keluar dari akun demo dibekukan${acct.pending_recovery ? " + penggantian akun pemulihan dibatalkan" : ""}. Reaksi ${Math.max(0, ...reacted)} dtk. tx ${r.hash}`);
+    await notify(`🚨 Coba Curi: ${attacks.length} transfer keluar dari akun umpan dibekukan${acct.pending_recovery ? " + penggantian akun pemulihan dibatalkan" : ""}. Reaksi ${Math.max(0, ...reacted)} dtk.\n${txUrl(r.hash)}`);
   }
 
   // 2) Frozen past the contest window → finalize (optimistic undo).
@@ -91,6 +93,21 @@ export async function tick(c) {
       done.push({ action: "refill", error: e.message });
     }
   }
+  // One message for the rest of the round (errors are reported, de-duplicated, by the Cloudflare Worker).
+  const lines = done
+    .filter((d) => d.action !== "panic" && !d.error)
+    .map((d) =>
+      d.action === "finalize"
+        ? `✅ #${d.id} difinalisasi: uangnya kembali ke penjaga ${txUrl(d.tx)}`
+        : d.action === "release_expired"
+          ? `⏱ #${d.id}: diamnya dewan diterapkan ${txUrl(d.tx)}`
+          : d.action === "unlock"
+            ? `🔓 Akun umpan dibuka lagi ${txUrl(d.tx)}`
+            : d.action === "refill"
+              ? `💧 Umpan diisi ulang ${usd(d.amount)} rUSDC ${txUrl(d.tx)}`
+              : `${d.action} ${txUrl(d.tx)}`,
+    );
+  if (lines.length) await notify(["Coba Curi", ...lines].join("\n"));
   return { at: new Date().toISOString(), done };
 }
 
