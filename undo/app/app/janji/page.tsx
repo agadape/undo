@@ -1,6 +1,6 @@
 "use client";
 import { Card, Pill, usePoll } from "@/components/ui";
-import { ADDR, LOCKED_EXAMPLE, PUBLISHED_CODE_HASH, UNDO, USDC } from "@/lib/config";
+import { ADDR, LOCKED_EXAMPLE, UNDO, USDC, V1_CODE_HASH, V2_CODE_HASH } from "@/lib/config";
 import { MODEL, PROMPT, sha256hex } from "@/lib/court";
 import { useFmt, useLang, useT } from "@/lib/i18n";
 import { provider, view } from "@/lib/near-client";
@@ -73,15 +73,20 @@ export default function JanjiPage() {
               {LOCKED_EXAMPLE}
             </a>
             {locked && <Pill tone={locked.keys === 0 ? "ok" : "danger"}>{lang === "en" ? `${locked.keys} access ${locked.keys === 1 ? "key" : "keys"}` : `${locked.keys} access key`}</Pill>}
-            {locked && <Pill tone={locked.codeHash === PUBLISHED_CODE_HASH ? "ok" : "danger"}>{t("hash kode", "code hash")} {locked.codeHash === PUBLISHED_CODE_HASH ? "= build v1" : t("berbeda", "differs")}</Pill>}
+            {locked && <Pill tone={locked.codeHash === V1_CODE_HASH ? "ok" : "danger"}>{t("hash kode", "code hash")} {locked.codeHash === V1_CODE_HASH ? "= build v1" : t("berbeda", "differs")}</Pill>}
           </li>
           <li className="flex flex-wrap items-center gap-2">
             {t("Kontrak demo ini:", "This demo contract:")} <span className="mono text-xs">{UNDO}</span>
             {dev && <Pill tone={dev.keys === 0 ? "ok" : "neutral"}>{dev.keys === 0 ? t("terkunci", "locked") : t(`${dev.keys} key (belum dikunci, kontrak demo)`, `${keysEn(dev.keys)} (not locked yet, demo contract)`)}</Pill>}
-            {dev && <Pill tone={dev.codeHash === PUBLISHED_CODE_HASH ? "ok" : "danger"}>{t("hash kode", "code hash")} {dev.codeHash === PUBLISHED_CODE_HASH ? "= build v1" : t("berbeda", "differs")}</Pill>}
+            {dev && <Pill tone={dev.codeHash === V2_CODE_HASH ? "ok" : "danger"}>{t("hash kode", "code hash")} {dev.codeHash === V2_CODE_HASH ? t("= build reproducible v2", "= reproducible v2 build") : t("berbeda", "differs")}</Pill>}
           </li>
           <li className="text-xs text-stone-500">
-            {t("Hash build v1 yang dipublikasikan:", "Published v1 build hash:")} <span className="mono">{PUBLISHED_CODE_HASH}</span>. {t("Build reproducible dari repo publik menyusul.", "A reproducible build from the public repo will follow.")}
+            {t("Hash build v2 (reproducible):", "v2 build hash (reproducible):")} <span className="mono">{V2_CODE_HASH}</span>.{" "}
+            {t(
+              "Buat ulang sendiri: di undo/contracts/undo-token jalankan cargo near build reproducible-wasm pada commit 65c1c0e (butuh Docker); hasilnya harus sama persis dengan hash kode kontrak di atas.",
+              "Rebuild it yourself: in undo/contracts/undo-token run cargo near build reproducible-wasm at commit 65c1c0e (needs Docker); the result must equal the contract's code hash above.",
+            )}{" "}
+            {t("Hash v1 (tag contract-v1):", "v1 hash (tag contract-v1):")} <span className="mono">{V1_CODE_HASH}</span>.
           </li>
         </ul>
       </PromiseCard>

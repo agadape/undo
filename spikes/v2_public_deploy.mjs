@@ -87,8 +87,17 @@ for (const name of ["undo-demo-v2.testnet", `undo-v2-${Math.random().toString(36
   } catch {}
 }
 if (!id) {
-  const parent = new Account(process.env.NEAR_S26_REAL_CONTRACT_ID, provider, process.env.NEAR_S26_REAL_CONTRACT_PRIVATE_KEY);
-  await parent.createSubAccount({ accountOrPrefix: "demo2", publicKey: kp.getPublicKey(), nearToTransfer: nearToYocto("3.6") });
+  // Storage: ~1 NEAR per 100 KB of wasm, plus state and gas.
+  const need = (BigInt(wasm.length) * 10n ** 19n) + nearToYocto("0.3");
+  const parentId = process.env.NEAR_S26_REAL_CONTRACT_ID;
+  const pv = await provider.viewAccount({ accountId: parentId });
+  const spendable = BigInt(pv.amount) - BigInt(pv.storage_usage) * 10n ** 19n - nearToYocto("0.05");
+  if (spendable < need) {
+    console.log(`testnet helper refused and ${parentId} can spend only ${Number(spendable / 10n ** 21n) / 1000} NEAR (need ${Number(need / 10n ** 21n) / 1000}): top it up from a faucet and run again. Nothing was sent.`);
+    process.exit(2);
+  }
+  const parent = new Account(parentId, provider, process.env.NEAR_S26_REAL_CONTRACT_PRIVATE_KEY);
+  await parent.createSubAccount({ accountOrPrefix: "demo2", publicKey: kp.getPublicKey(), nearToTransfer: need });
   id = `demo2.${parent.accountId}`;
 }
 for (let i = 0; i < 15; i++) {
