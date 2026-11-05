@@ -87,7 +87,7 @@ The interface is in English and Indonesian. It follows your browser's language, 
    To answer as the seller, switch the active account in the header to the seller and do the same.
 10. When both sides have answered, or after the 5-minute evidence window, click **Run the court (1 NEAR AI call)**.
     You should see the recommendation (`kembalikan` = return to the sender, `lanjutkan` = pay the receiver), its confidence, `curiga_injeksi` (suspected injection) and a public reason. You also see the `post_recommendation` transaction. The money has not moved.
-11. The council decides on `/dewan`. Council actions need a passcode held by the team.
+11. The council decides on `/dewan`. It is a DAO of three team members and a decision needs 2 of 3 votes: one member proposes and votes from the page (passcode held by the team), another approves with their own wallet on the same card.
     If the council stays silent for 30 minutes, anyone can press **Apply council silence** on the court page. For a fraud report, the money then goes to the receiver: the AI alone never moves money (J3).
 
 **C. Trusted contacts** (about 6 minutes)
@@ -220,7 +220,7 @@ The app's server routes read secrets from the repository root `.env`; [`.env.exa
 These are listed in full in [CLAIMS.md §7–8](CLAIMS.md#7-trust-boundaries-what-you-still-have-to-trust):
 
 - The model's TEE attestation is verified off-chain; the contract checks signatures against the key the council pinned.
-- The council is a Sputnik DAO with one member (our team) during the hackathon.
+- The council is a Sputnik DAO with three members, all from our team (`nh-spike-mvp62mw4`, `smoothicon6710`, `biguser4780`); a decision needs 2 of 3 votes. An independent council is future work.
 - The Coba Curi guard runs as a Cloudflare Worker every minute (heartbeat: https://undo-cobacuri-guard.agadape.workers.dev), with GitHub Actions as a slower backup. The bait key is not published yet.
 - Evidence is text only.
 - Testnet only.
