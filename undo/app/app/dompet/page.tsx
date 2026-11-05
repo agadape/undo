@@ -137,6 +137,19 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
           <Stat label={t("Dibekukan", "Frozen")} value={fmt(bal?.frozen_in)} />
           <Stat label={t("Dalam sengketa", "In dispute")} value={fmt(bal?.disputed_in)} />
         </div>
+        {(() => {
+          // balance_of counts incoming money only; show this wallet's own outgoing money that is held.
+          const held = (outgoing ?? []).filter((x) => x.status === "Frozen" || x.status === "Disputed");
+          const sum = held.reduce((s, x) => s + BigInt(x.amount), 0n);
+          return sum > 0n ? (
+            <p className="mt-2 text-xs text-stone-500">
+              {t(
+                `Uang keluar yang sedang ditahan: ${fmt(sum)} rUSDC (${held.length} transfer dibekukan atau dalam sengketa; lihat Riwayat → Keluar).`,
+                `Outgoing money on hold: ${fmt(sum)} rUSDC (${held.length} transfer(s) frozen or in dispute; see History → Outgoing).`,
+              )}
+            </p>
+          ) : null;
+        })()}
         {acct?.recovery && (
           <p className="mt-3 text-xs text-stone-500">
             {t(`Akun pemulihan: ${short(acct.recovery)} · kalah sengketa: ${acct.lost_disputes}`, `Recovery account: ${short(acct.recovery)} · disputes lost: ${acct.lost_disputes}`)}
@@ -173,7 +186,7 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
 
       {hasContacts && <ContactsCard me={me} cfg={cfg} accounts={accounts} contacts={contacts} locked={!!bal?.locked} onDone={refresh} />}
 
-      <SendCard me={me} cfg={cfg} accounts={accounts} available={bal?.available} contacts={contacts} onDone={refresh} onAddAccount={add} />
+      <SendCard me={me} cfg={cfg} accounts={accounts} available={bal?.available} contacts={contacts} canSimulateTheft={!!acct?.recovery} onDone={refresh} onAddAccount={add} />
 
 
       <Card title={t("Riwayat", "History")}>
@@ -557,7 +570,7 @@ function ContactsCard({
   const [msg, setMsg] = useState<{ kind: "ok" | "error"; text: string; hash?: string }>();
   const fee = BigInt(cfg.storage_fee) > 0n ? BigInt(cfg.storage_fee) : 1n;
   const minutes = Math.round((cfg.contact_delay_sec ?? 0) / 60);
-  const others = accounts.filter((a) => a.id !== me.id && a.label !== "Pencuri");
+  const others = accounts.filter((a) => a.id !== me.id && a.label !== "Pencuri" && a.recoveryFor !== me.id);
 
   async function add() {
     const contactId = id.trim();
@@ -646,6 +659,7 @@ function SendCard({
   accounts,
   available,
   contacts,
+  canSimulateTheft,
   onDone,
   onAddAccount,
 }: {
@@ -654,13 +668,15 @@ function SendCard({
   accounts: DemoAccount[];
   available?: string;
   contacts?: Contact[];
+  canSimulateTheft?: boolean;
   onDone: () => void;
   onAddAccount: (a: DemoAccount) => void;
 }) {
   const t = useT();
   const fmt = useFmt();
   const accountLabel = useAccountLabel();
-  const others = accounts.filter((a) => a.id !== me.id);
+  // Suggest other people first; this wallet's own recovery account last.
+  const others = accounts.filter((a) => a.id !== me.id).sort((a, b) => Number(a.recoveryFor === me.id) - Number(b.recoveryFor === me.id));
   const [to, setTo] = useState("");
   const [amount, setAmount] = useState("10");
   const [mode, setMode] = useState<"rusdc" | "usdc">("rusdc");
@@ -764,9 +780,11 @@ function SendCard({
           <option value="usdc">{t("USDC biasa (penerima siapa saja)", "plain USDC (any receiver)")}</option>
         </select>
         <Button onClick={send}>{t("Kirim", "Send")}</Button>
-        <Button variant="danger" onClick={simulateTheft} title={t("Mengirim 90% saldo ke akun 'Pencuri' memakai kunci dompet ini", "Sends 90% of the balance to the 'Thief' account using this wallet's key")}>
-          {t("Simulasikan kunci dicuri", "Simulate a stolen key")}
-        </Button>
+        {canSimulateTheft && (
+          <Button variant="danger" onClick={simulateTheft} title={t("Mengirim 90% saldo ke akun 'Pencuri' memakai kunci dompet ini", "Sends 90% of the balance to the 'Thief' account using this wallet's key")}>
+            {t("Simulasikan kunci dicuri", "Simulate a stolen key")}
+          </Button>
+        )}
       </div>
       {contact && (
         <p className="mt-2 text-xs">

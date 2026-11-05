@@ -99,7 +99,7 @@ export default function CobaCuriPage() {
             {cf && cfAge !== null ? (
               // Written every 2 minutes, so 5 minutes without one means the Worker stopped.
               <Pill tone={cf.ok && cfAge < 300 ? "ok" : "danger"}>
-                {t(`Cloudflare (tiap menit): tick terakhir ${ago(cfAge)} lalu${cf.ok ? "" : " (gagal)"}`, `Cloudflare (every minute): last tick ${ago(cfAge)} ago${cf.ok ? "" : " (failed)"}`)}
+                {t(`Cloudflare (tick tiap menit): heartbeat ${ago(cfAge)} lalu${cf.ok ? "" : " (gagal)"}`, `Cloudflare (ticks every minute): heartbeat ${ago(cfAge)} ago${cf.ok ? "" : " (failed)"}`)}
               </Pill>
             ) : null}
             {gh && ghAge !== null ? (

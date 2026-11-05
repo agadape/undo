@@ -49,6 +49,16 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="rounded-xl border border-stone-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900">
+        <h2 className="mb-2 font-semibold">{t("Toko langganan? Kontak tepercaya", "A regular shop? Trusted contacts")}</h2>
+        <p className="text-sm text-stone-600 dark:text-stone-300">
+          {t(
+            "Pembayaran ke kontak yang sudah aktif langsung final, jadi toko tidak perlu menunggu jendela. Kontak baru baru aktif setelah jeda (5 menit di demo), notifikasi muncul, dan Panik atau akun pemulihan bisa membatalkannya, jadi pencuri tidak bisa sekadar menambahkan dirinya.",
+            "Payments to an active contact are final at once, so a shop does not wait for the window. A new contact only becomes active after a delay (5 min on the demo), an alert shows up, and panic or the recovery account can cancel it, so a thief cannot just add himself.",
+          )}
+        </p>
+      </section>
+
       <section className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-100">
         {t(
           "Prior art yang kami akui: ERC-20R (Stanford 2022), REVERSO, SLOW, Circle Refund Protocol, Payy Finality. Yang baru dari Undo: sengketa yang buktinya tetap rahasia bahkan dari operator, tapi prosedur dan putusannya terbukti di kontrak.",
