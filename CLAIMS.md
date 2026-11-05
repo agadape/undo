@@ -136,7 +136,7 @@ In both answers, `result.result` is the returned JSON encoded as a byte array. T
 - Pending transfers as transferable NFTs — design only.
 - Image evidence (only text evidence today).
 - Appeal keys: revealing your evidence to the council after a decision.
-- Notifications outside the browser. The in-app alert shows only in a browser that holds the recovery account; the guard's Telegram hook exists but is not configured.
+- Notifications outside the browser for regular users. The in-app alert shows only in a browser that holds the recovery account. (The Coba Curi guard does notify the team on Telegram: panic, finalize, unlock, refill, and problems once each.)
 - Reproducible build of the v1 instances (they were built before the reproducible setup; v2 is reproducible).
 - Multisig recovery accounts. Today, if both keys are stolen, Undo cannot tell the owner from the thief (threat A8, out of scope).
 - Mainnet deployment.

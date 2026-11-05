@@ -65,6 +65,41 @@ Penjaga utama adalah Cloudflare Worker `undo-cobacuri-guard` (`undo/app/guard/wo
   ```
   Menit Actions: repo private dapat 2.000 menit gratis per bulan; cron 15 menit memakai sekitar 100 menit per hari. Setelah repo publik menitnya gratis.
 - **Lokal** (misalnya saat merekam demo, tick tiap 30 detik): `node guard/run-local.mjs` dari `undo/app`.
+- **Telegram** (bot `@undo_guard_agadape_near_bot`): penjaga mengirim pesan saat Panik, finalisasi, buka kunci, isi ulang umpan, dan saat bermasalah (sekali, lalu "pulih"). Token ada di `.env` sebagai `TELEGRAM_BOT_TOKEN`; `node spikes/telegram_setup.mjs --test` mencari chat ID, menyimpannya sebagai `TELEGRAM_CHAT_ID`, dan mengirim pesan uji. Simpan keduanya ke Cloudflare (dan GitHub untuk cadangan):
+  ```powershell
+  cd C:\Project_Dave\NEAR_Hackathon\undo\app\guard; $s=@{}; Get-Content ..\..\..\.env | ForEach-Object { if ($_ -match '^(TELEGRAM_BOT_TOKEN|TELEGRAM_CHAT_ID)=(.+)
+
+## 4. Build reproducible (v2, sudah)
+Docker Desktop dengan integrasi WSL untuk Ubuntu-24.04 (Settings → Resources → WSL integration). Kalau integrasi macet ("backend.sock: no such file"): Quit Docker Desktop, `wsl --shutdown`, buka Docker Desktop lagi; jangan `wsl -t` saat Docker jalan.
+Di WSL, dari clone bersih (repo di /mnt/c terlihat "kotor" karena izin file):
+```
+git clone /mnt/c/Project_Dave/NEAR_Hackathon ~/undo-repro && cd ~/undo-repro/undo/contracts/undo-token
+cargo near build reproducible-wasm --out-dir ~/nh-v2-repro
+```
+Hasil di commit `65c1c0e`: `AzDhXsj2JzWQAEjScj5SrubF4Q96VCLPHTRawcpHnZkJ` (dua kali build, hash sama). Image dikunci di `[package.metadata.near.reproducible_build]` (Cargo.toml).
+
+## 5. Keputusan tim
+- **Publikasikan kunci umpan Coba Curi?** Set `COBACURI_PUBLISH_KEY=1` hanya kalau tim setuju.
+- **Saldo:** isi ulang faucet dan akun pengadilan dengan NEAR testnet sebelum demo.
+- **Kredit NEAR AI:** terpakai sekitar $0.002 dari $10.
+) { $s[$Matches[1]] = $Matches[2].Trim() } }; [IO.File]::WriteAllText("$PWD\secrets.tmp.json", ($s | ConvertTo-Json)); npx.cmd --yes wrangler@4 secret bulk secrets.tmp.json; Remove-Item secrets.tmp.json
+  cd C:\Project_Dave\NEAR_Hackathon; Get-Content .env | ForEach-Object { if ($_ -match '^(TELEGRAM_BOT_TOKEN|TELEGRAM_CHAT_ID)=(.+)
+
+## 4. Build reproducible (v2, sudah)
+Docker Desktop dengan integrasi WSL untuk Ubuntu-24.04 (Settings → Resources → WSL integration). Kalau integrasi macet ("backend.sock: no such file"): Quit Docker Desktop, `wsl --shutdown`, buka Docker Desktop lagi; jangan `wsl -t` saat Docker jalan.
+Di WSL, dari clone bersih (repo di /mnt/c terlihat "kotor" karena izin file):
+```
+git clone /mnt/c/Project_Dave/NEAR_Hackathon ~/undo-repro && cd ~/undo-repro/undo/contracts/undo-token
+cargo near build reproducible-wasm --out-dir ~/nh-v2-repro
+```
+Hasil di commit `65c1c0e`: `AzDhXsj2JzWQAEjScj5SrubF4Q96VCLPHTRawcpHnZkJ` (dua kali build, hash sama). Image dikunci di `[package.metadata.near.reproducible_build]` (Cargo.toml).
+
+## 5. Keputusan tim
+- **Publikasikan kunci umpan Coba Curi?** Set `COBACURI_PUBLISH_KEY=1` hanya kalau tim setuju.
+- **Saldo:** isi ulang faucet dan akun pengadilan dengan NEAR testnet sebelum demo.
+- **Kredit NEAR AI:** terpakai sekitar $0.002 dari $10.
+) { gh secret set $Matches[1] -R agadape/undo --body $Matches[2].Trim() } }
+  ```
 - Kunci penjaga cuma function-call key (panic / finalize / unlock / release_expired), bukan full access.
 
 ## 4. Build reproducible (v2, sudah)
