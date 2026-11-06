@@ -78,9 +78,9 @@ export default function CobaCuriPage() {
       </section>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Tile label={t("Saldo umpan", "Bait balance")} value={`${fmt(target)} rUSDC`} />
+        <Tile label={t("Saldo umpan", "Bait balance")} value={fmt(target)} unit="rUSDC" />
         <Tile label={t("Percobaan", "Attempts")} value={String(s.attempts)} />
-        <Tile label={t("Berhasil dicairkan", "Cashed out")} value={`${fmt(s.escaped)} rUSDC`} tone={s.escaped === "0" ? "ok" : "danger"} />
+        <Tile label={t("Berhasil dicairkan", "Cashed out")} value={fmt(s.escaped)} unit="rUSDC" tone={s.escaped === "0" ? "ok" : "danger"} />
         <Tile label={t("Reaksi penjaga (rata-rata)", "Guard reaction (average)")} value={avgReact === null ? "—" : t(`${avgReact} dtk`, `${avgReact} s`)} />
       </div>
 
@@ -176,12 +176,16 @@ export default function CobaCuriPage() {
   );
 }
 
-function Tile({ label, value, tone }: { label: string; value: string; tone?: "ok" | "danger" }) {
+function Tile({ label, value, unit, tone }: { label: string; value: string; unit?: string; tone?: "ok" | "danger" }) {
   const c = tone === "ok" ? "text-phosphor" : tone === "danger" ? "text-rec" : "text-ink";
   return (
     <div className="rounded-[3px] border border-line bg-panel p-3">
       <div className="osd text-base leading-5 text-muted">{label}</div>
-      <div className={`osd rgb mt-1 text-3xl leading-none tabular-nums sm:text-4xl ${c}`}>{value}</div>
+      <div className={`osd rgb mt-1 text-3xl leading-none tabular-nums sm:text-4xl ${c}`}>
+        {value}
+        {/* The token name keeps its lowercase r (OSD text is otherwise all caps). */}
+        {unit && <span className="ml-1.5 text-xl normal-case text-muted">{unit}</span>}
+      </div>
     </div>
   );
 }
