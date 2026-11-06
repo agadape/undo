@@ -236,8 +236,10 @@ Hans memilih: swarms, agents, defi, social, business, realworld, security, open.
 | **`privacy`** | ✅ utama | Sidang Tertutup: bukti E2EE ke model TEE, rekomendasi terverifikasi on-chain (PRIVATE AI, TEE, NEAR AI CLOUD) |
 | **`realworld`** | ✅ (saran Dex) | Pembayaran merchant dan payroll yang bisa di-undo: `send_usdc` ke penerima biasa, kontak tepercaya, Barang Diterima, USDC 1:1. Cerita: kas bisnis terlindungi dari invoice palsu. Alamat USDC jadi parameter `new`, bukan hardcode testnet (STABLECOINS; META TRANSACTIONS kalau T1 jadi). Recon: track ini ramai di penagihan freelancer, tapi perlindungan pembayaran masih sepi |
 | `nfts` | ❌ | Juri ingin NFT jadi pusat produk, sedangkan di Undo NFT hanya pendukung. Klaim NFT cukup jadi desain di README |
-| `security` | Opsional, kalau Hans setuju melepasnya | Pertahanan dari pencurian, kontrak terkunci, Coba Curi. Diputuskan saat submit |
+| **`security`** | ✅ (diputuskan 6 Nov) | Function-call key penjaga yang hanya bisa `panic` / `finalize` / `unlock` / `release_expired`, atestasi TEE dicek sebelum tiap sidang, kontrak terkunci (0 key), ancaman A1–A9 sebagai unit test, Coba Curi dengan penjaga Cloudflare (Panik 21 dtk di uji langsung 5 Nov). Hans juga memakai `security`, jadi kabari dia |
 | Lainnya | ❌ | — |
+
+Isi `tracks` di payload submission: `["privacy", "realworld", "security"]`.
 
 Grand prize ($55K) tetap terbuka apa pun track-nya. Setiap track yang dipilih harus punya bagian sendiri di README: fitur → file → cara mencoba.
 
