@@ -81,13 +81,13 @@ export function useAccountLabel() {
 export function LangToggle() {
   const { lang, setLang } = useContext(LangContext);
   return (
-    <div role="group" aria-label="Language / Bahasa" className="flex shrink-0 overflow-hidden rounded-md border border-stone-300 text-xs dark:border-stone-700">
+    <div role="group" aria-label="Language / Bahasa" className="osd flex shrink-0 overflow-hidden rounded-[2px] border border-line-2 text-lg leading-6">
       {(["id", "en"] as const).map((l) => (
         <button
           key={l}
           onClick={() => setLang(l)}
           aria-pressed={lang === l}
-          className={`px-2 py-1 font-medium ${lang === l ? "bg-stone-800 text-white dark:bg-stone-200 dark:text-stone-900" : "hover:bg-stone-200 dark:hover:bg-stone-800"}`}
+          className={`px-2 ${lang === l ? "bg-ink text-tape" : "text-dim hover:bg-ink/10 hover:text-ink"}`}
         >
           {l.toUpperCase()}
         </button>

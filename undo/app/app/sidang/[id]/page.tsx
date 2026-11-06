@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useAccounts } from "@/components/accounts";
-import { Button, Card, Countdown, Notice, Pill, StatusBadge, TxLink, usePoll } from "@/components/ui";
+import { Button, Card, Countdown, Notice, Pill, StatusBadge, TxLink, btnClass, inputClass, usePoll } from "@/components/ui";
 import { UNDO } from "@/lib/config";
 import { encryptTo, sha256hex, type Side } from "@/lib/court";
 import { useFmt, useGasNote, useLang, useReason, useT } from "@/lib/i18n";
@@ -28,7 +28,7 @@ export default function SidangPage() {
   const [msg, setMsg] = useState<{ kind: "ok" | "error" | "info"; text: string; hash?: string }>();
   const [text, setText] = useState("");
 
-  if (!t || !cfg) return <p className="text-sm text-stone-500">{tr(`memuat sidang #${id}…`, `loading court case #${id}…`)}</p>;
+  if (!t || !cfg) return <p className="text-sm text-muted">{tr(`memuat sidang #${id}…`, `loading court case #${id}…`)}</p>;
   const d = t.dispute;
   if (!d) return <Notice kind="info">{tr(`Transfer #${id} tidak (pernah) disengketakan.`, `Transfer #${id} has never been disputed.`)}</Notice>;
 
@@ -132,24 +132,38 @@ export default function SidangPage() {
 
   return (
     <div className="space-y-4">
+      {t.status === "Disputed" && (
+        <div className="flex flex-wrap items-center gap-3 rounded-[3px] border border-plum/50 bg-plum/10 px-4 py-3 text-sm">
+          <span aria-hidden className="osd rgb text-4xl leading-none text-plum">
+            ❚❚
+          </span>
+          <p className="min-w-0 flex-1">
+            <b className="text-plum">{tr("Waktu ditahan.", "Time is on hold.")}</b>{" "}
+            {tr(
+              `${fmt(t.amount)} ${t.kind === "Exit" ? "USDC" : "rUSDC"} tidak bergerak sampai dewan memutus.`,
+              `${fmt(t.amount)} ${t.kind === "Exit" ? "USDC" : "rUSDC"} does not move until the council decides.`,
+            )}
+          </p>
+        </div>
+      )}
       <Card title={tr(`Sidang #${t.id}`, `Court case #${t.id}`)} right={<StatusBadge status={t.status} />}>
         <div className="grid gap-2 text-sm sm:grid-cols-2">
           <div>
-            <b>{fmt(t.amount)}</b> {t.kind === "Sweep" ? tr("rUSDC (sapu Panik)", "rUSDC (panic sweep)") : t.kind === "Exit" ? "USDC" : "rUSDC"}
-            <div className="text-stone-500">
+            <b className="osd rgb text-3xl font-normal leading-none">{fmt(t.amount)}</b> {t.kind === "Sweep" ? tr("rUSDC (sapu Panik)", "rUSDC (panic sweep)") : t.kind === "Exit" ? "USDC" : "rUSDC"}
+            <div className="text-muted">
               {short(t.from)} → {short(t.to)}
             </div>
           </div>
           <div>
             <div>{d.origin === "Report" ? tr("Laporan penipuan dari pihak pengirim", "Fraud report from the sender's side") : tr("Bantahan atas pembekuan Panik", "Contest of a panic freeze")}</div>
-            <div className="text-stone-500">
+            <div className="text-muted">
               {tr("dibuka oleh", "opened by")} {short(d.opened_by)} · “{d.reason}”
             </div>
           </div>
-          <div className="text-xs text-stone-500">
+          <div className="text-xs text-muted">
             case nonce <span className="mono">{d.case_nonce}</span> ({tr("acak dari blok, mencegah putusan lama dipakai ulang", "random from the block; stops an old decision from being reused")})
           </div>
-          <div className="text-xs text-stone-500">
+          <div className="text-xs text-muted">
             {tr("batas bukti", "evidence deadline")}: <Countdown ns={d.evidence_deadline} done={tr("ditutup", "closed")} /> · {tr("batas dewan", "council deadline")}:{" "}
             {t.status === "Disputed" ? <Countdown ns={timeoutAt} done={tr("habis", "expired")} /> : tr("sudah diputus", "decided")}
           </div>
@@ -165,7 +179,7 @@ export default function SidangPage() {
                 <span className="w-24 font-medium capitalize">{s === "pengirim" ? tr("pengirim", "sender") : tr("penerima", "receiver")}</span>
                 {h ? <Pill tone="ok">commit on-chain</Pill> : <Pill>{tr("belum", "not yet")}</Pill>}
                 {h && (court?.stored?.[s] ? <Pill tone="ok">{tr("ciphertext di server sidang", "ciphertext on the court server")}</Pill> : <Pill tone="danger">{tr("belum diunggah", "not uploaded")}</Pill>)}
-                {h && <span className="mono text-xs text-stone-500">sha256 {h.slice(0, 16)}…</span>}
+                {h && <span className="mono text-xs text-muted">sha256 {h.slice(0, 16)}…</span>}
               </li>
             );
           })}
@@ -174,17 +188,17 @@ export default function SidangPage() {
           <Notice kind="info">
             {lang === "en" ? (
               <>
-                Create a demo wallet on the <Link href="/dompet" className="underline">Wallet</Link> page to take part in the court case.
+                Create a demo wallet on the <Link href="/dompet" className="text-phosphor underline">Wallet</Link> page to take part in the court case.
               </>
             ) : (
               <>
-                Buat dompet demo di <Link href="/dompet" className="underline">Dompet</Link> untuk ikut sidang.
+                Buat dompet demo di <Link href="/dompet" className="text-phosphor underline">Dompet</Link> untuk ikut sidang.
               </>
             )}
           </Notice>
         ) : mySide && !slotFilled && evidenceOpen && t.status === "Disputed" ? (
           <div className="space-y-2">
-            <p className="text-xs text-stone-500">
+            <p className="text-xs text-muted">
               {lang === "en" ? (
                 <>
                   You are on the <b>{mySide === "pengirim" ? "sender's" : "receiver's"}</b> side. This text is encrypted in your browser to the model key pinned by the council ({short(cfg.court.signer ?? "")}). Neither the server nor the council can read it.
@@ -207,14 +221,14 @@ export default function SidangPage() {
                     )
                   : tr("Contoh: barang sudah dikirim, resi JNE …", "Example: the item has been shipped, JNE tracking number …")
               }
-              className="w-full rounded-lg border border-stone-300 bg-white p-2 text-sm dark:border-stone-700 dark:bg-stone-950"
+              className={`${inputClass} w-full p-2 text-sm`}
             />
             <Button onClick={submitEvidence}>{tr("Enkripsi di browser & kirim", "Encrypt in browser & send")}</Button>
           </div>
         ) : mySide && slotFilled && leftover && !court?.stored?.[mySide] ? (
           <Button onClick={() => upload(mySide, leftover)}>{tr("Unggah ulang bukti terenkripsi", "Re-upload encrypted evidence")}</Button>
         ) : (
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-muted">
             {mySide ? tr("Bukti dari sisimu sudah masuk.", "Evidence from your side has been received.") : tr("Akun aktif bukan pihak sengketa ini.", "The active account is not a party to this dispute.")}
           </p>
         )}
@@ -224,23 +238,23 @@ export default function SidangPage() {
         {rec ? (
           <div className="space-y-2 text-sm">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-lg font-semibold">
+              <span className="osd rgb text-4xl leading-none text-phosphor">
                 {rec.rekomendasi === "kembalikan" ? tr("Kembalikan", "Return to sender") : rec.rekomendasi === "lanjutkan" ? tr("Teruskan", "Pay the receiver") : rec.rekomendasi}
               </span>
               {lang === "en" && (rec.rekomendasi === "kembalikan" || rec.rekomendasi === "lanjutkan") && (
-                <span className="mono text-xs text-stone-500">{`"rekomendasi":"${rec.rekomendasi}"`}</span>
+                <span className="mono text-xs text-muted">{`"rekomendasi":"${rec.rekomendasi}"`}</span>
               )}
               <Pill>confidence {rec.confidence}</Pill>
               {rec.curiga_injeksi && <Pill tone="danger">{tr("upaya injeksi terdeteksi", "injection attempt detected")}</Pill>}
             </div>
             <p>
-              {lang === "en" && <span className="text-xs text-stone-500">Public reason (written by the model): </span>}“{reason(rec.alasan_publik)}”
+              {lang === "en" && <span className="text-xs text-muted">Public reason (written by the model): </span>}“{reason(rec.alasan_publik)}”
             </p>
-            <p className="text-xs text-stone-500">
+            <p className="text-xs text-muted">
               Model {rec.model_id} · {tr("hash respons", "response hash")} <span className="mono">{rec.response_hash.slice(0, 16)}…</span>{" "}
               {court?.run?.tx && <TxLink hash={court.run.tx} label={tr("lihat transaksi post_recommendation", "view the post_recommendation transaction")} />}
             </p>
-            <details className="text-xs text-stone-500">
+            <details className="text-xs text-muted">
               <summary className="cursor-pointer">{tr("Apa yang dibuktikan kontrak sebelum menyimpan ini?", "What does the contract verify before storing this?")}</summary>
               <ul className="mt-1 list-disc pl-5">
                 <li>{tr("Tanda tangan TEE dari kunci model yang di-pin dewan (attestation dicek off-chain).", "A TEE signature from the model key pinned by the council (the attestation is checked off-chain).")}</li>
@@ -262,10 +276,10 @@ export default function SidangPage() {
             </details>
           </div>
         ) : t.status !== "Disputed" ? (
-          <p className="text-sm text-stone-500">{tr("Tidak ada rekomendasi (diputus tanpa sidang AI).", "No recommendation (decided without the AI court).")}</p>
+          <p className="text-sm text-muted">{tr("Tidak ada rekomendasi (diputus tanpa sidang AI).", "No recommendation (decided without the AI court).")}</p>
         ) : (
           <div className="space-y-2">
-            <p className="text-sm text-stone-600 dark:text-stone-300">
+            <p className="text-sm text-dim">
               {readyToJudge
                 ? allUploaded
                   ? tr("Siap disidangkan.", "Ready for the court.")
@@ -281,7 +295,7 @@ export default function SidangPage() {
                 {tr("Jalankan sidang (1 panggilan NEAR AI)", "Run the court (1 NEAR AI call)")}
               </Button>
             )}
-            {court?.run?.status && court.run.status !== "done" && <p className="text-xs text-stone-500">status: {court.run.status} {court.run.error}</p>}
+            {court?.run?.status && court.run.status !== "done" && <p className="text-xs text-muted">status: {court.run.status} {court.run.error}</p>}
           </div>
         )}
       </Card>
@@ -295,7 +309,7 @@ export default function SidangPage() {
               {t.final_to && <> · {tr("uang ke", "money to")} {short(t.final_to)}</>}
             </p>
             {d.council_reason && (
-              <p className="text-stone-500">
+              <p className="text-muted">
                 {tr("Alasan publik", "Public reason")}: “{reason(d.council_reason)}”
               </p>
             )}
@@ -312,7 +326,7 @@ export default function SidangPage() {
               .
             </p>
             <div className="flex gap-2">
-              <Link href="/dewan" className="rounded-lg border border-stone-300 px-3 py-1.5 text-sm hover:bg-stone-100 dark:border-stone-700 dark:hover:bg-stone-800">
+              <Link href="/dewan" className={btnClass("ghost", true)}>
                 {tr("Ke halaman Dewan →", "Go to the Council page →")}
               </Link>
               {timedOut && active && (

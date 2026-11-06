@@ -9,6 +9,7 @@ import { ACK_EVENT, ack, ackKey, contactAckKey, loadAcks, recoveryAckKey } from 
 import { UNDO } from "@/lib/config";
 import { useAccountLabel, useFmt, useGasNote, useT } from "@/lib/i18n";
 import { call, short, view } from "@/lib/near-client";
+import { playTimeFx } from "@/lib/timefx";
 import type { AccountView, Contact, Transfer } from "@/lib/types";
 
 type Watched = { id: string; outgoing: Transfer[]; acct: AccountView; contacts: Contact[] };
@@ -118,6 +119,7 @@ export function OutgoingAlerts() {
           let cancelled = 0;
           let left = 0;
           if (r.ok) {
+            playTimeFx("stop");
             ack(otherKeys);
             if (newContacts.length) [cancelled, left] = await dropUnrecognised();
           }
@@ -141,8 +143,13 @@ export function OutgoingAlerts() {
         }
         if (!items.length && !rec && !newContacts.length && done) {
           return (
-            <div key={w.id} className={`flex flex-wrap items-center justify-between gap-2 rounded-xl border px-4 py-3 text-sm ${done.ok ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-100" : "border-red-300 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"}`}>
+            <div key={w.id} className={`flex flex-wrap items-center justify-between gap-2 rounded-[2px] border-l-4 px-4 py-3 text-sm ${done.ok ? "border-ice bg-ice/10" : "border-rec bg-rec/10"}`}>
               <span>
+                {done.ok && (
+                  <span aria-hidden className="osd mr-2 text-lg leading-none text-ice">
+                    ❚❚ PAUSE
+                  </span>
+                )}
                 {done.text} <TxLink hash={done.hash} />
               </span>
               <Button small variant="ghost" onClick={close}>
@@ -152,8 +159,14 @@ export function OutgoingAlerts() {
           );
         }
         return (
-          <div key={w.id} className="space-y-2 rounded-xl border-2 border-red-400 bg-red-50 px-4 py-3 text-sm text-red-950 dark:border-red-800 dark:bg-red-950 dark:text-red-50">
-            <p className="font-semibold">
+          <div key={w.id} className="space-y-2 rounded-[3px] border-2 border-rec bg-[#1c0710] px-4 py-3 text-sm shadow-[0_0_0_1px_#07070c,0_0_32px_-12px_#ff3b5f]">
+            <div aria-hidden className="osd flex items-center justify-between text-xl leading-none text-rec">
+              <span>
+                <span className="blink">●</span> {t("PERINGATAN", "ALERT")}
+              </span>
+              <span className="text-signal">▶ {t("JENDELA UNDO BERJALAN", "UNDO WINDOW RUNNING")}</span>
+            </div>
+            <p className="text-base font-bold">
               🔔{" "}
               {items.length || rec
                 ? t(`Ada uang keluar dari ${label} (${short(w.id)}). Ini kamu?`, `Money is leaving ${label} (${short(w.id)}). Was this you?`)
@@ -207,7 +220,7 @@ export function OutgoingAlerts() {
                 </span>
               )}
             </div>
-            <p className="text-xs opacity-75">
+            <p className="text-xs text-dim">
               {t(
                 "Notifikasi ini muncul di browser yang memegang akun pemulihan. Di produk, pesan yang sama dikirim ke HP akun pemulihan.",
                 "This alert shows in the browser that holds the recovery account. In a product, the same message goes to the recovery account's phone.",

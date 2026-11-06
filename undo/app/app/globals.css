@@ -1,13 +1,199 @@
 @import "tailwindcss";
 
+/* "Pita Mundur" (VHS) theme: a dark tape deck. Undo = rewinding time on a payment:
+   ▶ PLAY = the undo window is running, ❚❚ PAUSE = panic froze the money, ◀◀ REW = the money comes back. */
+@theme {
+  --color-tape: #07070c; /* page */
+  --color-panel: #10122a; /* cards */
+  --color-well: #0b0c1d; /* inputs, stat wells */
+  --color-line: #2c2f55; /* borders */
+  --color-line-2: #4a4f86; /* stronger borders, ghost buttons */
+  --color-ink: #eef0ff; /* text */
+  --color-dim: #c6cae9; /* secondary text */
+  --color-muted: #9ca2c9; /* meta text */
+  --color-phosphor: #3dff9a; /* primary, ok, money */
+  --color-rec: #ff3b5f; /* danger, panic */
+  --color-signal: #ffb000; /* pending, warnings */
+  --color-ice: #2ec8ff; /* frozen */
+  --color-vhs: #2433ff; /* OSD highlight (blue screen) */
+  --color-plum: #c3a2ff; /* disputed */
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-display: var(--font-vt323), var(--font-jetbrains), ui-monospace, monospace;
+}
+
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
 }
 
 body {
-  @apply bg-stone-50 text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100;
+  @apply bg-tape font-sans text-ink antialiased;
 }
 
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+/* Scan lines over the whole screen (static, very faint). */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, #ffffff08 0 1px, transparent 1px 3px);
+}
+
+::selection {
+  background: var(--color-vhs);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-phosphor);
+  outline-offset: 2px;
+}
+
+/* In the components layer so a utility on the same element (normal-case, font-sans …) still wins. */
+@layer components {
+  .mono {
+    font-family: var(--font-mono);
+  }
+
+  /* On-screen-display text: the pixel font with a slight red/cyan colour split. */
+  .osd {
+    font-family: var(--font-display);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .rgb {
+    text-shadow:
+      2px 0 #ff2d55aa,
+      -2px 0 #19c3ffaa;
+  }
+}
+
+/* Tape reels (decorative). They turn while a transfer is in its window and spin backwards on a rewind. */
+.reel {
+  display: inline-block;
+  width: var(--reel, 2.5rem);
+  height: var(--reel, 2.5rem);
+  border-radius: 9999px;
+  border: 3px solid var(--color-ink);
+  background: repeating-conic-gradient(var(--color-ink) 0 20deg, transparent 20deg 60deg);
+  mask: radial-gradient(circle, transparent 22%, #000 24%);
+}
+.reels-play .reel {
+  animation: tape-spin 2.4s linear infinite;
+}
+html[data-fx="rewind"] .reel,
+.reels-rew .reel {
+  animation: tape-spin 0.25s linear infinite reverse;
+}
+
+.blink {
+  animation: tape-blink 1.2s steps(2) infinite;
+}
+
+@keyframes tape-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes tape-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---------- time effects (components/time-fx.tsx sets html[data-fx]) ---------- */
+.fx-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  overflow: hidden;
+}
+.fx-stamp {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  padding: 1rem;
+}
+
+/* ❚❚ PAUSE: the frame freezes, loses its colour and shakes; a tracking band rolls through. */
+html[data-fx="stop"] #tape {
+  filter: saturate(0.15) brightness(0.85);
+  animation: fx-jitter 0.16s steps(2) infinite;
+}
+html[data-fx="stop"] .fx-layer {
+  background: linear-gradient(transparent 0 58%, #ffffff3a 58% 60%, transparent 60% 63%, #ffffff1f 63% 64%, transparent 64%);
+  animation: fx-band 1.4s linear;
+}
+/* ◀◀ REW: tracking lines race upwards and the picture skews. */
+html[data-fx="rewind"] #tape {
+  animation: fx-skew 0.12s steps(2) infinite;
+}
+html[data-fx="rewind"] .fx-layer {
+  background: repeating-linear-gradient(0deg, transparent 0 30px, #ffffff40 30px 33px, transparent 33px 90px);
+  animation: fx-rew 0.3s linear infinite;
+}
+/* ▶ PLAY: one short flash of the blue screen. */
+html[data-fx="play"] .fx-layer {
+  background: #2433ff33;
+  animation: fx-fade 0.6s ease-out forwards;
+}
+.fx-stamp-box {
+  animation: fx-stamp 0.9s steps(2) 2 forwards;
+}
+
+@keyframes fx-jitter {
+  50% {
+    transform: translate(2px, -1px);
+  }
+}
+@keyframes fx-band {
+  from {
+    transform: translateY(-70%);
+  }
+  to {
+    transform: translateY(70%);
+  }
+}
+@keyframes fx-skew {
+  50% {
+    transform: skewX(-2deg) translateX(-6px);
+  }
+}
+@keyframes fx-rew {
+  to {
+    background-position: 0 -180px;
+  }
+}
+@keyframes fx-fade {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes fx-stamp {
+  0% {
+    opacity: 0;
+  }
+  50%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  html[data-fx] #tape {
+    animation: none !important;
+  }
 }

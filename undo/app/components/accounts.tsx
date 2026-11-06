@@ -2,6 +2,7 @@
 // Accounts the app can act as: a real wallet connected through NEAR Connect (if any) plus demo
 // accounts (testnet, keys in this browser), and which one is active.
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { btnClass, inputClass } from "@/components/ui";
 import { useAccountLabel, useT } from "@/lib/i18n";
 import { loadAccounts, saveAccounts, type DemoAccount } from "@/lib/near-client";
 import { getConnector } from "@/lib/wallet";
@@ -134,10 +135,10 @@ export function AccountSwitcher() {
   const t = useT();
   const accountLabel = useAccountLabel();
   return (
-    <div className="flex w-full items-center gap-2 sm:w-auto">
+    <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto">
       {accounts.length > 0 && (
         <select
-          className="min-w-0 flex-1 truncate rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-sm sm:max-w-[16rem] dark:border-stone-700 dark:bg-stone-900"
+          className={`${inputClass} min-w-0 flex-1 truncate text-sm sm:max-w-[16rem]`}
           value={active?.id}
           onChange={(e) => setActive(e.target.value)}
           aria-label={t("Akun aktif", "Active account")}
@@ -150,11 +151,11 @@ export function AccountSwitcher() {
         </select>
       )}
       {wallet ? (
-        <button onClick={disconnectWallet} className="shrink-0 rounded-lg border border-stone-300 px-2.5 py-1.5 text-xs hover:bg-stone-100 dark:border-stone-700 dark:hover:bg-stone-800">
+        <button onClick={disconnectWallet} className={`${btnClass("ghost", true)} shrink-0`}>
           {t("Putuskan wallet", "Disconnect wallet")}
         </button>
       ) : (
-        <button onClick={connectWallet} className="shrink-0 rounded-lg bg-stone-900 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-stone-700 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-stone-300">
+        <button onClick={connectWallet} className={`${btnClass("primary", true)} shrink-0`}>
           {t("Hubungkan wallet", "Connect wallet")}
         </button>
       )}

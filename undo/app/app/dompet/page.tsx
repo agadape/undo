@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import { useAccounts } from "@/components/accounts";
 import { TransferList } from "@/components/transfers";
-import { Button, Card, Countdown, Notice, Pill, TxLink, usePoll } from "@/components/ui";
+import { Button, Card, Countdown, Notice, Pill, Reels, TxLink, inputClass, usePoll } from "@/components/ui";
 import { ack, ackKey, contactAckKey } from "@/lib/alerts";
 import { ADDR, UNDO, USDC } from "@/lib/config";
 import { useAccountLabel, useFmt, useGasNote, useLang, useT } from "@/lib/i18n";
 import { USD, call, createDemoAccount, parseOutcome, provider, short, view, type DemoAccount } from "@/lib/near-client";
+import { playTimeFx } from "@/lib/timefx";
 import { walletBatch } from "@/lib/wallet";
 import type { AccountView, BalanceView, Config, Contact, Transfer } from "@/lib/types";
 
@@ -16,7 +17,7 @@ export default function DompetPage() {
   const t = useT();
   if (!ready) return null;
   if (accounts.length === 0 || !active) return <Setup />;
-  if (!cfg) return <p className="text-sm text-stone-500">{t("memuat kontrak…", "loading contract…")}</p>;
+  if (!cfg) return <p className="text-sm text-muted">{t("memuat kontrak…", "loading contract…")}</p>;
   return <Wallet key={active.id} me={active} cfg={cfg} />;
 }
 
@@ -59,7 +60,7 @@ function Setup() {
   return (
     <div className="mx-auto max-w-xl space-y-4">
       <Card title={t("Dompet demo", "Demo wallet")}>
-        <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
+        <p className="mb-3 text-sm text-dim">
           {lang === "en" ? (
             <>
               One click creates two throwaway NEAR testnet accounts: a <b>main wallet</b> holding 100 rUSDC, and a <b>recovery account</b> (imagine it is on your phone). Their keys are stored only in this browser.
@@ -76,9 +77,9 @@ function Setup() {
             {t("atau hubungkan wallet NEAR (testnet)", "or connect a NEAR wallet (testnet)")}
           </Button>
         </div>
-        {walletError && <p className="mt-2 text-xs text-red-600">{walletError}</p>}
+        {walletError && <p className="mt-2 text-xs text-rec">{walletError}</p>}
         {log.length > 0 && (
-          <ol className="mono mt-3 space-y-1 text-xs text-stone-600 dark:text-stone-300">
+          <ol className="osd mt-3 space-y-0.5 rounded-[2px] border border-line bg-well p-3 text-lg leading-6 normal-case text-phosphor" aria-live="polite">
             {log.map((l, i) => (
               <li key={i}>{l}</li>
             ))}
@@ -120,6 +121,7 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
   return (
     <div className="space-y-4">
       <Card
+        tone={bal?.locked ? "frozen" : undefined}
         title={accountLabel(me.label)}
         right={
           <div className="flex items-center gap-2">
@@ -128,21 +130,24 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
           </div>
         }
       >
-        <a className="mono text-xs text-stone-500 underline" href={ADDR(me.id)} target="_blank" rel="noreferrer">
+        <a className="mono text-xs text-muted underline decoration-dotted underline-offset-2 hover:text-ink" href={ADDR(me.id)} target="_blank" rel="noreferrer">
           {me.id}
         </a>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat label={t("Bisa dipakai", "Available")} value={fmt(bal?.available)} strong />
-          <Stat label={t("Masuk, masih pending", "Incoming, still pending")} value={fmt(bal?.pending_in)} />
-          <Stat label={t("Dibekukan", "Frozen")} value={fmt(bal?.frozen_in)} />
-          <Stat label={t("Dalam sengketa", "In dispute")} value={fmt(bal?.disputed_in)} />
+        <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_auto]">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <Stat label={t("Bisa dipakai", "Available")} value={fmt(bal?.available)} strong />
+            <Stat label={t("Masuk, masih pending", "Incoming, still pending")} value={fmt(bal?.pending_in)} />
+            <Stat label={t("Dibekukan", "Frozen")} value={fmt(bal?.frozen_in)} />
+            <Stat label={t("Dalam sengketa", "In dispute")} value={fmt(bal?.disputed_in)} />
+          </div>
+          <TapeDeck locked={!!bal?.locked} outgoing={outgoing} />
         </div>
         {(() => {
           // balance_of counts incoming money only; show this wallet's own outgoing money that is held.
           const held = (outgoing ?? []).filter((x) => x.status === "Frozen" || x.status === "Disputed");
           const sum = held.reduce((s, x) => s + BigInt(x.amount), 0n);
           return sum > 0n ? (
-            <p className="mt-2 text-xs text-stone-500">
+            <p className="mt-2 text-xs text-muted">
               {t(
                 `Uang keluar yang sedang ditahan: ${fmt(sum)} rUSDC (${held.length} transfer dibekukan atau dalam sengketa; lihat Riwayat → Keluar).`,
                 `Outgoing money on hold: ${fmt(sum)} rUSDC (${held.length} transfer(s) frozen or in dispute; see History → Outgoing).`,
@@ -151,7 +156,7 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
           ) : null;
         })()}
         {acct?.recovery && (
-          <p className="mt-3 text-xs text-stone-500">
+          <p className="mt-3 text-xs text-muted">
             {t(`Akun pemulihan: ${short(acct.recovery)} · kalah sengketa: ${acct.lost_disputes}`, `Recovery account: ${short(acct.recovery)} · disputes lost: ${acct.lost_disputes}`)}
           </p>
         )}
@@ -218,9 +223,9 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
 // Top-level on purpose: a component defined inside another remounts on every render (buttons vanish mid-click).
 function Step({ n, title, done, children }: { n: number; title: string; done: boolean; children?: React.ReactNode }) {
   return (
-    <li className="flex flex-wrap items-center gap-2">
-      <span className={`grid h-6 w-6 place-items-center rounded-full text-xs font-semibold ${done ? "bg-emerald-600 text-white" : "bg-stone-200 dark:bg-stone-800"}`}>{done ? "✓" : n}</span>
-      <span className="text-sm">{title}</span>
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-dashed border-line py-2.5 last:border-0">
+      <span className={`osd grid h-7 w-9 shrink-0 place-items-center rounded-[2px] text-lg leading-none ${done ? "bg-phosphor text-tape" : "border border-line-2 text-dim"}`}>{done ? "✓" : `0${n}`}</span>
+      <span className="min-w-0 flex-1 basis-56 text-sm">{title}</span>
       {children}
     </li>
   );
@@ -287,11 +292,11 @@ function PanicTest({
       await call(me, UNDO, "transfer", { receiver_id: thief.id, amount: amount.toString(), memo: "dicuri" }, { deposit: fee, gasTera: "50" }),
     );
   }
-  const panic = async () =>
-    report(
-      t("PANIK: transfer keluar dibekukan, akun dikunci, sisa saldo dibekukan menuju akun pemulihan.", "PANIC: outgoing transfers frozen, account locked, remaining balance frozen on its way to the recovery account."),
-      await call(guard, UNDO, "panic", { account_id: me.id }, { gasTera: "150" }),
-    );
+  async function panic() {
+    const r = await call(guard, UNDO, "panic", { account_id: me.id }, { gasTera: "150" });
+    if (r.ok) playTimeFx("stop");
+    report(t("PANIK: transfer keluar dibekukan, akun dikunci, sisa saldo dibekukan menuju akun pemulihan.", "PANIC: outgoing transfers frozen, account locked, remaining balance frozen on its way to the recovery account."), r);
+  }
   async function finalizeAll() {
     let last: { ok: boolean; hash?: string; error?: string; gasless?: boolean } = { ok: true };
     let done = 0;
@@ -302,12 +307,17 @@ function PanicTest({
       done += 1;
       allGasless &&= !!last.gasless;
     }
+    if (done > 0) playTimeFx("rewind");
     report(
       t(`Finalisasi ${done} dari ${ready.length} transfer tanpa voting: uangnya sekarang di akun pemulihan.`, `Finalized ${done} of ${ready.length} transfer(s) with no vote: the money is now in the recovery account.`),
       last.ok ? { ...last, gasless: allGasless } : last,
     );
   }
-  const unlock = async () => report(t("Akun dibuka kembali.", "Account unlocked."), await call(guard, UNDO, "unlock", { account_id: me.id }, { gasTera: "30" }));
+  async function unlock() {
+    const r = await call(guard, UNDO, "unlock", { account_id: me.id }, { gasTera: "30" });
+    if (r.ok) playTimeFx("play");
+    report(t("Akun dibuka kembali.", "Account unlocked."), r);
+  }
   const giveBack = async () =>
     report(
       t(
@@ -318,15 +328,15 @@ function PanicTest({
     );
 
   return (
-    <Card title={t("Uji Tombol Panik", "Test the panic button")} tone="danger" right={<span className="text-xs text-stone-500">{t("akun pemulihan:", "recovery account:")} {short(guard.id)}</span>}>
-      <ol className="space-y-2">
+    <Card title={t("Uji Tombol Panik", "Test the panic button")} tone="danger" right={<span className="text-xs text-muted">{t("akun pemulihan:", "recovery account:")} {short(guard.id)}</span>}>
+      <ol>
         <Step n={1} title={t("Pura-pura kuncimu dicuri: kirim 90% saldo ke akun Pencuri", "Pretend your key was stolen: send 90% of the balance to the Thief account")} done={stolen.some((x) => x.to === thiefId) || frozen.length > 0 || bal.locked}>
           <Button small variant="danger" onClick={steal} disabled={bal.locked || bal.available === "0"}>
             {t("Simulasikan pencurian", "Simulate theft")}
           </Button>
         </Step>
         <Step n={2} title={t("Dari akun pemulihan (HP): tekan PANIK", "From the recovery account (phone): press PANIC")} done={bal.locked}>
-          <Button small variant="danger" onClick={panic} disabled={bal.locked && stolen.length === 0}>
+          <Button variant="danger" onClick={panic} disabled={bal.locked && stolen.length === 0}>
             {t("PANIK", "PANIC")}
           </Button>
         </Step>
@@ -336,7 +346,7 @@ function PanicTest({
           done={bal.locked && frozen.length === 0}
         >
           {frozen.length > 0 && ready.length === 0 && (
-            <span className="text-xs text-stone-500">
+            <span className="text-xs text-muted">
               {lang === "en" ? (
                 <>
                   can be finalized in <Countdown ns={nextFrozen} />
@@ -358,7 +368,7 @@ function PanicTest({
           </Button>
         </Step>
         <Step n={5} title={t("Opsional: kirim saldo akun pemulihan kembali ke dompet", "Optional: send the recovery account's balance back to the wallet")} done={false}>
-          <span className="text-xs text-stone-500">
+          <span className="text-xs text-muted">
             {t(`akun pemulihan memegang ${fmt(guardBal?.available)} rUSDC`, `the recovery account holds ${fmt(guardBal?.available)} rUSDC`)}
           </span>
           <Button small variant="ghost" onClick={giveBack} disabled={bal.locked || !guardBal || guardBal.available === "0"}>
@@ -366,7 +376,7 @@ function PanicTest({
           </Button>
         </Step>
       </ol>
-      <p className="mt-3 text-xs text-stone-500">
+      <p className="mt-3 text-xs text-muted">
         {t(
           `NEAR akun pemulihan: ${nearText}. Langkah 2–4 (Panik, finalisasi, buka kunci) dikirim lewat relayer Undo (meta-transaction NEP-366), jadi langkah itu tidak mengurangi NEAR ini. Langkah 5 transfer biasa dan memakai gas sendiri.`,
           `Recovery account NEAR: ${nearText}. Steps 2–4 (panic, finalize, unlock) go through the Undo relayer (NEP-366 meta-transaction), so they do not use this NEAR. Step 5 is a normal transfer and pays its own gas.`,
@@ -454,7 +464,7 @@ function WalletOnboarding({
         <li>
           <b>{t("1. Pasang akun pemulihan", "1. Set a recovery account")}</b> {hasRecovery ? <Pill tone="ok">{t("sudah", "done")}</Pill> : pendingRecovery ? <Pill>{t("terjadwal", "scheduled")}</Pill> : null}
           {!hasRecovery && pendingRecovery && (
-            <p className="mt-1 text-xs text-stone-600 dark:text-stone-300">
+            <p className="mt-1 text-xs text-dim">
               {lang === "en" ? (
                 <>
                   {short(pendingRecovery[0])} takes effect in <Countdown ns={pendingRecovery[1]} done="soon (reload the page)" />. After that the “Test the panic button” card appears.
@@ -479,7 +489,7 @@ function WalletOnboarding({
                 value={recoveryId}
                 onChange={(e) => setRecoveryId(e.target.value.trim())}
                 placeholder={t("akun-lainmu.testnet", "your-other-account.testnet")}
-                className="mono w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-xs sm:w-64 dark:border-stone-700 dark:bg-stone-950"
+                className={`${inputClass} mono w-full text-xs sm:w-64`}
               />
               <Button small onClick={() => protect(recoveryId)} disabled={!recoveryId}>
                 {t("Pasang", "Set")}
@@ -491,7 +501,7 @@ function WalletOnboarding({
               )}
             </div>
           )}
-          <p className="mt-1 text-xs text-stone-500">
+          <p className="mt-1 text-xs text-muted">
             {t(
               "Pasang sebelum mengisi saldo: selagi akun kosong, akun pemulihan langsung berlaku. Setelah ada saldo, penggantian selalu lewat jeda.",
               "Set it before adding funds: while the account is empty, the recovery account takes effect at once. Once there is a balance, any change always goes through a delay.",
@@ -520,9 +530,39 @@ function WalletOnboarding({
 
 function Stat({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className="rounded-lg bg-stone-50 p-3 dark:bg-stone-950">
-      <div className="text-xs text-stone-500">{label}</div>
-      <div className={`tabular-nums ${strong ? "text-2xl font-semibold" : "text-lg"}`}>{value}</div>
+    <div className={`rounded-[2px] border bg-well p-3 ${strong ? "border-phosphor/40" : "border-line"}`}>
+      <div className="osd text-base leading-5 text-muted">{label}</div>
+      <div className={`osd mt-1 leading-none tabular-nums ${strong ? "rgb text-5xl text-phosphor" : "text-3xl text-ink"}`}>{value}</div>
+    </div>
+  );
+}
+
+/** The wallet as a tape deck: ▶ PLAY while an outgoing transfer is in its undo window, ❚❚ PAUSE while locked by a panic. */
+function TapeDeck({ locked, outgoing }: { locked: boolean; outgoing: Transfer[] | undefined }) {
+  const t = useT();
+  const now = BigInt(Date.now()) * 1_000_000n;
+  const next = (outgoing ?? [])
+    .filter((x) => x.kind !== "Sweep" && x.status === "Pending" && BigInt(x.unlock_at) > now)
+    .map((x) => x.unlock_at)
+    .sort((a, b) => (BigInt(a) < BigInt(b) ? -1 : 1))[0];
+  const state = locked ? "pause" : next ? "play" : "stop";
+  return (
+    <div className={`flex items-center gap-4 rounded-[2px] border bg-well p-3 lg:flex-col lg:items-start lg:gap-2 ${state === "pause" ? "border-ice/60" : state === "play" ? "border-signal/60" : "border-line"}`}>
+      <Reels state={state === "play" ? "play" : "stop"} size="2.25rem" />
+      <div>
+        <div className={`osd rgb text-2xl leading-none ${state === "pause" ? "text-ice" : state === "play" ? "text-signal" : "text-muted"}`}>
+          {state === "pause" ? "❚❚ PAUSE" : state === "play" ? "▶ PLAY" : "■ STOP"}
+        </div>
+        <div className="mt-1 text-xs text-dim">
+          {state === "pause" ? (
+            t("akun dikunci (Panik)", "account locked (panic)")
+          ) : state === "play" ? (
+            <Countdown ns={next} prefix={t("final dalam ", "final in ")} />
+          ) : (
+            t("tidak ada transfer berjalan", "no transfer running")
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -595,7 +635,7 @@ function ContactsCard({
 
   return (
     <Card title={t("Kontak tepercaya", "Trusted contacts")}>
-      <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
+      <p className="mb-3 text-sm text-dim">
         {t(
           `Pembayaran ke kontak yang sudah aktif langsung final, tanpa jendela undo, jadi tidak bisa dibatalkan. Cocok untuk toko langganan atau keluarga. Kontak baru aktif setelah ${minutes} menit, supaya pencuri yang menambahkan dirinya harus menunggu; Panik membatalkan kontak yang belum aktif.`,
           `Payments to an active contact are final at once, with no undo window, so they cannot be undone. Good for a regular shop or family. A new contact becomes active after ${minutes} min, so a thief who adds himself has to wait; panic cancels contacts that are not active yet.`,
@@ -620,17 +660,17 @@ function ContactsCard({
           ))}
         </ul>
       ) : (
-        <p className="mb-3 text-sm text-stone-500">{contacts === undefined ? t("memuat kontak…", "loading contacts…") : t("Belum ada kontak.", "No contacts yet.")}</p>
+        <p className="mb-3 text-sm text-muted">{contacts === undefined ? t("memuat kontak…", "loading contacts…") : t("Belum ada kontak.", "No contacts yet.")}</p>
       )}
       <div className="flex flex-wrap items-end gap-2">
         <label className="w-full text-sm sm:w-auto">
-          <span className="block text-xs text-stone-500">{t("Akun kontak", "Contact account")}</span>
+          <span className="osd block text-base leading-5 text-muted">{t("Akun kontak", "Contact account")}</span>
           <input
             list="contact-candidates"
             value={id}
             placeholder={others[0]?.id ?? t("toko.testnet", "shop.testnet")}
             onChange={(e) => setId(e.target.value.trim())}
-            className="mono w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-xs sm:w-72 dark:border-stone-700 dark:bg-stone-950"
+            className={`${inputClass} mono w-full text-xs sm:w-72`}
           />
           <datalist id="contact-candidates">
             {others.map((a) => (
@@ -755,13 +795,13 @@ function SendCard({
     <Card title={t("Kirim", "Send")}>
       <div className="flex flex-wrap items-end gap-2">
         <label className="w-full text-sm sm:w-auto">
-          <span className="block text-xs text-stone-500">{t("Penerima", "Receiver")}</span>
+          <span className="osd block text-base leading-5 text-muted">{t("Penerima", "Receiver")}</span>
           <input
             list="demo-accounts"
             value={to}
             placeholder={others[0]?.id ?? t("akun.testnet", "account.testnet")}
             onChange={(e) => setTo(e.target.value.trim())}
-            className="mono w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-xs sm:w-72 dark:border-stone-700 dark:bg-stone-950"
+            className={`${inputClass} mono w-full text-xs sm:w-72`}
           />
           <datalist id="demo-accounts">
             {others.map((a) => (
@@ -772,10 +812,10 @@ function SendCard({
           </datalist>
         </label>
         <label className="text-sm">
-          <span className="block text-xs text-stone-500">{t("Jumlah", "Amount")}</span>
-          <input value={amount} onChange={(e) => setAmount(e.target.value)} className="w-24 rounded-lg border border-stone-300 bg-white px-2 py-1.5 dark:border-stone-700 dark:bg-stone-950" />
+          <span className="osd block text-base leading-5 text-muted">{t("Jumlah", "Amount")}</span>
+          <input value={amount} onChange={(e) => setAmount(e.target.value)} className={`${inputClass} w-24`} />
         </label>
-        <select value={mode} onChange={(e) => setMode(e.target.value as "rusdc" | "usdc")} className="rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-sm dark:border-stone-700 dark:bg-stone-950">
+        <select value={mode} onChange={(e) => setMode(e.target.value as "rusdc" | "usdc")} className={`${inputClass} text-sm`}>
           <option value="rusdc">{t("rUSDC (penerima pakai Undo)", "rUSDC (receiver uses Undo)")}</option>
           <option value="usdc">{t("USDC biasa (penerima siapa saja)", "plain USDC (any receiver)")}</option>
         </select>
@@ -789,9 +829,9 @@ function SendCard({
       {contact && (
         <p className="mt-2 text-xs">
           {contact.active || BigInt(contact.active_at) <= BigInt(Date.now()) * 1_000_000n ? (
-            <span className="text-amber-700 dark:text-amber-300">{t("⚡ Kontak tepercaya: pembayaran ini langsung final dan tidak bisa dibatalkan.", "⚡ Trusted contact: this payment is final at once and cannot be undone.")}</span>
+            <span className="font-semibold text-signal">{t("⚡ Kontak tepercaya: pembayaran ini langsung final dan tidak bisa dibatalkan.", "⚡ Trusted contact: this payment is final at once and cannot be undone.")}</span>
           ) : (
-            <span className="text-stone-500">
+            <span className="text-muted">
               {t("Kontak ini belum aktif (aktif dalam ", "This contact is not active yet (active in ")}
               <Countdown ns={contact.active_at} done={t("sekarang", "now")} />
               {t(`): pembayaran masih menunggu ${cfg.window_sec} detik.`, `): the payment still waits ${cfg.window_sec} seconds.`)}
@@ -799,7 +839,7 @@ function SendCard({
           )}
         </p>
       )}
-      <p className="mt-2 text-xs text-stone-500">
+      <p className="mt-2 text-xs text-muted">
         {t(
           `Biaya storage ${fmtNear(cfg.storage_fee)} NEAR per transfer. Uang masuk pending ${cfg.window_sec} detik di kontrak demo ini.`,
           `Storage fee: ${fmtNear(cfg.storage_fee)} NEAR per transfer. Incoming money stays pending for ${cfg.window_sec} seconds in this demo contract.`,
@@ -842,6 +882,7 @@ function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId:
   async function panic() {
     const r = await call(me, UNDO, "panic", { account_id: protectedId }, { gasTera: "150" });
     const v = r.value as { frozen?: string[]; swept?: string } | undefined;
+    if (r.ok) playTimeFx("stop");
     setMsg(
       r.ok
         ? {
@@ -860,13 +901,14 @@ function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId:
 
   async function unlock() {
     const r = await call(me, UNDO, "unlock", { account_id: protectedId }, { gasTera: "30" });
+    if (r.ok) playTimeFx("play");
     setMsg(r.ok ? { kind: "ok", text: t("Akun dibuka kembali.", "Account unlocked.") + gasNote(r), hash: r.hash } : { kind: "error", text: r.error ?? t("gagal", "failed") });
     refreshAcct();
   }
 
   return (
     <Card title={t(`Akun pemulihan untuk ${short(protectedId)}`, `Recovery account for ${short(protectedId)}`)} tone="danger" right={acct?.locked ? <Pill tone="danger">{t("terkunci", "locked")}</Pill> : null}>
-      <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
+      <p className="mb-3 text-sm text-dim">
         {t(
           "Kalau kunci dompet utama dicuri, tekan Panik: semua transfer keluar yang masih pending dibekukan, akun dikunci, dan sisa saldonya ikut dibekukan menuju akun ini.",
           "If the main wallet's key is stolen, press PANIC: all pending outgoing transfers are frozen, the account is locked, and its remaining balance is also frozen on its way to this account.",
@@ -891,7 +933,7 @@ function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId:
       )}
       {hasContacts && contacts && contacts.length > 0 && (
         <div className="mt-4">
-          <h3 className="mb-1 text-sm font-semibold">{t("Kontak tepercaya dompet utama", "The main wallet's trusted contacts")}</h3>
+          <h3 className="osd mb-1 text-xl leading-6 text-dim">{t("Kontak tepercaya dompet utama", "The main wallet's trusted contacts")}</h3>
           <ul className="space-y-1">
             {contacts.map((c) => (
               <li key={c.contact} className="flex flex-wrap items-center gap-2 text-sm">

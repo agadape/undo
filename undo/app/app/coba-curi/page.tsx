@@ -48,7 +48,7 @@ export default function CobaCuriPage() {
   // Primary guard: the Cloudflare Worker writes a heartbeat every 2 minutes.
   const [cf] = usePoll(() => fetch(GUARD_HEARTBEAT_URL, { cache: "no-store" }).then((r) => (r.ok ? (r.json() as Promise<{ at: string; ok: boolean } | null>) : null)), [], 60_000);
   const ago = (sec: number) => (sec < 120 ? t(`${sec} dtk`, `${sec} s`) : t(`${Math.round(sec / 60)} mnt`, `${Math.round(sec / 60)} min`));
-  if (!s) return <p className="text-sm text-stone-500">{t("memuat tantangan…", "loading the challenge…")}</p>;
+  if (!s) return <p className="text-sm text-muted">{t("memuat tantangan…", "loading the challenge…")}</p>;
   if (s.error) return <Notice kind="error">{s.error}</Notice>;
   const avgReact = s.reactionSec.length ? Math.round(s.reactionSec.reduce((a, b) => a + b, 0) / s.reactionSec.length) : null;
   const hbAge = s.heartbeat ? Math.round((Date.now() - Date.parse(s.heartbeat.at)) / 1000) : null;
@@ -59,9 +59,12 @@ export default function CobaCuriPage() {
   return (
     <div className="space-y-4">
       <section className="space-y-2 pt-2">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{t("Coba Curi", "Coba Curi (try to steal)")}</h1>
-        <p className="text-lg">{t("Kuncinya bisa dicuri. Uangnya tidak bisa dicairkan.", "The key can be stolen. The money cannot be cashed out.")}</p>
-        <p className="max-w-2xl text-sm text-stone-600 dark:text-stone-300">
+        <p aria-hidden className="osd text-xl leading-none text-rec">
+          <span className="blink">●</span> LIVE · testnet
+        </p>
+        <h1 className="osd rgb text-5xl leading-none sm:text-6xl">{t("Coba Curi", "Coba Curi (try to steal)")}</h1>
+        <p className="text-lg font-bold">{t("Kuncinya bisa dicuri. Uangnya tidak bisa dicairkan.", "The key can be stolen. The money cannot be cashed out.")}</p>
+        <p className="max-w-2xl text-sm text-dim">
           {lang === "en" ? (
             <>
               {s.publishedKey ? "We publish this account's private key." : "The team will publish this account's private key when the challenge opens."} Anyone holding it may send, unwrap, or change the account&apos;s recovery account. All money going out waits {Math.round(s.windowSec / 60)} min; the guard (the account&apos;s recovery account) presses Panic, and after {Math.round(s.contestSec / 60)} min with no contest the money comes back.
@@ -122,8 +125,8 @@ export default function CobaCuriPage() {
       <Card title={t("Kunci akun umpan", "Bait account key")}>
         {s.publishedKey ? (
           <div className="space-y-2">
-            <code className="mono block break-all rounded bg-stone-100 p-2 text-xs dark:bg-stone-950">{s.publishedKey}</code>
-            <p className="text-xs text-stone-500">
+            <code className="mono block break-all rounded-[2px] border border-line bg-well p-2 text-xs text-phosphor">{s.publishedKey}</code>
+            <p className="text-xs text-muted">
               {lang === "en" ? (
                 <>
                   Example: <span className="mono">near tokens / near-api-js</span> → call <span className="mono">transfer</span>, <span className="mono">unwrap</span>, or <span className="mono">send_usdc</span> on {s.contractId} (attach 0.005 NEAR for storage).
@@ -136,22 +139,22 @@ export default function CobaCuriPage() {
             </p>
           </div>
         ) : (
-          <p className="text-sm text-stone-500">{t("Kunci akan dipublikasikan saat tantangan dibuka (diumumkan oleh tim).", "The key will be published when the challenge opens (announced by the team).")}</p>
+          <p className="text-sm text-muted">{t("Kunci akan dipublikasikan saat tantangan dibuka (diumumkan oleh tim).", "The key will be published when the challenge opens (announced by the team).")}</p>
         )}
       </Card>
 
       <Card title={t("Percobaan terakhir", "Latest attempts")}>
         {s.recent.length === 0 ? (
-          <p className="text-sm text-stone-500">{t("Belum ada yang mencoba.", "No one has tried yet.")}</p>
+          <p className="text-sm text-muted">{t("Belum ada yang mencoba.", "No one has tried yet.")}</p>
         ) : (
           <ul className="space-y-1 text-sm">
             {s.recent.map((tx) => (
               <li key={tx.id} className="flex flex-wrap items-center gap-2">
-                <span className="mono text-xs text-stone-500">#{tx.id}</span>
-                <span className="tabular-nums">{fmt(tx.amount)}</span>
-                <span className="text-stone-500">{tx.kind === "Exit" ? "USDC" : "rUSDC"} → {short(tx.to)}</span>
+                <span className="mono text-xs text-muted">#{tx.id}</span>
+                <span className="osd text-xl leading-none tabular-nums">{fmt(tx.amount)}</span>
+                <span className="text-muted">{tx.kind === "Exit" ? "USDC" : "rUSDC"} → {short(tx.to)}</span>
                 <StatusBadge status={tx.status} />
-                {tx.final_to && <span className="text-xs text-stone-500">{t("akhir:", "ended at:")} {short(tx.final_to)}</span>}
+                {tx.final_to && <span className="text-xs text-muted">{t("akhir:", "ended at:")} {short(tx.final_to)}</span>}
               </li>
             ))}
           </ul>
@@ -174,11 +177,11 @@ export default function CobaCuriPage() {
 }
 
 function Tile({ label, value, tone }: { label: string; value: string; tone?: "ok" | "danger" }) {
-  const c = tone === "ok" ? "text-emerald-700 dark:text-emerald-400" : tone === "danger" ? "text-red-600" : "";
+  const c = tone === "ok" ? "text-phosphor" : tone === "danger" ? "text-rec" : "text-ink";
   return (
-    <div className="rounded-xl border border-stone-200 bg-white p-3 dark:border-stone-800 dark:bg-stone-900">
-      <div className="text-xs text-stone-500">{label}</div>
-      <div className={`text-xl font-semibold tabular-nums ${c}`}>{value}</div>
+    <div className="rounded-[3px] border border-line bg-panel p-3">
+      <div className="osd text-base leading-5 text-muted">{label}</div>
+      <div className={`osd rgb mt-1 text-3xl leading-none tabular-nums sm:text-4xl ${c}`}>{value}</div>
     </div>
   );
 }

@@ -1,12 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button, Card, Notice, Pill, StatusBadge, TxLink, usePoll } from "@/components/ui";
+import { Button, Card, Notice, Pill, StatusBadge, TxLink, inputClass, usePoll } from "@/components/ui";
 import { ADDR, DAO, UNDO } from "@/lib/config";
 import { useAccounts } from "@/components/accounts";
 import { approvals, loadCouncil, rejections, type Council, type ResolveProposal } from "@/lib/council";
 import { useFmt, useLang, useReason, useT } from "@/lib/i18n";
 import { parseOutcome, short, view } from "@/lib/near-client";
+import { playTimeFx } from "@/lib/timefx";
 import type { Config, Transfer } from "@/lib/types";
 import { walletFunctionCall } from "@/lib/wallet";
 
@@ -31,7 +32,7 @@ function PasscodeField() {
     }
   }, []);
   return (
-    <label className="mt-3 block text-xs text-stone-500">
+    <label className="mt-3 block text-xs text-muted">
       {tr("Passcode dewan (hanya untuk anggota dewan; disimpan di browser ini)", "Council passcode (for council members only; saved in this browser)")}
       <input
         type="password"
@@ -44,7 +45,7 @@ function PasscodeField() {
             /* ignore */
           }
         }}
-        className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-sm sm:w-64 dark:border-stone-700 dark:bg-stone-950"
+        className={`${inputClass} mt-1 block w-full text-sm sm:w-64`}
       />
     </label>
   );
@@ -65,9 +66,9 @@ export default function DewanPage() {
   return (
     <div className="space-y-4">
       <Card title={tr("Dewan", "Council")}>
-        <p className="text-sm text-stone-600 dark:text-stone-300">
+        <p className="text-sm text-dim">
           {tr("Dewan adalah", "The council is a")}{" "}
-          <a className="underline" href={ADDR(DAO)} target="_blank" rel="noreferrer">
+          <a className="text-phosphor underline decoration-dotted underline-offset-2" href={ADDR(DAO)} target="_blank" rel="noreferrer">
             Sputnik DAO
           </a>
           {tr(
@@ -83,7 +84,7 @@ export default function DewanPage() {
         <PasscodeField />
       </Card>
       {!items ? (
-        <p className="text-sm text-stone-500">{tr("memuat sengketa…", "loading disputes…")}</p>
+        <p className="text-sm text-muted">{tr("memuat sengketa…", "loading disputes…")}</p>
       ) : open.length === 0 ? (
         <Notice kind="info">{tr("Tidak ada sengketa yang menunggu.", "No disputes are waiting.")}</Notice>
       ) : (
@@ -94,17 +95,17 @@ export default function DewanPage() {
           <ul className="space-y-1 text-sm">
             {closed.map((t) => (
               <li key={t.id} className="flex flex-wrap items-center gap-2">
-                <Link className="mono text-xs underline" href={`/sidang/${t.id}`}>
+                <Link className="mono text-xs text-phosphor underline decoration-dotted underline-offset-2" href={`/sidang/${t.id}`}>
                   #{t.id}
                 </Link>
                 <StatusBadge status={t.status} />
-                <span>{fmt(t.amount)}</span>
-                <span className="text-stone-500">
+                <span className="osd text-xl leading-none tabular-nums">{fmt(t.amount)}</span>
+                <span className="text-muted">
                   {tr("oleh", "decided by")}{" "}
                   {t.dispute?.decided_by === "council" ? tr("dewan", "the council") : t.dispute?.decided_by === "timeout" ? tr("diamnya dewan", "council silence") : t.dispute?.decided_by} →{" "}
                   {t.final_to ? short(t.final_to) : "—"}
                 </span>
-                {t.dispute?.council_reason && <span className="text-stone-500">“{pickReason(t.dispute.council_reason)}”</span>}
+                {t.dispute?.council_reason && <span className="text-muted">“{pickReason(t.dispute.council_reason)}”</span>}
               </li>
             ))}
           </ul>
@@ -135,6 +136,7 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
     }
     const res = await fetch("/api/council/resolve", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ transferId: t.id, reverse, reason, passcode }) });
     const body = (await res.json()) as { error?: string; proposalId?: number; status?: string; approvals?: number; needed?: number; voteTx?: string; proposalTx?: string };
+    if (res.ok && body.status === "Approved" && reverse) playTimeFx("rewind");
     setMsg(
       !res.ok
         ? { kind: "error", text: body.error ?? tr("gagal", "failed") }
@@ -169,18 +171,18 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
     <Card
       title={
         <span className="flex items-center gap-2 normal-case">
-          <Link href={`/sidang/${t.id}`} className="underline">
+          <Link href={`/sidang/${t.id}`} className="underline decoration-dotted underline-offset-4">
             {tr(`Sengketa #${t.id}`, `Dispute #${t.id}`)}
           </Link>
-          <span className="text-stone-500">{d.origin === "Report" ? tr("laporan penipuan", "fraud report") : tr("bantahan Panik", "contested panic")}</span>
+          <span className="text-muted">{d.origin === "Report" ? tr("laporan penipuan", "fraud report") : tr("bantahan Panik", "contested panic")}</span>
         </span>
       }
-      right={<span className="font-semibold tabular-nums">{fmt(t.amount)}</span>}
+      right={<span className="osd rgb text-3xl leading-none tabular-nums text-plum">❚❚ {fmt(t.amount)}</span>}
     >
-      <p className="text-sm text-stone-500">
+      <p className="text-sm text-muted">
         {short(t.from)} → {short(t.to)} · {tr("dibuka oleh", "opened by")} {short(d.opened_by)}: “{d.reason}”
       </p>
-      <div className="my-3 rounded-lg bg-stone-50 p-3 text-sm dark:bg-stone-950">
+      <div className="my-3 rounded-[2px] border border-line bg-well p-3 text-sm">
         {rec ? (
           <>
             <div className="flex flex-wrap items-center gap-2">
@@ -189,7 +191,7 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
                   <b>
                     TEE recommendation: {rec.rekomendasi === "kembalikan" ? "return to sender" : rec.rekomendasi === "lanjutkan" ? "pay the receiver" : rec.rekomendasi}
                   </b>
-                  {(rec.rekomendasi === "kembalikan" || rec.rekomendasi === "lanjutkan") && <span className="mono text-xs text-stone-500">{`"rekomendasi":"${rec.rekomendasi}"`}</span>}
+                  {(rec.rekomendasi === "kembalikan" || rec.rekomendasi === "lanjutkan") && <span className="mono text-xs text-muted">{`"rekomendasi":"${rec.rekomendasi}"`}</span>}
                 </>
               ) : (
                 <b>Rekomendasi TEE: {rec.rekomendasi}</b>
@@ -198,27 +200,27 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
               {rec.curiga_injeksi && <Pill tone="danger">{tr("injeksi terdeteksi", "injection detected")}</Pill>}
             </div>
             <p className="mt-1">
-              {lang === "en" && <span className="text-xs text-stone-500">Public reason (written by the model): </span>}“{pickReason(rec.alasan_publik)}”
+              {lang === "en" && <span className="text-xs text-muted">Public reason (written by the model): </span>}“{pickReason(rec.alasan_publik)}”
             </p>
           </>
         ) : (
-          <span className="text-stone-500">{tr("Belum ada rekomendasi AI. Dewan tetap bisa memutus.", "No AI recommendation yet. The council can still decide.")}</span>
+          <span className="text-muted">{tr("Belum ada rekomendasi AI. Dewan tetap bisa memutus.", "No AI recommendation yet. The council can still decide.")}</span>
         )}
       </div>
       {proposals.length > 0 && (
         <div className="mb-3 space-y-1 text-sm">
-          <b className="text-xs uppercase tracking-wide text-stone-500">{tr("Usulan di DAO", "Proposals in the DAO")}</b>
+          <b className="osd text-lg font-normal leading-5 text-muted">{tr("Usulan di DAO", "Proposals in the DAO")}</b>
           {proposals.map((p) => (
             <div key={p.id} className="flex flex-wrap items-center gap-2">
-              <a className="mono text-xs underline" href={ADDR(DAO)} target="_blank" rel="noreferrer">
+              <a className="mono text-xs text-phosphor underline decoration-dotted underline-offset-2" href={ADDR(DAO)} target="_blank" rel="noreferrer">
                 #{p.id}
               </a>
               <span>{p.reverse ? (sweep ? tr("kembalikan ke pemilik", "return to the owner") : tr("kembalikan ke pengirim", "return to the sender")) : sweep ? tr("teruskan ke akun pemulihan", "release to the recovery account") : tr("teruskan ke penerima", "pay the receiver")}</span>
               <Pill tone={p.status === "Approved" ? "ok" : p.status === "InProgress" ? "neutral" : "danger"}>
                 {p.status === "InProgress" ? tr(`${approvals(p)} dari ${council?.needed ?? "?"} suara`, `${approvals(p)} of ${council?.needed ?? "?"} votes`) : p.status}
               </Pill>
-              {rejections(p) > 0 && <span className="text-xs text-stone-500">{tr(`${rejections(p)} menolak`, `${rejections(p)} against`)}</span>}
-              <span className="text-xs text-stone-500">
+              {rejections(p) > 0 && <span className="text-xs text-muted">{tr(`${rejections(p)} menolak`, `${rejections(p)} against`)}</span>}
+              <span className="text-xs text-muted">
                 {Object.entries(p.votes)
                   .map(([who, v]) => `${short(who)}: ${v === "Approve" ? tr("setuju", "for") : tr("tolak", "against")}`)
                   .join(" · ")}
@@ -236,7 +238,7 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
             </div>
           ))}
           {proposals.some((p) => p.status === "InProgress") && !isMember && (
-            <p className="text-xs text-stone-500">
+            <p className="text-xs text-muted">
               {wallet
                 ? tr(`Wallet ${short(wallet.id)} bukan anggota dewan.`, `Wallet ${short(wallet.id)} is not on the council.`)
                 : tr("Anggota dewan: hubungkan wallet (kanan atas) untuk memberi suara.", "Council members: connect your wallet (top right) to vote.")}
@@ -244,9 +246,9 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
           )}
         </div>
       )}
-      <label className="block text-xs text-stone-500">
+      <label className="block text-xs text-muted">
         {tr("Alasan publik putusan", "Public reason for the decision")}
-        <input value={reason} onChange={(e) => setReason(e.target.value)} className="mt-1 w-full rounded-lg border border-stone-300 bg-white px-2 py-1.5 text-sm dark:border-stone-700 dark:bg-stone-950" />
+        <input value={reason} onChange={(e) => setReason(e.target.value)} className={`${inputClass} mt-1 block w-full text-sm`} />
       </label>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button onClick={() => decide(true)}>{sweep ? tr("Kembalikan ke pemilik akun", "Return to the account owner") : tr("Kembalikan ke pihak pengirim", "Return to the sender's side")}</Button>

@@ -5,8 +5,9 @@ import { useState } from "react";
 import { UNDO, USDC } from "@/lib/config";
 import { useFmt, useGasNote, useLang, useT } from "@/lib/i18n";
 import { call, short, view, type DemoAccount } from "@/lib/near-client";
+import { playTimeFx } from "@/lib/timefx";
 import type { Config, Transfer } from "@/lib/types";
-import { Button, Countdown, Notice, StatusBadge, TxLink } from "./ui";
+import { Button, Countdown, Notice, StatusBadge, TxLink, btnClass } from "./ui";
 
 const KIND: Record<string, string> = { Transfer: "rUSDC", Exit: "USDC", Sweep: "Sapu (Panik)" };
 const KIND_EN: Record<string, string> = { Transfer: "rUSDC", Exit: "USDC", Sweep: "Sweep (Panic)" };
@@ -50,7 +51,7 @@ export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transf
     act(tr("Laporan", "Report"), () => call(me, UNDO, "report", { transfer_id: t.id, reason: tr("Pengirim melaporkan penipuan", "The sender reports fraud") }, { deposit: BigInt(cfg.bond), gasTera: "50" }), () => router.push(`/sidang/${t.id}`));
   const contest = () =>
     act(tr("Bantahan", "Contest"), () => call(me, UNDO, "contest", { transfer_id: t.id, reason: t.kind === "Sweep" ? tr("Bukan saya yang menekan Panik", "I did not press panic") : tr("Pembayaran ini sah", "This payment is legitimate") }, { deposit: BigInt(cfg.bond), gasTera: "50" }), () => router.push(`/sidang/${t.id}`));
-  const finalize = () => act(tr("Finalisasi", "Finalize"), () => call(me, UNDO, "finalize", { transfer_id: t.id }, { gasTera: "50" }));
+  const finalize = () => act(tr("Finalisasi", "Finalize"), () => call(me, UNDO, "finalize", { transfer_id: t.id }, { gasTera: "50" }), () => playTimeFx("rewind"));
   const release = () => act(tr("Barang diterima", "Goods received"), () => call(me, UNDO, "release", { transfer_id: t.id }, { gasTera: "50" }));
   const withdraw = () =>
     act(tr("Pencairan USDC", "USDC withdrawal"), async () => {
@@ -64,18 +65,18 @@ export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transf
 
   const who = isSender ? tr(`ke ${short(t.to)}`, `to ${short(t.to)}`) : tr(`dari ${short(t.from)}`, `from ${short(t.from)}`);
   return (
-    <li className="flex flex-col gap-2 border-b border-stone-100 py-3 last:border-0 dark:border-stone-800">
+    <li className={`flex flex-col gap-2 border-b border-line py-3 last:border-0 ${t.status === "Frozen" ? "-mx-2 bg-ice/5 px-2" : ""}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="mono text-xs text-stone-500">#{t.id}</span>
-          <span className="font-semibold tabular-nums">{fmt(t.amount)}</span>
-          <span className="text-xs text-stone-500">{(lang === "en" ? KIND_EN : KIND)[t.kind]}</span>
+          <span className="mono text-xs text-muted">#{t.id}</span>
+          <span className="osd text-2xl leading-none tabular-nums text-ink">{fmt(t.amount)}</span>
+          <span className="text-xs text-muted">{(lang === "en" ? KIND_EN : KIND)[t.kind]}</span>
           <span className="text-sm">{ownUnwrap ? tr("unwrap ke diri sendiri", "unwrap to self") : who}</span>
         </div>
         <div className="flex items-center gap-2 text-xs">
           {/* The contract settles lazily: a matured transfer is final even while its stored status says Pending. */}
           <StatusBadge status={t.status === "Pending" && !inWindow && t.kind === "Transfer" ? "Settled" : t.status} />
-          {exitReady && <span className="text-stone-500">{tr("siap dicairkan", "ready to withdraw")}</span>}
+          {exitReady && <span className="text-muted">{tr("siap dicairkan", "ready to withdraw")}</span>}
           {inWindow && (
             <span>
               {tr("final dalam", "final in")} <Countdown ns={t.unlock_at} />
@@ -87,10 +88,10 @@ export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transf
             </span>
           )}
           {t.kind === "Transfer" && t.status === "Settled" && t.unlock_at === t.created_at && t.dispute === null && (
-            <span className="text-stone-500">{tr("langsung final (kontak)", "final at once (contact)")}</span>
+            <span className="text-muted">{tr("langsung final (kontak)", "final at once (contact)")}</span>
           )}
-          {t.kind === "Exit" && t.to !== t.from && t.unlock_at === t.created_at && <span className="text-stone-500">{tr("tanpa jendela (kontak)", "no window (contact)")}</span>}
-          {t.final_to && <span className="text-stone-500">→ {short(t.final_to)}</span>}
+          {t.kind === "Exit" && t.to !== t.from && t.unlock_at === t.created_at && <span className="text-muted">{tr("tanpa jendela (kontak)", "no window (contact)")}</span>}
+          {t.final_to && <span className="text-muted">→ {short(t.final_to)}</span>}
         </div>
       </div>
       <div className="flex flex-wrap gap-2">
@@ -117,7 +118,7 @@ export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transf
         {frozenDone && <Button small onClick={finalize}>{tr("Finalisasi (tanpa voting)", "Finalize (no vote)")}</Button>}
         {exitReady && <Button small onClick={withdraw}>{tr("Cairkan USDC", "Withdraw USDC")}</Button>}
         {t.status === "Disputed" && (
-          <Link className="rounded-lg border border-violet-300 px-2.5 py-1 text-xs font-medium text-violet-800 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-200 dark:hover:bg-violet-950" href={`/sidang/${t.id}`}>
+          <Link className={btnClass("ghost", true)} href={`/sidang/${t.id}`}>
             {tr("Buka sidang →", "Open court case →")}
           </Link>
         )}
@@ -153,11 +154,11 @@ export function TransferList({
   const tr = useT();
   return (
     <div>
-      <h3 className="mb-1 text-sm font-semibold">{title}</h3>
+      <h3 className="osd mb-1 text-xl leading-6 text-dim">{title}</h3>
       {!items ? (
-        <p className="text-sm text-stone-500">{tr("memuat…", "loading…")}</p>
+        <p className="text-sm text-muted">{tr("memuat…", "loading…")}</p>
       ) : items.length === 0 ? (
-        <p className="text-sm text-stone-500">{empty}</p>
+        <p className="text-sm text-muted">{empty}</p>
       ) : (
         <ul>
           {items.map((t) => (

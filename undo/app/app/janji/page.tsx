@@ -25,7 +25,7 @@ export default function JanjiPage() {
   return (
     <div className="space-y-4">
       <Card title={t("Janji yang dikunci kode", "Promises enforced by the code")}>
-        <p className="text-sm text-stone-600 dark:text-stone-300">
+        <p className="text-sm text-dim">
           {t(
             "Undo adalah escrow. Orang hanya mau memakainya kalau tidak perlu percaya pada siapa pun, termasuk kami. Setiap janji di bawah ditegakkan kontrak, dan yang bisa dicek langsung dari chain dicek di halaman ini sekarang juga.",
             "Undo is an escrow. People will only use it if they do not have to trust anyone, including us. Every promise below is enforced by the contract, and the ones that can be checked directly on chain are checked on this page right now.",
@@ -69,7 +69,7 @@ export default function JanjiPage() {
         <ul className="mt-2 space-y-1 text-sm">
           <li className="flex flex-wrap items-center gap-2">
             {t("Kontrak terkunci (salinan v1):", "Locked contract (v1 copy):")}{" "}
-            <a className="mono text-xs underline" href={ADDR(LOCKED_EXAMPLE)} target="_blank" rel="noreferrer">
+            <a className="mono text-xs text-phosphor underline decoration-dotted underline-offset-2" href={ADDR(LOCKED_EXAMPLE)} target="_blank" rel="noreferrer">
               {LOCKED_EXAMPLE}
             </a>
             {locked && <Pill tone={locked.keys === 0 ? "ok" : "danger"}>{lang === "en" ? `${locked.keys} access ${locked.keys === 1 ? "key" : "keys"}` : `${locked.keys} access key`}</Pill>}
@@ -80,7 +80,7 @@ export default function JanjiPage() {
             {dev && <Pill tone={dev.keys === 0 ? "ok" : "neutral"}>{dev.keys === 0 ? t("terkunci", "locked") : t(`${dev.keys} key (belum dikunci, kontrak demo)`, `${keysEn(dev.keys)} (not locked yet, demo contract)`)}</Pill>}
             {dev && <Pill tone={dev.codeHash === V2_CODE_HASH ? "ok" : "danger"}>{t("hash kode", "code hash")} {dev.codeHash === V2_CODE_HASH ? t("= build reproducible v2", "= reproducible v2 build") : t("berbeda", "differs")}</Pill>}
           </li>
-          <li className="text-xs text-stone-500">
+          <li className="text-xs text-muted">
             {t("Hash build v2 (reproducible):", "v2 build hash (reproducible):")} <span className="mono">{V2_CODE_HASH}</span>.{" "}
             {t(
               "Buat ulang sendiri: di undo/contracts/undo-token jalankan cargo near build reproducible-wasm pada commit 65c1c0e (butuh Docker); hasilnya harus sama persis dengan hash kode kontrak di atas.",
@@ -106,21 +106,21 @@ export default function JanjiPage() {
             <div className="flex flex-wrap items-center gap-2">
               {t("Model yang di-pin dewan:", "Model pinned by the council:")} <span className="mono text-xs">{cfg.court.model_id}</span>
               <Pill tone={cfg.court.model_id === MODEL ? "ok" : "danger"}>{cfg.court.model_id === MODEL ? t("sesuai prosedur", "matches the procedure") : t("beda", "differs")}</Pill>
-              <span className="mono text-xs text-stone-500">{t("kunci", "key")} {cfg.court.signer?.slice(0, 16)}…</span>
+              <span className="mono text-xs text-muted">{t("kunci", "key")} {cfg.court.signer?.slice(0, 16)}…</span>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {t("Hash prompt resmi on-chain vs dihitung browser ini:", "Official prompt hash on-chain vs computed by this browser:")}
               <Pill tone={cfg.court.prompt_sha256 === promptHash ? "ok" : "danger"}>{cfg.court.prompt_sha256 === promptHash ? t("cocok", "match") : t("beda", "differs")}</Pill>
             </div>
-            <details className="text-xs text-stone-500">
-              <summary className="cursor-pointer">{t("Lihat prompt resmi", "View the official prompt")}</summary>
+            <details className="text-xs text-muted">
+              <summary className="cursor-pointer hover:text-ink">{t("Lihat prompt resmi", "View the official prompt")}</summary>
               <p className="mt-1">
                 {t(
                   "Prompt v2 (bahasa Inggris; model menulis alasan publik dalam dua bahasa). Kontrak memeriksa sha256 teks ini, jadi yang tampil di sini persis yang dibaca model. Kunci JSON dan nilai putusan tetap bahasa Indonesia karena dibaca kontrak.",
                   "Prompt v2 (English; the model writes the public reason in both languages). The contract checks the sha256 of this exact text, so what you see is what the model reads. The JSON keys and verdict values stay Indonesian because the contract reads them.",
                 )}
               </p>
-              <pre className="mt-1 whitespace-pre-wrap rounded bg-stone-50 p-2 dark:bg-stone-950">{PROMPT}</pre>
+              <pre className="mono mt-1 whitespace-pre-wrap rounded-[2px] border border-line bg-well p-2 text-dim">{PROMPT}</pre>
             </details>
           </div>
         )}
@@ -151,15 +151,15 @@ function PromiseCard({ id, title, tests, live, children }: { id: string; title: 
   return (
     <Card
       title={
-        <span className="flex items-center gap-2 normal-case">
-          <span className="mono rounded bg-emerald-700 px-1.5 py-0.5 text-xs text-white">{id}</span>
-          <span className="text-stone-900 dark:text-stone-100">{title}</span>
+        <span className="flex items-start gap-2.5">
+          <span className="shrink-0 whitespace-nowrap rounded-[2px] bg-vhs px-1.5 text-xl leading-6 text-white">CH {id}</span>
+          <span className="pt-0.5 font-sans text-base font-bold normal-case leading-snug tracking-normal text-ink [text-shadow:none]">{title}</span>
         </span>
       }
       right={live ? <Pill tone="ok">{t("dicek langsung", "checked live")}</Pill> : null}
     >
-      <div className="text-sm text-stone-600 dark:text-stone-300">{children}</div>
-      <p className="mt-2 text-xs text-stone-500">{t("Tes:", "Tests:")} {tests}</p>
+      <div className="text-sm text-dim">{children}</div>
+      <p className="mt-2 text-xs text-muted">{t("Tes:", "Tests:")} {tests}</p>
     </Card>
   );
 }
