@@ -1,131 +1,133 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { Reels, btnClass } from "@/components/ui";
-import { useLang, useT } from "@/lib/i18n";
+import { More, Strip } from "@/components/visual";
+import { useT } from "@/lib/i18n";
 
 export default function Home() {
   const t = useT();
-  const lang = useLang();
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <section className="grid items-center gap-8 pt-2 md:grid-cols-[1.25fr_1fr]">
-        <div className="space-y-4">
+        <div className="space-y-5">
           <p className="osd text-xl leading-none text-signal">
             NEAR testnet · <span className="normal-case">rUSDC</span> 1:1
           </p>
           <h1 className="osd rgb text-6xl leading-[0.9] sm:text-7xl lg:text-8xl">
             <span className="text-phosphor">Ctrl+Z</span> {t("untuk USDC.", "for USDC.")}
           </h1>
-          <p className="max-w-2xl text-dim">
-            {lang === "en" ? (
-              <>
-                Undo is wrapped USDC (rUSDC, 1:1). Every transfer stays pending for an undo window first. If your key is stolen, your recovery account presses <b className="text-ink">Panic</b> and the money comes back with no vote. If you are scammed, your evidence is read by an AI inside a TEE — encrypted even from us — and the contract checks that the procedure was followed before the council decides.
-              </>
-            ) : (
-              <>
-                Undo adalah USDC yang dibungkus (rUSDC, 1:1). Setiap transfer pending dulu selama jendela undo. Kalau kuncimu dicuri, akun pemulihanmu menekan <b className="text-ink">Panik</b> dan uangnya kembali tanpa voting. Kalau kamu ditipu, buktimu dibaca AI di dalam TEE — terenkripsi bahkan dari kami — dan kontrak membuktikan prosedurnya sebelum dewan memutus.
-              </>
-            )}
+          <p className="max-w-xl text-lg font-semibold leading-snug text-ink sm:text-xl">
+            {t("Setiap transfer menunggu 5 menit dulu.", "Every transfer waits 5 minutes.")}{" "}
+            <span className="text-rec">{t("Dicuri? Tekan PANIK.", "Stolen? Hit PANIC.")}</span>{" "}
+            <span className="text-phosphor">{t("Uangnya kembali.", "The money comes back.")}</span>
           </p>
-          <div className="flex flex-wrap gap-2 pt-1">
+          <div className="flex flex-wrap gap-2">
             <Link href="/dompet" className={btnClass("primary")}>
-              {t("Coba dompet demo", "Try the demo wallet")}
+              ▶ {t("Coba dompet demo", "Try the demo wallet")}
             </Link>
             <Link href="/janji" className={btnClass("ghost")}>
-              {t("Lihat janji yang dikunci kode", "See the promises enforced by the code")}
+              {t("Lihat janjinya", "See the promises")}
             </Link>
           </div>
         </div>
         <TapeScreen />
       </section>
 
-      <section className="grid gap-3 sm:grid-cols-3">
-        <Concept icon="▶ 5:00" tone="text-signal border-signal/50" title={t("Jendela undo", "Undo window")}>
-          {t("Setiap transfer pending dulu. Selama jamnya masih berjalan, transfer itu masih bisa diputar balik.", "Every transfer waits first. While its clock is still running, the transfer can still be rewound.")}
-        </Concept>
-        <Concept icon={t("❚❚ PANIK", "❚❚ PANIC")} tone="text-ice border-ice/50" title={t("Waktu berhenti", "Time stops")}>
-          {t("Akun pemulihan menekan Panik: transfer dibekukan dan akun dikunci.", "The recovery account presses Panic: the transfer is frozen and the account is locked.")}
-        </Concept>
-        <Concept icon={t("◀◀ FINALISASI", "◀◀ FINALIZE")} tone="text-phosphor border-phosphor/50" title={t("Waktu mundur", "Time rewinds")}>
-          {t("Kalau tidak dibantah, uangnya kembali ke akun pemulihan. Tanpa voting.", "If nobody contests, the money goes back to the recovery account. No vote.")}
-        </Concept>
-      </section>
+      <HowItWorks />
 
       <section className="grid gap-4 md:grid-cols-2">
-        <Flow
+        <Strip
+          tone="rec"
           title={t("Kunci dicuri", "Key stolen")}
-          steps={[
-            t("Pencuri mengirim 90% saldomu. Di sisi pencuri uangnya hanya pending.", "A thief sends 90% of your balance. On the thief's side the money is only pending."),
-            t("Dari akun pemulihan, kamu tekan PANIK: transfer dibekukan, akun dikunci.", "From the recovery account you press PANIC: the transfer is frozen and the account is locked."),
-            t("Tidak dibantah → siapa saja menekan Finalisasi, uang ke akun pemulihan. Tanpa voting.", "Not contested → anyone presses Finalize and the money goes to the recovery account. No vote."),
+          panels={[
+            { icon: "🔑", text: t("Pencuri mengirim 90% saldomu", "A thief sends 90% of your balance") },
+            { icon: "🚨", text: t("Dari HP, kamu tekan PANIK", "From your phone, you hit PANIC"), hot: true },
+            { icon: "◀◀", text: t("Uang kembali. Tanpa voting.", "Money back. No vote.") },
           ]}
         />
-        <Flow
+        <Strip
+          tone="plum"
           title={t("Ditipu penjual palsu", "Scammed by a fake seller")}
-          steps={[
-            t("Laporkan selama uang masih pending (bond kecil).", "Report while the money is still pending (small bond)."),
-            t("Kedua pihak mengirim bukti, dienkripsi di browser ke model NEAR AI di TEE.", "Both sides submit evidence, encrypted in the browser for the NEAR AI model in the TEE."),
-            t("Kontrak memverifikasi tanda tangan TEE, prompt resmi, dan kelengkapan bukti; dewan DAO memutus.", "The contract verifies the TEE signature, the official prompt and that the evidence is complete; the DAO council decides."),
+          panels={[
+            { icon: "🚩", text: t("Laporkan selagi masih pending", "Report it while it's pending") },
+            { icon: "🔒", text: t("Bukti dienkripsi untuk AI di TEE", "Evidence encrypted for an AI in a TEE") },
+            { icon: "⚖️", text: t("Dewan memutus: 2 dari 3", "The council decides: 2 of 3"), hot: true },
           ]}
         />
       </section>
 
-      <section className="rounded-[3px] border border-line bg-panel p-5">
-        <h2 className="osd rgb mb-2 text-2xl leading-none">
-          <span aria-hidden className="text-phosphor">
-            ▌
-          </span>
-          {t("Toko langganan? Kontak tepercaya", "A regular shop? Trusted contacts")}
-        </h2>
-        <p className="text-sm text-dim">
+      <section className="flex items-start gap-4 rounded-[3px] border border-signal/40 bg-panel p-4 sm:items-center sm:p-5">
+        <span aria-hidden className="text-4xl leading-none">
+          ⚡
+        </span>
+        <div>
+          <h2 className="osd rgb text-2xl leading-none text-signal">{t("Kontak tepercaya", "Trusted contacts")}</h2>
+          <p className="mt-1 text-sm text-dim">
+            {t("Bayar toko langganan langsung final. Kontak baru menunggu 5 menit, jadi pencuri tidak bisa menyelipkan dirinya.", "Pay your regular shop instantly. New contacts wait 5 minutes, so a thief can't sneak himself in.")}
+          </p>
+        </div>
+      </section>
+
+      <More label={t("Prior art dan yang baru", "Prior art and what's new")}>
+        <p>
           {t(
-            "Pembayaran ke kontak yang sudah aktif langsung final, jadi toko tidak perlu menunggu jendela. Kontak baru baru aktif setelah jeda (5 menit di demo), notifikasi muncul, dan Panik atau akun pemulihan bisa membatalkannya, jadi pencuri tidak bisa sekadar menambahkan dirinya.",
-            "Payments to an active contact are final at once, so a shop does not wait for the window. A new contact only becomes active after a delay (5 min on the demo), an alert shows up, and panic or the recovery account can cancel it, so a thief cannot just add himself.",
+            "Prior art yang kami akui: ERC-20R (Stanford 2022), REVERSO, SLOW, Circle Refund Protocol, Payy Finality. Yang baru dari Undo: sengketa yang buktinya tetap rahasia bahkan dari operator, tapi prosedur dan putusannya terbukti di kontrak.",
+            "Prior art we acknowledge: ERC-20R (Stanford 2022), REVERSO, SLOW, Circle Refund Protocol, Payy Finality. What is new in Undo: a dispute whose evidence stays secret even from the operator, while its procedure and verdict are proven in the contract.",
           )}
         </p>
-      </section>
-
-      <section className="rounded-[2px] border-l-4 border-signal bg-signal/10 p-4 text-sm text-dim">
-        {t(
-          "Prior art yang kami akui: ERC-20R (Stanford 2022), REVERSO, SLOW, Circle Refund Protocol, Payy Finality. Yang baru dari Undo: sengketa yang buktinya tetap rahasia bahkan dari operator, tapi prosedur dan putusannya terbukti di kontrak.",
-          "Prior art we acknowledge: ERC-20R (Stanford 2022), REVERSO, SLOW, Circle Refund Protocol, Payy Finality. What is new in Undo: a dispute whose evidence stays secret even from the operator, while its procedure and verdict are proven in the contract.",
-        )}
-      </section>
+      </More>
     </div>
   );
 }
 
-function Concept({ icon, tone, title, children }: { icon: string; tone: string; title: string; children: ReactNode }) {
+/** The whole idea as one picture: a transfer runs through a 5-minute window, and two things can stop it. */
+function HowItWorks() {
+  const t = useT();
+  const stations = [
+    { icon: "▶", label: t("Kirim", "Send"), sub: t("uang keluar", "money leaves"), cls: "border-line-2 text-ink" },
+    { icon: "5:00", label: t("Jendela undo", "Undo window"), sub: t("masih bisa dibatalkan", "still reversible"), cls: "border-signal text-signal" },
+    { icon: "■", label: "Final", sub: t("seperti USDC biasa", "like plain USDC"), cls: "border-phosphor/60 text-phosphor" },
+  ];
   return (
-    <div className={`rounded-[3px] border bg-panel p-4 ${tone}`}>
-      <div className="osd rgb text-2xl leading-none">{icon}</div>
-      <h2 className="mt-2 font-bold text-ink">{title}</h2>
-      <p className="mt-1 text-sm text-dim">{children}</p>
-    </div>
-  );
-}
-
-function Flow({ title, steps }: { title: string; steps: string[] }) {
-  return (
-    <div className="rounded-[3px] border border-line bg-panel p-5">
-      <h2 className="osd rgb mb-3 text-2xl leading-none">
+    <section aria-labelledby="how" className="rounded-[3px] border border-line bg-panel p-4 sm:p-6">
+      <h2 id="how" className="osd rgb mb-5 text-2xl leading-none">
         <span aria-hidden className="text-phosphor">
           ▌
         </span>
-        {title}
+        {t("Cara kerjanya", "How it works")}
       </h2>
-      <ol className="space-y-2 text-sm text-dim">
-        {steps.map((step, i) => (
-          <li key={i} className="flex gap-3">
-            <span aria-hidden className="osd w-6 shrink-0 text-xl leading-5 text-phosphor">
-              0{i + 1}
+
+      {/* the tape: three stations on one line */}
+      <ol className="relative grid gap-3 sm:grid-cols-3 sm:gap-6">
+        <span aria-hidden className="absolute left-[16%] right-[16%] top-9 hidden h-0.5 bg-[repeating-linear-gradient(90deg,var(--color-line-2)_0_10px,transparent_10px_16px)] sm:block" />
+        {stations.map((s) => (
+          <li key={s.label} className="relative flex items-center gap-3 sm:flex-col sm:text-center">
+            <span className={`osd rgb grid h-[4.5rem] w-[4.5rem] shrink-0 place-items-center rounded-full border-2 bg-well text-3xl leading-none ${s.cls}`}>{s.icon}</span>
+            <span>
+              <span className="osd block text-2xl leading-none">{s.label}</span>
+              <span className="text-sm text-muted">{s.sub}</span>
             </span>
-            <span>{step}</span>
           </li>
         ))}
       </ol>
-    </div>
+
+      {/* two ways out of the window */}
+      <div className="mt-5 grid gap-3 sm:mx-auto sm:max-w-2xl sm:grid-cols-2">
+        <div className="rounded-[2px] border border-rec/60 bg-rec/10 p-3">
+          <div className="osd rgb text-2xl leading-none">
+            <span className="text-ice">❚❚ {t("PANIK", "PANIC")}</span> <span className="text-muted">▶</span> <span className="text-phosphor">◀◀ {t("KEMBALI", "BACK")}</span>
+          </div>
+          <p className="mt-1 text-sm font-semibold text-ink">{t("Kunci dicuri? Uang kembali, tanpa voting.", "Key stolen? Money back, no vote.")}</p>
+        </div>
+        <div className="rounded-[2px] border border-plum/60 bg-plum/10 p-3">
+          <div className="osd rgb text-2xl leading-none text-plum">
+            🚩 {t("LAPOR", "REPORT")} <span className="text-muted">▶</span> ⚖️ {t("SIDANG AI", "AI COURT")}
+          </div>
+          <p className="mt-1 text-sm font-semibold text-ink">{t("Ditipu? Sidang AI privat, lalu dewan memutus.", "Scammed? A private AI court, then the council decides.")}</p>
+        </div>
+      </div>
+    </section>
   );
 }
 

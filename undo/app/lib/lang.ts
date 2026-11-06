@@ -2,11 +2,10 @@
 export type Lang = "id" | "en";
 export const LANG_COOKIE = "undo.lang";
 
-/** A saved choice wins; otherwise Indonesian only when the browser's first language is Indonesian. */
-export function pickLang(cookie?: string | null, acceptLanguage?: string | null): Lang {
-  if (cookie === "id" || cookie === "en") return cookie;
-  const first = (acceptLanguage ?? "").split(",")[0]?.trim().toLowerCase() ?? "";
-  return first.startsWith("id") ? "id" : "en";
+/** A saved choice (the ID / EN switch, or ?lang=) wins; otherwise English, whatever the browser's language. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function pickLang(cookie?: string | null, _acceptLanguage?: string | null): Lang {
+  return cookie === "id" ? "id" : "en";
 }
 
 export function langFromCookieHeader(cookieHeader?: string | null): string | undefined {

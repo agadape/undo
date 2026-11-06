@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAccounts } from "@/components/accounts";
 import { Button, Card, Countdown, Notice, Pill, StatusBadge, TxLink, btnClass, inputClass, usePoll } from "@/components/ui";
 import { UNDO } from "@/lib/config";
+import { Stepper } from "@/components/visual";
 import { encryptTo, sha256hex, type Side } from "@/lib/court";
 import { useFmt, useGasNote, useLang, useReason, useT } from "@/lib/i18n";
 import { call, short, view } from "@/lib/near-client";
@@ -130,8 +131,23 @@ export default function SidangPage() {
   const leftover = mySide && typeof window !== "undefined" ? localStorage.getItem(pendingKey(id, mySide)) : null;
   const rec = d.recommendation;
 
+  // Active stage: 1 evidence · 2 AI court · 3 council; 5 = all done ("reported" is always done).
+  const stage = decided || t.status !== "Disputed" ? 5 : rec ? 3 : readyToJudge ? 2 : 1;
+
   return (
     <div className="space-y-4">
+      <div className="rounded-[3px] border border-line bg-panel p-3 sm:p-4">
+        <Stepper
+          current={stage}
+          steps={[
+            { icon: "🚩", label: tr("Dilaporkan", "Reported") },
+            { icon: "🔒", label: tr("Bukti", "Evidence") },
+            { icon: "🤖", label: tr("Sidang AI", "AI court") },
+            { icon: "⚖️", label: tr("Dewan", "Council") },
+            { icon: "■", label: tr("Diputus", "Decided") },
+          ]}
+        />
+      </div>
       {t.status === "Disputed" && (
         <div className="flex flex-wrap items-center gap-3 rounded-[3px] border border-plum/50 bg-plum/10 px-4 py-3 text-sm">
           <span aria-hidden className="osd rgb text-4xl leading-none text-plum">
@@ -161,7 +177,9 @@ export default function SidangPage() {
             </div>
           </div>
           <div className="text-xs text-muted">
-            case nonce <span className="mono">{d.case_nonce}</span> ({tr("acak dari blok, mencegah putusan lama dipakai ulang", "random from the block; stops an old decision from being reused")})
+            <span title={tr("acak dari blok, mencegah putusan lama dipakai ulang", "random from the block; stops an old decision from being reused")}>
+              case nonce <span className="mono">{d.case_nonce.slice(0, 12)}…</span>
+            </span>
           </div>
           <div className="text-xs text-muted">
             {tr("batas bukti", "evidence deadline")}: <Countdown ns={d.evidence_deadline} done={tr("ditutup", "closed")} /> · {tr("batas dewan", "council deadline")}:{" "}
@@ -170,7 +188,7 @@ export default function SidangPage() {
         </div>
       </Card>
 
-      <Card title={tr("Bukti (terenkripsi ke model di TEE)", "Evidence (encrypted to the model in the TEE)")}>
+      <Card title={tr("🔒 Bukti terenkripsi", "🔒 Encrypted evidence")}>
         <ul className="mb-3 space-y-1 text-sm">
           {(["pengirim", "penerima"] as Side[]).map((s) => {
             const h = s === "pengirim" ? d.evidence_sender : d.evidence_receiver;
@@ -201,11 +219,11 @@ export default function SidangPage() {
             <p className="text-xs text-muted">
               {lang === "en" ? (
                 <>
-                  You are on the <b>{mySide === "pengirim" ? "sender's" : "receiver's"}</b> side. This text is encrypted in your browser to the model key pinned by the council ({short(cfg.court.signer ?? "")}). Neither the server nor the council can read it.
+                  You are the <b>{mySide === "pengirim" ? "sender" : "receiver"}</b>. Encrypted in your browser for the AI&apos;s TEE key — the server and the council can&apos;t read it.
                 </>
               ) : (
                 <>
-                  Kamu pihak <b>{mySide}</b>. Teks ini dienkripsi di browser ke kunci model yang di-pin dewan ({short(cfg.court.signer ?? "")}). Server dan dewan tidak bisa membacanya.
+                  Kamu pihak <b>{mySide}</b>. Dienkripsi di browser untuk kunci TEE milik AI — server dan dewan tidak bisa membacanya.
                 </>
               )}
             </p>
@@ -234,7 +252,7 @@ export default function SidangPage() {
         )}
       </Card>
 
-      <Card title={tr("Rekomendasi AI (TEE, terverifikasi di kontrak)", "AI recommendation (TEE, verified by the contract)")} tone={rec ? "accent" : undefined}>
+      <Card title={tr("🤖 Rekomendasi AI (TEE)", "🤖 AI recommendation (TEE)")} tone={rec ? "accent" : undefined}>
         {rec ? (
           <div className="space-y-2 text-sm">
             <div className="flex flex-wrap items-center gap-2">
@@ -300,7 +318,7 @@ export default function SidangPage() {
         )}
       </Card>
 
-      <Card title={tr("Putusan", "Decision")}>
+      <Card title={tr("⚖️ Putusan", "⚖️ Decision")}>
         {decided ? (
           <div className="text-sm">
             <p>

@@ -7,6 +7,7 @@ import { ack, ackKey, contactAckKey } from "@/lib/alerts";
 import { ADDR, UNDO, USDC } from "@/lib/config";
 import { useAccountLabel, useFmt, useGasNote, useLang, useT } from "@/lib/i18n";
 import { USD, call, createDemoAccount, parseOutcome, provider, short, view, type DemoAccount } from "@/lib/near-client";
+import { More, Stepper, WindowBar } from "@/components/visual";
 import { playTimeFx } from "@/lib/timefx";
 import { walletBatch } from "@/lib/wallet";
 import type { AccountView, BalanceView, Config, Contact, Transfer } from "@/lib/types";
@@ -60,17 +61,29 @@ function Setup() {
   return (
     <div className="mx-auto max-w-xl space-y-4">
       <Card title={t("Dompet demo", "Demo wallet")}>
-        <p className="mb-3 text-sm text-dim">
-          {lang === "en" ? (
-            <>
-              One click creates two throwaway NEAR testnet accounts: a <b>main wallet</b> holding 100 rUSDC, and a <b>recovery account</b> (imagine it is on your phone). Their keys are stored only in this browser.
-            </>
-          ) : (
-            <>
-              Satu klik membuat dua akun NEAR testnet sekali pakai: <b>dompet utama</b> berisi 100 rUSDC, dan <b>akun pemulihan</b> (bayangkan di HP-mu). Kuncinya disimpan di browser ini saja.
-            </>
-          )}
-        </p>
+        {/* What one click creates, as two "cassettes". */}
+        <div className="mb-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+          <div className="rounded-[2px] border border-phosphor/50 bg-well p-3 text-center">
+            <div aria-hidden className="text-3xl leading-none">
+              💼
+            </div>
+            <div className="osd mt-1 text-xl leading-5">{t("Dompet utama", "Main wallet")}</div>
+            <div className="osd text-lg leading-5 text-phosphor">
+              100 <span className="normal-case">rUSDC</span>
+            </div>
+          </div>
+          <span aria-hidden className="osd text-2xl text-muted">
+            ⇄
+          </span>
+          <div className="rounded-[2px] border border-ice/50 bg-well p-3 text-center">
+            <div aria-hidden className="text-3xl leading-none">
+              📱
+            </div>
+            <div className="osd mt-1 text-xl leading-5">{t("Akun pemulihan", "Recovery account")}</div>
+            <div className="osd text-lg leading-5 text-ice">{t("tombol PANIK", "the PANIC button")}</div>
+          </div>
+        </div>
+        <p className="mb-3 text-sm text-dim">{t("Dua akun testnet sekali pakai. Kuncinya hanya di browser ini.", "Two throwaway testnet accounts. Keys stay in this browser.")}</p>
         <div className="flex flex-wrap gap-2">
           <Button onClick={run}>{t("Siapkan dompet demo", "Set up demo wallet")}</Button>
           <Button variant="ghost" onClick={connectWallet}>
@@ -148,10 +161,7 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
           const sum = held.reduce((s, x) => s + BigInt(x.amount), 0n);
           return sum > 0n ? (
             <p className="mt-2 text-xs text-muted">
-              {t(
-                `Uang keluar yang sedang ditahan: ${fmt(sum)} rUSDC (${held.length} transfer dibekukan atau dalam sengketa; lihat Riwayat → Keluar).`,
-                `Outgoing money on hold: ${fmt(sum)} rUSDC (${held.length} transfer(s) frozen or in dispute; see History → Outgoing).`,
-              )}
+              {t(`❚❚ Ditahan: ${fmt(sum)} rUSDC keluar (${held.length} transfer) · Riwayat → Keluar`, `❚❚ On hold: ${fmt(sum)} rUSDC outgoing (${held.length} transfer(s)) · History → Outgoing`)}
             </p>
           ) : null;
         })()}
@@ -162,10 +172,7 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
         )}
         {acct?.pending_recovery && (
           <Notice kind="info">
-            {t(
-              `Penggantian akun pemulihan ke ${short(acct.pending_recovery[0])} terjadwal (berlaku setelah jeda; akun pemulihan lama bisa membatalkan).`,
-              `Change of recovery account to ${short(acct.pending_recovery[0])} is scheduled (takes effect after a delay; the old recovery account can cancel it).`,
-            )}
+            {t(`⏳ Akun pemulihan akan diganti ke ${short(acct.pending_recovery[0])} (akun lama masih bisa membatalkan).`, `⏳ Recovery account changing to ${short(acct.pending_recovery[0])} (the old one can still cancel).`)}
           </Notice>
         )}
       </Card>
@@ -327,49 +334,55 @@ function PanicTest({
       await call(guard, UNDO, "transfer", { receiver_id: me.id, amount: guardBal?.available ?? "0", memo: "dikembalikan" }, { deposit: fee, gasTera: "50" }),
     );
 
+  const guardHas = guardBal ? BigInt(guardBal.available) > 0n : false;
+  const stolenNow = stolen.some((x) => x.to === thiefId);
+  // Where the drill is: 0 steal · 1 panic · 2 wait · 3 finalize · 4 unlock · 5 done.
+  const stage = bal.locked ? (frozen.length > 0 ? (ready.length > 0 ? 3 : 2) : 4) : stolenNow ? 1 : guardHas ? 5 : 0;
+
   return (
-    <Card title={t("Uji Tombol Panik", "Test the panic button")} tone="danger" right={<span className="text-xs text-muted">{t("akun pemulihan:", "recovery account:")} {short(guard.id)}</span>}>
+    <Card title={t("Uji Tombol Panik", "Test the panic button")} tone="danger" right={<span className="text-xs text-muted">📱 {short(guard.id)}</span>}>
+      <div className="mb-3">
+        <Stepper
+          current={stage}
+          steps={[
+            { icon: "🔑", label: t("Curi", "Steal") },
+            { icon: "❚❚", label: t("Panik", "Panic") },
+            { icon: "⏱", label: t("Tunggu", "Wait") },
+            { icon: "◀◀", label: t("Finalisasi", "Finalize") },
+            { icon: "▶", label: t("Buka kunci", "Unlock") },
+          ]}
+        />
+      </div>
       <ol>
-        <Step n={1} title={t("Pura-pura kuncimu dicuri: kirim 90% saldo ke akun Pencuri", "Pretend your key was stolen: send 90% of the balance to the Thief account")} done={stolen.some((x) => x.to === thiefId) || frozen.length > 0 || bal.locked}>
+        <Step n={1} title={t("Pura-pura kuncimu dicuri: 90% saldo dikirim ke Pencuri", "Pretend your key is stolen: 90% goes to a Thief")} done={stage >= 1}>
           <Button small variant="danger" onClick={steal} disabled={bal.locked || bal.available === "0"}>
             {t("Simulasikan pencurian", "Simulate theft")}
           </Button>
         </Step>
-        <Step n={2} title={t("Dari akun pemulihan (HP): tekan PANIK", "From the recovery account (phone): press PANIC")} done={bal.locked}>
+        <Step n={2} title={t("HP pemulihan: tekan PANIK", "Recovery phone: hit PANIC")} done={stage >= 2}>
           <Button variant="danger" onClick={panic} disabled={bal.locked && stolen.length === 0}>
             {t("PANIK", "PANIC")}
           </Button>
         </Step>
-        <Step
-          n={3}
-          title={t(`Tunggu ${cfg.contest_window_sec} dtk tanpa bantahan, lalu finalisasi (tanpa voting)`, `Wait ${cfg.contest_window_sec} s with no contest, then finalize (no vote)`)}
-          done={bal.locked && frozen.length === 0}
-        >
+        <Step n={3} title={t(`Tunggu ${cfg.contest_window_sec} dtk, lalu finalisasi — tanpa voting`, `Wait ${cfg.contest_window_sec} s, then finalize — no vote`)} done={stage >= 4}>
           {frozen.length > 0 && ready.length === 0 && (
-            <span className="text-xs text-muted">
-              {lang === "en" ? (
-                <>
-                  can be finalized in <Countdown ns={nextFrozen} />
-                </>
-              ) : (
-                <>
-                  bisa difinalisasi dalam <Countdown ns={nextFrozen} />
-                </>
-              )}
+            <span className="flex items-center gap-2 text-xs text-ice">
+              <WindowBar from={(BigInt(nextFrozen) - BigInt(cfg.contest_window_sec) * 1_000_000_000n).toString()} to={nextFrozen} tone="ice" />
+              <Countdown ns={nextFrozen} />
             </span>
           )}
           <Button small onClick={finalizeAll} disabled={ready.length === 0}>
             {t("Finalisasi", "Finalize")} {ready.length > 0 ? `(${ready.length})` : ""}
           </Button>
         </Step>
-        <Step n={4} title={t("Setelah kunci dompet diganti: buka kunci", "After the wallet key is replaced: unlock")} done={!bal.locked && (guardBal ? BigInt(guardBal.available) > 0n : false)}>
+        <Step n={4} title={t("Kunci sudah diganti? Buka kunci", "Key replaced? Unlock")} done={stage >= 5}>
           <Button small variant="ghost" onClick={unlock} disabled={!bal.locked || frozen.length > 0}>
             {t("Buka kunci", "Unlock")}
           </Button>
         </Step>
-        <Step n={5} title={t("Opsional: kirim saldo akun pemulihan kembali ke dompet", "Optional: send the recovery account's balance back to the wallet")} done={false}>
-          <span className="text-xs text-muted">
-            {t(`akun pemulihan memegang ${fmt(guardBal?.available)} rUSDC`, `the recovery account holds ${fmt(guardBal?.available)} rUSDC`)}
+        <Step n={5} title={t("Opsional: kirim uangnya balik ke dompet", "Optional: send the money back")} done={false}>
+          <span className="osd text-lg leading-none text-phosphor">
+            📱 {fmt(guardBal?.available)} <span className="normal-case">rUSDC</span>
           </span>
           <Button small variant="ghost" onClick={giveBack} disabled={bal.locked || !guardBal || guardBal.available === "0"}>
             {t("Kirim balik", "Send back")}
@@ -377,10 +390,7 @@ function PanicTest({
         </Step>
       </ol>
       <p className="mt-3 text-xs text-muted">
-        {t(
-          `NEAR akun pemulihan: ${nearText}. Langkah 2–4 (Panik, finalisasi, buka kunci) dikirim lewat relayer Undo (meta-transaction NEP-366), jadi langkah itu tidak mengurangi NEAR ini. Langkah 5 transfer biasa dan memakai gas sendiri.`,
-          `Recovery account NEAR: ${nearText}. Steps 2–4 (panic, finalize, unlock) go through the Undo relayer (NEP-366 meta-transaction), so they do not use this NEAR. Step 5 is a normal transfer and pays its own gas.`,
-        )}
+        {t(`⛽ Langkah 2–4 tanpa gas (relayer Undo, NEP-366) · NEAR akun pemulihan: ${nearText}`, `⛽ Steps 2–4 are gasless (Undo relayer, NEP-366) · recovery account NEAR: ${nearText}`)}
       </p>
       {msg && (
         <div className="mt-3">
@@ -502,10 +512,7 @@ function WalletOnboarding({
             </div>
           )}
           <p className="mt-1 text-xs text-muted">
-            {t(
-              "Pasang sebelum mengisi saldo: selagi akun kosong, akun pemulihan langsung berlaku. Setelah ada saldo, penggantian selalu lewat jeda.",
-              "Set it before adding funds: while the account is empty, the recovery account takes effect at once. Once there is a balance, any change always goes through a delay.",
-            )}
+            {t("Pasang sebelum mengisi saldo: selagi kosong, langsung berlaku.", "Set it before adding funds: while empty, it applies at once.")}
           </p>
         </li>
         <li>
@@ -635,12 +642,20 @@ function ContactsCard({
 
   return (
     <Card title={t("Kontak tepercaya", "Trusted contacts")}>
-      <p className="mb-3 text-sm text-dim">
-        {t(
-          `Pembayaran ke kontak yang sudah aktif langsung final, tanpa jendela undo, jadi tidak bisa dibatalkan. Cocok untuk toko langganan atau keluarga. Kontak baru aktif setelah ${minutes} menit, supaya pencuri yang menambahkan dirinya harus menunggu; Panik membatalkan kontak yang belum aktif.`,
-          `Payments to an active contact are final at once, with no undo window, so they cannot be undone. Good for a regular shop or family. A new contact becomes active after ${minutes} min, so a thief who adds himself has to wait; panic cancels contacts that are not active yet.`,
-        )}
-      </p>
+      <div className="mb-3 flex flex-wrap gap-2 text-sm">
+        <span className="rounded-[2px] border border-signal/50 bg-signal/10 px-2 py-1 font-semibold text-signal">⚡ {t("Kontak aktif = langsung final", "Active contact = final at once")}</span>
+        <span className="rounded-[2px] border border-line-2 bg-well px-2 py-1 font-semibold text-dim">⏳ {t(`Kontak baru menunggu ${minutes} menit`, `New contacts wait ${minutes} min`)}</span>
+      </div>
+      <div className="mb-3">
+        <More>
+          <p>
+            {t(
+              "Tidak ada jendela undo untuk kontak aktif, jadi pembayarannya tidak bisa dibatalkan. Cocok untuk toko langganan atau keluarga. Jeda untuk kontak baru membuat pencuri yang menambahkan dirinya harus menunggu, dan Panik membatalkan kontak yang belum aktif.",
+              "There is no undo window for an active contact, so the payment cannot be undone. Good for a regular shop or family. The delay on new contacts makes a thief who adds himself wait, and panic cancels contacts that are not active yet.",
+            )}
+          </p>
+        </More>
+      </div>
       {contacts && contacts.length > 0 ? (
         <ul className="mb-3 space-y-1">
           {contacts.map((c) => (
@@ -840,10 +855,7 @@ function SendCard({
         </p>
       )}
       <p className="mt-2 text-xs text-muted">
-        {t(
-          `Biaya storage ${fmtNear(cfg.storage_fee)} NEAR per transfer. Uang masuk pending ${cfg.window_sec} detik di kontrak demo ini.`,
-          `Storage fee: ${fmtNear(cfg.storage_fee)} NEAR per transfer. Incoming money stays pending for ${cfg.window_sec} seconds in this demo contract.`,
-        )}
+        {t(`⏱ Uang menunggu ${cfg.window_sec} dtk · biaya storage ${fmtNear(cfg.storage_fee)} NEAR`, `⏱ Money waits ${cfg.window_sec} s · storage fee ${fmtNear(cfg.storage_fee)} NEAR`)}
       </p>
       {msg && (
         <div className="mt-2">
@@ -908,11 +920,8 @@ function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId:
 
   return (
     <Card title={t(`Akun pemulihan untuk ${short(protectedId)}`, `Recovery account for ${short(protectedId)}`)} tone="danger" right={acct?.locked ? <Pill tone="danger">{t("terkunci", "locked")}</Pill> : null}>
-      <p className="mb-3 text-sm text-dim">
-        {t(
-          "Kalau kunci dompet utama dicuri, tekan Panik: semua transfer keluar yang masih pending dibekukan, akun dikunci, dan sisa saldonya ikut dibekukan menuju akun ini.",
-          "If the main wallet's key is stolen, press PANIC: all pending outgoing transfers are frozen, the account is locked, and its remaining balance is also frozen on its way to this account.",
-        )}
+      <p className="mb-3 text-sm font-semibold text-ink">
+        🚨 {t("Kunci dompet utama dicuri? PANIK membekukan semua transfer keluar dan mengunci dompet.", "Main wallet key stolen? PANIC freezes every outgoing transfer and locks the wallet.")}
       </p>
       <div className="flex flex-wrap gap-2">
         <Button variant="danger" onClick={panic}>
@@ -955,7 +964,7 @@ function RecoveryPanel({ me, protectedId, cfg }: { me: DemoAccount; protectedId:
       )}
       <div className="mt-4">
         <TransferList
-          title={t("Transfer keluar dari dompet utama yang masih bisa dibatalkan atau sedang dibekukan", "Outgoing transfers from the main wallet that can still be cancelled or are frozen")}
+          title={t("Transfer keluar yang masih bisa dihentikan", "Outgoing transfers you can still stop")}
           items={open}
           me={me}
           cfg={cfg}

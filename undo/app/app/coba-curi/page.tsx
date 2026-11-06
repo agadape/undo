@@ -1,5 +1,6 @@
 "use client";
 import { Card, Notice, Pill, StatusBadge, usePoll } from "@/components/ui";
+import { More, Strip } from "@/components/visual";
 import { ADDR, GUARD_HEARTBEAT_URL, GUARD_RUNS_API } from "@/lib/config";
 import { useFmt, useLang, useT } from "@/lib/i18n";
 import { short } from "@/lib/near-client";
@@ -63,19 +64,33 @@ export default function CobaCuriPage() {
           <span className="blink">●</span> LIVE · testnet
         </p>
         <h1 className="osd rgb text-5xl leading-none sm:text-6xl">{t("Coba Curi", "Coba Curi (try to steal)")}</h1>
-        <p className="text-lg font-bold">{t("Kuncinya bisa dicuri. Uangnya tidak bisa dicairkan.", "The key can be stolen. The money cannot be cashed out.")}</p>
-        <p className="max-w-2xl text-sm text-dim">
+        <p className="text-lg font-bold sm:text-xl">
+          {t("Kuncinya bisa dicuri.", "The key can be stolen.")} <span className="text-phosphor">{t("Uangnya tidak bisa dicairkan.", "The money can't be cashed out.")}</span>
+        </p>
+      </section>
+
+      <Strip
+        tone="rec"
+        title={t("Aturan mainnya", "The game")}
+        panels={[
+          { icon: "🔑", text: s.publishedKey ? t("Kunci privatnya publik", "The private key is public") : t("Kunci diumumkan saat tantangan dibuka", "The key goes public when the challenge opens") },
+          { icon: "⏱", text: t(`Setiap transfer keluar menunggu ${Math.round(s.windowSec / 60)} menit`, `Every transfer out waits ${Math.round(s.windowSec / 60)} min`) },
+          { icon: "🚨", text: t("Penjaga menekan PANIK → uang kembali", "The guard hits PANIC → money comes back"), hot: true },
+        ]}
+      />
+      <More>
+        <p>
           {lang === "en" ? (
             <>
-              {s.publishedKey ? "We publish this account's private key." : "The team will publish this account's private key when the challenge opens."} Anyone holding it may send, unwrap, or change the account&apos;s recovery account. All money going out waits {Math.round(s.windowSec / 60)} min; the guard (the account&apos;s recovery account) presses Panic, and after {Math.round(s.contestSec / 60)} min with no contest the money comes back.
+              Anyone holding the key may send, unwrap, or change the account&apos;s recovery account. The guard is the account&apos;s recovery account; after {Math.round(s.contestSec / 60)} min with no contest the frozen money comes back.
             </>
           ) : (
             <>
-              {s.publishedKey ? "Kunci privat akun ini kami umumkan." : "Kunci privat akun ini akan diumumkan tim saat tantangan dibuka."} Siapa pun yang memegangnya boleh mengirim, unwrap, atau mengganti akun pemulihannya. Setiap uang yang keluar menunggu {Math.round(s.windowSec / 60)} menit; penjaga (akun pemulihannya) menekan Panik, dan setelah {Math.round(s.contestSec / 60)} menit tanpa bantahan uangnya kembali.
+              Siapa pun yang memegang kuncinya boleh mengirim, unwrap, atau mengganti akun pemulihannya. Penjaga adalah akun pemulihannya; setelah {Math.round(s.contestSec / 60)} menit tanpa bantahan, uang yang dibekukan kembali.
             </>
           )}
         </p>
-      </section>
+      </More>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Tile label={t("Saldo umpan", "Bait balance")} value={fmt(target)} unit="rUSDC" />
@@ -161,17 +176,14 @@ export default function CobaCuriPage() {
         )}
       </Card>
 
-      <Notice kind="info">
-        {lang === "en" ? (
-          <>
-            What this challenge proves: Panic + the undo window + the guard make stolen money impossible to cash out. What it does <b>not</b> prove: that the account cannot be broken into. The key is given away on purpose.
-          </>
-        ) : (
-          <>
-            Yang dibuktikan tantangan ini: Panik + jendela undo + penjaga membuat uang curian tidak bisa dicairkan. Yang <b>tidak</b> dibuktikan: bahwa akun tidak bisa dibobol. Kuncinya memang sengaja diberikan.
-          </>
-        )}
-      </Notice>
+      <div className="grid gap-3 text-sm sm:grid-cols-2">
+        <p className="rounded-[2px] border-l-4 border-phosphor bg-phosphor/5 px-3 py-2">
+          <b className="text-phosphor">✓ {t("Membuktikan:", "Proves:")}</b> {t("uang curian tidak bisa dicairkan.", "stolen money can't be cashed out.")}
+        </p>
+        <p className="rounded-[2px] border-l-4 border-line-2 bg-well px-3 py-2 text-dim">
+          <b className="text-ink">✗ {t("Tidak membuktikan:", "Doesn't prove:")}</b> {t("akunnya tidak bisa dibobol — kuncinya memang sengaja dibagikan.", "the account can't be broken into — the key is given away on purpose.")}
+        </p>
+      </div>
     </div>
   );
 }

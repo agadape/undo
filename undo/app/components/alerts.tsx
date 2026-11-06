@@ -5,6 +5,7 @@
 import { useEffect, useState } from "react";
 import { useAccounts } from "@/components/accounts";
 import { Button, Countdown, TxLink, usePoll } from "@/components/ui";
+import { WindowBar } from "@/components/visual";
 import { ACK_EVENT, ack, ackKey, contactAckKey, loadAcks, recoveryAckKey } from "@/lib/alerts";
 import { UNDO } from "@/lib/config";
 import { useAccountLabel, useFmt, useGasNote, useT } from "@/lib/i18n";
@@ -129,8 +130,8 @@ export function OutgoingAlerts() {
               ? {
                   ok: true,
                   text: t(
-                    "PANIK terkirim: transfer keluar dibekukan dan akun dikunci. Setelah jendela bantah lewat tanpa bantahan, siapa pun bisa finalize dan uangnya masuk ke akun pemulihan.",
-                    "PANIC sent: outgoing transfers are frozen and the account is locked. Once the contest window passes with no contest, anyone can finalize and the money goes to the recovery account.",
+                    "PANIK terkirim: transfer dibekukan, akun dikunci. Tanpa bantahan, finalisasi → uang ke akun pemulihan.",
+                    "PANIC sent: transfers frozen, account locked. No contest → finalize → the money goes to the recovery account.",
                   ) +
                     (cancelled ? t(` ${cancelled} kontak aktif yang tidak dikenal juga dihapus.`, ` ${cancelled} unrecognised active contact(s) removed too.`) : "") +
                     leftText(left) +
@@ -166,7 +167,7 @@ export function OutgoingAlerts() {
               </span>
               <span className="text-signal">▶ {t("JENDELA UNDO BERJALAN", "UNDO WINDOW RUNNING")}</span>
             </div>
-            <p className="text-base font-bold">
+            <p className="text-base font-bold sm:text-lg">
               🔔{" "}
               {items.length || rec
                 ? t(`Ada uang keluar dari ${label} (${short(w.id)}). Ini kamu?`, `Money is leaving ${label} (${short(w.id)}). Was this you?`)
@@ -174,8 +175,14 @@ export function OutgoingAlerts() {
             </p>
             <ul className="space-y-0.5">
               {items.map((x) => (
-                <li key={x.id}>
-                  {describe(x)} · {t("final dalam", "final in")} <Countdown ns={x.unlock_at} />
+                <li key={x.id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <span className="font-semibold">{describe(x)}</span>
+                  <span className="flex items-center gap-2 text-signal">
+                    <WindowBar from={x.created_at} to={x.unlock_at} />
+                    <span>
+                      {t("final dalam", "final in")} <Countdown ns={x.unlock_at} />
+                    </span>
+                  </span>
                 </li>
               ))}
               {newContacts.map((c) => (
@@ -206,8 +213,8 @@ export function OutgoingAlerts() {
                 </Button>
               )}
               {guard ? (
-                <Button small variant="danger" onClick={panic}>
-                  {t("Bukan — PANIK", "No — PANIC")}
+                <Button variant="danger" onClick={panic}>
+                  🚨 {t("Bukan — PANIK", "No — PANIC")}
                 </Button>
               ) : w.acct.recovery ? (
                 <span className="text-xs">{t(`Bukan? Tekan Panik dari akun pemulihan ${short(w.acct.recovery)}.`, `Not you? Press Panic from the recovery account ${short(w.acct.recovery)}.`)}</span>
@@ -221,10 +228,7 @@ export function OutgoingAlerts() {
               )}
             </div>
             <p className="text-xs text-dim">
-              {t(
-                "Notifikasi ini muncul di browser yang memegang akun pemulihan. Di produk, pesan yang sama dikirim ke HP akun pemulihan.",
-                "This alert shows in the browser that holds the recovery account. In a product, the same message goes to the recovery account's phone.",
-              )}
+              📱 {t("Di produk, peringatan ini dikirim ke HP akun pemulihan.", "In a real product, this alert goes to the recovery phone.")}
             </p>
           </div>
         );

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button, Card, Notice, Pill, StatusBadge, TxLink, inputClass, usePoll } from "@/components/ui";
+import { More } from "@/components/visual";
 import { ADDR, DAO, UNDO } from "@/lib/config";
 import { useAccounts } from "@/components/accounts";
 import { approvals, loadCouncil, rejections, type Council, type ResolveProposal } from "@/lib/council";
@@ -32,8 +33,8 @@ function PasscodeField() {
     }
   }, []);
   return (
-    <label className="mt-3 block text-xs text-muted">
-      {tr("Passcode dewan (hanya untuk anggota dewan; disimpan di browser ini)", "Council passcode (for council members only; saved in this browser)")}
+    <label className="block text-xs text-muted">
+      🔑 {tr("Passcode dewan (khusus anggota; disimpan di browser ini)", "Council passcode (members only; saved in this browser)")}
       <input
         type="password"
         value={value}
@@ -65,23 +66,53 @@ export default function DewanPage() {
   const closed = items?.filter((t) => t.status !== "Disputed") ?? [];
   return (
     <div className="space-y-4">
-      <Card title={tr("Dewan", "Council")}>
-        <p className="text-sm text-dim">
-          {tr("Dewan adalah", "The council is a")}{" "}
-          <a className="text-phosphor underline decoration-dotted underline-offset-2" href={ADDR(DAO)} target="_blank" rel="noreferrer">
-            Sputnik DAO
+      <Card
+        title={tr("Dewan", "Council")}
+        right={
+          <a className="osd text-lg leading-none text-phosphor underline decoration-dotted underline-offset-4" href={ADDR(DAO)} target="_blank" rel="noreferrer">
+            ⚖️ Sputnik DAO ↗
           </a>
-          {tr(
-            ". Setiap putusan = proposal + vote, terekam publik. Dewan hanya bisa memilih A atau B (uang kembali ke pihak pengirim, atau diteruskan ke penerima) dan hanya atas uang yang masih dalam sengketa.",
-            ". Every decision is a proposal + vote, recorded publicly. The council can only choose A or B (money back to the sender's side, or paid to the receiver), and only for money that is still in dispute.",
-          )}{" "}
-          {council &&
-            tr(
-              `Anggota sekarang: ${council.members.map(short).join(", ")}; satu putusan butuh ${council.needed} dari ${council.members.length} suara. Tombol di bawah (dengan passcode) membuat usulan dan memberi suara atas nama anggota tim; anggota lain memberi suara dengan wallet-nya sendiri di kartu sengketa.`,
-              `Members now: ${council.members.map(short).join(", ")}; a decision needs ${council.needed} of ${council.members.length} votes. The buttons below (with the passcode) propose and vote as the team's member; other members vote with their own wallets on the dispute card.`,
+        }
+      >
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+          {/* who votes */}
+          <div className="rounded-[2px] border border-line bg-well p-3">
+            <div className="osd text-lg leading-5 text-muted">{tr("Anggota", "Members")}</div>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {(council?.members ?? []).map((m) => (
+                <span key={m} className="mono rounded-[2px] bg-ink/10 px-1.5 py-0.5 text-xs">
+                  👤 {short(m)}
+                </span>
+              ))}
+            </div>
+            {council && (
+              <div className="osd rgb mt-2 text-2xl leading-none text-plum">
+                {tr(`${council.needed} dari ${council.members.length} suara`, `${council.needed} of ${council.members.length} votes`)}
+              </div>
             )}
-        </p>
-        <PasscodeField />
+          </div>
+          <span aria-hidden className="osd hidden text-3xl text-muted sm:block">
+            ▶
+          </span>
+          {/* only two outcomes */}
+          <div className="grid gap-2">
+            <div className="rounded-[2px] border border-phosphor/50 bg-phosphor/5 px-3 py-2 text-sm font-semibold">
+              <span className="osd text-xl text-phosphor">◀◀</span> {tr("Kembali ke pihak pengirim", "Back to the sender's side")}
+            </div>
+            <div className="rounded-[2px] border border-line-2 bg-well px-3 py-2 text-sm font-semibold">
+              <span className="osd text-xl text-ink">▶</span> {tr("Diteruskan ke penerima", "Paid to the receiver")}
+            </div>
+          </div>
+        </div>
+        <More label={tr("Cara kerja + passcode dewan", "How it works + council passcode")}>
+          <p>
+            {tr(
+              "Setiap putusan = proposal + vote, terekam publik, dan hanya atas uang yang masih dalam sengketa. Tombol di kartu sengketa (dengan passcode) membuat usulan dan memberi suara atas nama anggota tim; anggota lain memberi suara dengan wallet-nya sendiri.",
+              "Every decision is a proposal + vote, recorded publicly, and only for money that is still in dispute. The buttons on a dispute card (with the passcode) propose and vote as the team's member; other members vote with their own wallets.",
+            )}
+          </p>
+          <PasscodeField />
+        </More>
       </Card>
       {!items ? (
         <p className="text-sm text-muted">{tr("memuat sengketa…", "loading disputes…")}</p>

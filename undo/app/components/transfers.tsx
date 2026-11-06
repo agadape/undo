@@ -8,6 +8,7 @@ import { call, short, view, type DemoAccount } from "@/lib/near-client";
 import { playTimeFx } from "@/lib/timefx";
 import type { Config, Transfer } from "@/lib/types";
 import { Button, Countdown, Notice, StatusBadge, TxLink, btnClass } from "./ui";
+import { WindowBar } from "./visual";
 
 const KIND: Record<string, string> = { Transfer: "rUSDC", Exit: "USDC", Sweep: "Sapu (Panik)" };
 const KIND_EN: Record<string, string> = { Transfer: "rUSDC", Exit: "USDC", Sweep: "Sweep (Panic)" };
@@ -78,13 +79,19 @@ export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transf
           <StatusBadge status={t.status === "Pending" && !inWindow && t.kind === "Transfer" ? "Settled" : t.status} />
           {exitReady && <span className="text-muted">{tr("siap dicairkan", "ready to withdraw")}</span>}
           {inWindow && (
-            <span>
-              {tr("final dalam", "final in")} <Countdown ns={t.unlock_at} />
+            <span className="flex items-center gap-2 text-signal">
+              <WindowBar from={t.created_at} to={t.unlock_at} />
+              <span>
+                {tr("final dalam", "final in")} <Countdown ns={t.unlock_at} />
+              </span>
             </span>
           )}
           {frozenOpen && (
-            <span>
-              {tr("bantah dalam", "contest within")} <Countdown ns={t.frozen_until} />
+            <span className="flex items-center gap-2 text-ice">
+              <WindowBar from={(BigInt(t.frozen_until!) - BigInt(cfg.contest_window_sec) * 1_000_000_000n).toString()} to={t.frozen_until!} tone="ice" />
+              <span>
+                {tr("bantah dalam", "contest within")} <Countdown ns={t.frozen_until} />
+              </span>
             </span>
           )}
           {t.kind === "Transfer" && t.status === "Settled" && t.unlock_at === t.created_at && t.dispute === null && (
