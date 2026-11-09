@@ -112,10 +112,12 @@ export function SiteHeader() {
 export function Footer() {
   const t = useT();
   return (
-    <footer className="mx-auto mt-28 max-w-[1180px] overflow-hidden px-4 pb-10 sm:px-6">
+    // content-visibility: the browser skips laying out and painting the footer until it scrolls near the screen.
+    <footer className="mx-auto mt-28 max-w-[1180px] overflow-hidden px-4 pb-10 [contain-intrinsic-size:auto_420px] [content-visibility:auto] sm:px-6">
+      {/* The small frost (61 KB): the texture is faded inside the letters, so the full 236 KB file adds little here. */}
       <div
         aria-hidden
-        className="serif select-none bg-[url(/undo/frost.webp),linear-gradient(180deg,#eaf6ff4d,#eaf6ff05_85%)] bg-[length:110%_auto,100%_100%] bg-[position:50%_30%,0_0] bg-blend-screen bg-clip-text text-center text-[26vw] font-black leading-[0.8] text-transparent [mask-image:linear-gradient(180deg,#000_25%,transparent_95%)] sm:text-[19rem]"
+        className="serif select-none bg-[url(/undo/frost-sm.webp),linear-gradient(180deg,#eaf6ff4d,#eaf6ff05_85%)] bg-[length:110%_auto,100%_100%] bg-[position:50%_30%,0_0] bg-blend-screen bg-clip-text text-center text-[26vw] font-black leading-[0.8] text-transparent [mask-image:linear-gradient(180deg,#000_25%,transparent_95%)] sm:text-[19rem]"
       >
         Undo
       </div>

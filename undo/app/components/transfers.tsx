@@ -3,11 +3,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { UNDO, USDC } from "@/lib/config";
-import { useFmt, useGasNote, useLang, useT } from "@/lib/i18n";
+import { useAccountLabel, useFmt, useGasNote, useLang, useT } from "@/lib/i18n";
 import { call, short, view, type DemoAccount } from "@/lib/near-client";
 import { playTimeFx } from "@/lib/timefx";
 import type { Config, Transfer } from "@/lib/types";
 import { Button, Countdown, Notice, StatusBadge, TxLink, btnClass } from "./ui";
+import { useAccounts } from "./accounts";
 import { WindowBar } from "./visual";
 
 const KIND: Record<string, string> = { Transfer: "rUSDC", Exit: "USDC", Sweep: "Sapu (Panik)" };
@@ -26,6 +27,8 @@ export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transf
   const fmt = useFmt();
   const gasNote = useGasNote();
   const router = useRouter();
+  const { accounts } = useAccounts();
+  const accountLabel = useAccountLabel();
   const [ownMsg, setOwnMsg] = useState<Msg>();
   const msg = onMessage ? undefined : ownMsg;
   const setMsg = (m: Msg) => (onMessage ? onMessage(m) : setOwnMsg(m));
@@ -64,15 +67,36 @@ export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transf
       return call(me, UNDO, "withdraw", { transfer_id: t.id }, { gasTera: "100" });
     });
 
-  const who = isSender ? tr(`ke ${short(t.to)}`, `to ${short(t.to)}`) : tr(`dari ${short(t.from)}`, `from ${short(t.from)}`);
+  // Name the other side when it is one of this browser's demo accounts ("to Thief" reads faster than an account id).
+  const nameOf = (id: string) => {
+    const label = accounts.find((a) => a.id === id)?.label;
+    return label ? accountLabel(label) : short(id);
+  };
+  const other = isSender ? t.to : t.from;
+  const otherName = accounts.find((a) => a.id === other)?.label;
+  const otherText = nameOf(other);
+  const who = isSender ? tr(`ke ${otherText}`, `to ${otherText}`) : tr(`dari ${otherText}`, `from ${otherText}`);
+  const thief = otherName === "Pencuri";
   return (
     <li className={`flex flex-col gap-2 rounded-[12px] px-3 py-3 ${t.status === "Frozen" ? "bg-ice/8" : "odd:bg-ink/[0.025]"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="mono text-xs text-muted">#{t.id}</span>
-          <span className="serif text-xl leading-none tabular-nums text-ink">{fmt(t.amount)}</span>
-          <span className="text-xs text-muted">{(lang === "en" ? KIND_EN : KIND)[t.kind]}</span>
-          <span className="text-sm">{ownUnwrap ? tr("unwrap ke diri sendiri", "unwrap to self") : who}</span>
+        <div className="flex min-w-0 items-center gap-2.5">
+          {/* Direction at a glance: out = up-right, in = down-left. */}
+          <span
+            aria-hidden
+            className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-bold ${thief ? "bg-rec/15 text-rec" : isSender && !ownUnwrap ? "bg-signal/12 text-signal" : "bg-sky/12 text-sky"}`}
+          >
+            {ownUnwrap ? "⇄" : isSender ? "↗" : "↙"}
+          </span>
+          <span className="flex min-w-0 flex-col">
+            <span className="flex items-baseline gap-1.5">
+              <span className="serif text-xl leading-none tabular-nums text-ink">{fmt(t.amount)}</span>
+              <span className="text-xs text-muted">{(lang === "en" ? KIND_EN : KIND)[t.kind]}</span>
+            </span>
+            <span className={`text-sm leading-5 ${thief ? "font-semibold text-rec" : "text-dim"}`}>
+              {ownUnwrap ? tr("unwrap ke diri sendiri", "unwrap to self") : who} <span className="mono text-xs text-muted">· #{t.id}</span>
+            </span>
+          </span>
         </div>
         <div className="flex items-center gap-2 text-xs">
           {/* The contract settles lazily: a matured transfer is final even while its stored status says Pending. */}
@@ -98,7 +122,7 @@ export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transf
             <span className="text-muted">{tr("langsung final (kontak)", "final at once (contact)")}</span>
           )}
           {t.kind === "Exit" && t.to !== t.from && t.unlock_at === t.created_at && <span className="text-muted">{tr("tanpa jendela (kontak)", "no window (contact)")}</span>}
-          {t.final_to && <span className="text-muted">→ {short(t.final_to)}</span>}
+          {t.final_to && <span className="text-muted">→ {nameOf(t.final_to)}</span>}
         </div>
       </div>
       <div className="flex flex-wrap gap-2">

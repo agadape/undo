@@ -14,7 +14,7 @@
   --color-line-2: #343a4a;
   --color-ink: #f4f8fc; /* text */
   --color-dim: #b9c1cd; /* secondary text */
-  --color-muted: #848c9b; /* meta text, AA on tape */
+  --color-muted: #969eae; /* meta text: a step lighter than before for easier reading (about 7.4:1 on tape, 6.8:1 on panel) */
   --color-snow: #eaf6ff; /* ice white: primary buttons, the brightest light */
   --color-phosphor: #8fdcff; /* cold blue: your money, safe (name kept from the old theme) */
   --color-sky: #8fdcff;
@@ -29,6 +29,10 @@
   --font-btn: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-display: var(--font-archivo), "Helvetica Neue", Arial, sans-serif; /* timers: tabular figures */
+
+  /* The smallest text size, 13px instead of 12px: meta lines, hints and badges stay readable on a phone. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
 }
 
 :root {
@@ -158,6 +162,43 @@ body::before {
     .btn-glint::after {
       transition: none;
     }
+  }
+}
+
+/* The button of the drill step you are on: a ring that swells and fades, so the eye finds it.
+   Only transform and opacity animate (no repaint per frame). Colour comes from --pulse. */
+.now-cta {
+  position: relative;
+  display: inline-flex;
+  border-radius: 9999px;
+}
+.now-cta::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  border: 2px solid var(--pulse, var(--color-signal));
+  opacity: 0;
+  pointer-events: none;
+  animation: cta-ring 1.9s ease-out infinite;
+}
+@keyframes cta-ring {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.94);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.14);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No pulse: a steady ring instead. */
+  .now-cta::after {
+    animation: none;
+    opacity: 0.6;
+    transform: none;
   }
 }
 

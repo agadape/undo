@@ -1,6 +1,7 @@
 "use client";
-import { Card, Notice, Pill, StatusBadge, usePoll } from "@/components/ui";
-import { More, Strip } from "@/components/visual";
+import Link from "next/link";
+import { Card, Notice, Pill, StatusBadge, btnClass, usePoll } from "@/components/ui";
+import { More, NextStep, Strip } from "@/components/visual";
 import { ADDR, GUARD_HEARTBEAT_URL, GUARD_RUNS_API } from "@/lib/config";
 import { useFmt, useLang, useT } from "@/lib/i18n";
 import { short } from "@/lib/near-client";
@@ -92,6 +93,39 @@ export default function CobaCuriPage() {
         </p>
       </More>
 
+      {/* What a visitor can do here, right under the rules. */}
+      {s.publishedKey ? (
+        <NextStep
+          icon="🔑"
+          tone="rec"
+          label={t("Giliranmu", "Your move")}
+          title={t("Ambil kuncinya di bawah dan coba cairkan uangnya", "Take the key below and try to cash out")}
+          sub={t("Lalu lihat Percobaan terakhir: penjaga menekan PANIK dan uangnya kembali.", "Then watch Latest attempts: the guard hits PANIC and the money comes back.")}
+          action={
+            <>
+              <a href="#bait-key" className={btnClass("primary", true)}>
+                {t("Ambil kunci ↓", "Get the key ↓")}
+              </a>
+              <Link href="/dompet" className={btnClass("ghost", true)}>
+                {t("Coba di dompet sendiri", "Try it in your own wallet")}
+              </Link>
+            </>
+          }
+        />
+      ) : (
+        <NextStep
+          icon="⏳"
+          tone="signal"
+          title={t("Kuncinya belum dipublikasikan", "The key isn't public yet")}
+          sub={t("Sementara itu, coba latihan yang sama di dompet demomu sendiri.", "Meanwhile, try the same drill in your own demo wallet.")}
+          action={
+            <Link href="/dompet" className={btnClass("primary", true)}>
+              {t("Buka Dompet", "Open Wallet")}
+            </Link>
+          }
+        />
+      )}
+
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Tile label={t("Saldo umpan", "Bait balance")} value={fmt(target)} unit="rUSDC" />
         <Tile label={t("Percobaan", "Attempts")} value={String(s.attempts)} />
@@ -137,6 +171,7 @@ export default function CobaCuriPage() {
         </ul>
       </Card>
 
+      <div id="bait-key" className="scroll-mt-28">
       <Card title={t("Kunci akun umpan", "Bait account key")}>
         {s.publishedKey ? (
           <div className="space-y-4">
@@ -157,6 +192,7 @@ export default function CobaCuriPage() {
           <p className="text-sm text-muted">{t("Kunci akan dipublikasikan saat tantangan dibuka (diumumkan oleh tim).", "The key will be published when the challenge opens (announced by the team).")}</p>
         )}
       </Card>
+      </div>
 
       <Card title={t("Percobaan terakhir", "Latest attempts")}>
         {s.recent.length === 0 ? (

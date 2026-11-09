@@ -63,6 +63,47 @@ export function Stepper({ steps, current }: { steps: { icon: string; label: stri
   );
 }
 
+/** "Do this next": one bold line, one short reason, an optional action. Sits at the top of a flow so nobody has to guess.
+ *  Announced politely to screen readers when it changes. */
+export function NextStep({
+  icon,
+  title,
+  sub,
+  action,
+  tone = "signal",
+  label,
+}: {
+  icon: string;
+  title: ReactNode;
+  sub?: ReactNode;
+  action?: ReactNode;
+  tone?: "signal" | "rec" | "ice" | "sky" | "plum";
+  label?: string;
+}) {
+  const t = useT();
+  const box = {
+    signal: "border-signal/40 bg-signal/10",
+    rec: "border-rec/45 bg-rec/12",
+    ice: "border-ice/40 bg-ice/10",
+    sky: "border-sky/40 bg-sky/10",
+    plum: "border-plum/40 bg-plum/10",
+  }[tone];
+  const ink = { signal: "text-signal", rec: "text-rec", ice: "text-ice", sky: "text-sky", plum: "text-plum" }[tone];
+  return (
+    <div role="status" aria-live="polite" className={`flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[16px] border px-4 py-3.5 ${box}`}>
+      <span aria-hidden className={`grid h-11 w-11 shrink-0 place-items-center rounded-full bg-tape/70 text-xl leading-none ${ink}`}>
+        {icon}
+      </span>
+      <div className="min-w-0 flex-1 basis-40">
+        <p className={`text-[0.7rem] font-bold uppercase tracking-[0.14em] ${ink}`}>{label ?? t("Langkah berikutnya", "Next step")}</p>
+        <p className="mt-0.5 text-base font-semibold leading-snug text-ink">{title}</p>
+        {sub && <p className="mt-0.5 text-sm leading-snug text-dim">{sub}</p>}
+      </div>
+      {action && <div className="flex shrink-0 flex-wrap items-center gap-2">{action}</div>}
+    </div>
+  );
+}
+
 /** A scenario as three comic panels: big icon, a few words each. */
 export function Strip({ title, tone, panels }: { title: string; tone: "rec" | "plum"; panels: { icon: string; text: string; hot?: boolean }[] }) {
   const accent = tone === "rec" ? "text-rec" : "text-plum";

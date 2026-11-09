@@ -1,8 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Button, Card, Notice, Pill, StatusBadge, TxLink, inputClass, usePoll } from "@/components/ui";
-import { More } from "@/components/visual";
+import { Button, Card, Notice, Pill, StatusBadge, TxLink, btnClass, inputClass, usePoll } from "@/components/ui";
+import { More, NextStep } from "@/components/visual";
 import { ADDR, DAO, UNDO } from "@/lib/config";
 import { useAccounts } from "@/components/accounts";
 import { approvals, loadCouncil, rejections, type Council, type ResolveProposal } from "@/lib/council";
@@ -117,9 +117,31 @@ export default function DewanPage() {
       {!items ? (
         <p className="text-sm text-muted">{tr("memuat sengketa…", "loading disputes…")}</p>
       ) : open.length === 0 ? (
-        <Notice kind="info">{tr("Tidak ada sengketa yang menunggu.", "No disputes are waiting.")}</Notice>
+        <NextStep
+          icon="☕"
+          tone="sky"
+          label={tr("Sepi", "All quiet")}
+          title={tr("Tidak ada sengketa yang menunggu", "No disputes are waiting")}
+          sub={tr("Mau melihatnya? Di Dompet: kirim ke Penjual, lalu Riwayat → Laporkan penipuan.", "Want to see one? In the Wallet: send to a Seller, then History → Report fraud.")}
+          action={
+            <Link href="/dompet" className={btnClass("ghost", true)}>
+              {tr("Buka Dompet", "Open Wallet")}
+            </Link>
+          }
+        />
       ) : (
-        open.map((t) => <DisputeCard key={t.id} t={t} council={council} onDone={done} />)
+        <>
+          <NextStep
+            icon="⚖"
+            tone="plum"
+            label={tr("Untuk dewan", "For the council")}
+            title={tr(`${open.length} sengketa menunggu putusan`, `${open.length} dispute${open.length > 1 ? "s" : ""} waiting for a decision`)}
+            sub={tr("Baca rekomendasi AI, lalu pilih salah satu dari dua tombol. Hanya anggota (passcode atau wallet).", "Read the AI recommendation, then press one of the two buttons. Members only (passcode or wallet).")}
+          />
+          {open.map((t) => (
+            <DisputeCard key={t.id} t={t} council={council} onDone={done} />
+          ))}
+        </>
       )}
       {closed.length > 0 && (
         <Card title={tr("Sudah diputus", "Decided")}>

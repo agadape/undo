@@ -8,7 +8,7 @@ import { ack, ackKey, contactAckKey } from "@/lib/alerts";
 import { ADDR, UNDO, USDC } from "@/lib/config";
 import { useAccountLabel, useFmt, useGasNote, useLang, useT } from "@/lib/i18n";
 import { USD, call, createDemoAccount, parseOutcome, provider, short, view, type DemoAccount } from "@/lib/near-client";
-import { More, WindowBar } from "@/components/visual";
+import { More, NextStep, WindowBar } from "@/components/visual";
 import { playTimeFx } from "@/lib/timefx";
 import { walletBatch } from "@/lib/wallet";
 import type { AccountView, BalanceView, Config, Contact, Transfer } from "@/lib/types";
@@ -24,6 +24,9 @@ export default function DompetPage() {
 }
 
 // ---------- first run: one click creates a protected wallet + its recovery account ----------
+
+/** Lines Setup writes to its log on success (two "creating" lines, two account ids, four contract calls): drives the progress bar. */
+const SETUP_LINES = 8;
 
 function Setup() {
   const { add, connectWallet, walletError } = useAccounts();
@@ -82,7 +85,21 @@ function Setup() {
             <div className="text-sm font-semibold text-rec">{t("tombol PANIK", "the PANIC button")}</div>
           </div>
         </div>
-        <p className="mb-5 mt-4 text-sm text-dim">{t("Dua akun testnet sekali pakai. Kuncinya hanya di browser ini.", "Two throwaway testnet accounts. Keys stay in this browser.")}</p>
+        <p className="mt-4 text-sm text-dim">{t("Dua akun testnet sekali pakai. Kuncinya hanya di browser ini.", "Two throwaway testnet accounts. Keys stay in this browser.")}</p>
+        {/* The whole demo in three moves, so the first click is not a leap of faith. */}
+        <ol className="mx-auto mb-6 mt-6 grid max-w-lg grid-cols-3 gap-2 text-left">
+          {[
+            ["1", t("Siapkan", "Set up"), t("± 10 detik", "about 10 s"), "text-signal"],
+            ["2", t("Simulasikan pencurian", "Simulate a theft"), t("90% saldo dikirim", "90% gets sent"), "text-rec"],
+            ["3", t("Tekan PANIK", "Hit PANIC"), t("uangnya kembali", "money comes back"), "text-sky"],
+          ].map(([n, a, b, c], i) => (
+            <li key={n} className={`rounded-[12px] p-3 ${i === 0 ? "bg-signal/10 ring-1 ring-signal/40" : "bg-panel"}`}>
+              <span className={`serif block text-2xl leading-none ${c}`}>{n}</span>
+              <span className="mt-1 block text-sm font-semibold leading-tight text-ink">{a}</span>
+              <span className="block text-xs leading-snug text-muted">{b}</span>
+            </li>
+          ))}
+        </ol>
         <div className="flex flex-wrap justify-center gap-2">
           <Button onClick={run}>{t("Siapkan dompet demo", "Set up demo wallet")}</Button>
           <Button variant="ghost" onClick={connectWallet}>
@@ -90,8 +107,19 @@ function Setup() {
           </Button>
         </div>
         {walletError && <p className="mt-2 text-xs text-rec">{walletError}</p>}
+        {log.length > 0 && !error && (
+          <div className="mx-auto mt-5 max-w-lg" aria-hidden>
+            <div className="flex justify-between text-xs font-semibold text-dim">
+              <span>{log.length >= SETUP_LINES ? t("Siap!", "Ready!") : t("Menyiapkan di testnet…", "Setting up on testnet…")}</span>
+              <span className="tabular-nums">{Math.round((Math.min(log.length, SETUP_LINES) / SETUP_LINES) * 100)}%</span>
+            </div>
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-raise">
+              <div className="h-full rounded-full bg-sky transition-[width] duration-500" style={{ width: `${(Math.min(log.length, SETUP_LINES) / SETUP_LINES) * 100}%` }} />
+            </div>
+          </div>
+        )}
         {log.length > 0 && (
-          <ol className="mono mx-auto mt-5 max-w-lg space-y-1 rounded-[14px] bg-well p-4 text-left text-xs leading-5 text-sky" aria-live="polite">
+          <ol className="mono mx-auto mt-3 max-w-lg space-y-1 rounded-[14px] bg-well p-4 text-left text-xs leading-5 text-sky" aria-live="polite">
             {log.map((l, i) => (
               <li key={i}>{l}</li>
             ))}
@@ -180,15 +208,20 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
         tabs={[
           {
             id: "send",
+            icon: "↗",
             label: t("Kirim", "Send"),
+            hint: t("Setiap transfer bisa dibatalkan selama jendelanya masih berjalan.", "Every transfer can be undone while its window is still running."),
             body: <SendCard me={me} cfg={cfg} accounts={accounts} available={bal?.available} contacts={contacts} canSimulateTheft={!!acct?.recovery} onDone={refresh} onAddAccount={add} />,
           },
           ...(hasContacts
-            ? [{ id: "contacts", label: t("Kontak tepercaya", "Trusted contacts"), body: <ContactsCard me={me} cfg={cfg} accounts={accounts} contacts={contacts} locked={!!bal?.locked} onDone={refresh} /> }]
+            ? [{ id: "contacts", icon: "★", label: t("Kontak tepercaya", "Trusted contacts"), count: contacts?.length, hint: t("Kirim ke kontak aktif langsung final, tanpa jendela undo.", "Money to an active contact is final at once, with no undo window."), body: <ContactsCard me={me} cfg={cfg} accounts={accounts} contacts={contacts} locked={!!bal?.locked} onDone={refresh} /> }]
             : []),
           {
             id: "history",
+            icon: "⏱",
             label: t("Riwayat", "History"),
+            count: (incoming?.length ?? 0) + (outgoing?.length ?? 0) || undefined,
+            hint: t("Laporkan penipuan, bantah pembekuan, atau finalisasi di sini.", "Report fraud, contest a freeze, or finalize from here."),
             body: (
               <Card>
                 <div className="grid gap-8 md:grid-cols-2">
@@ -200,7 +233,9 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
           },
           {
             id: "others",
+            icon: "👥",
             label: t("Akun demo lain", "Other demo accounts"),
+            hint: t("Buat Penjual atau Pencuri untuk mencoba skenario lain.", "Make a Seller or a Thief to try the other stories."),
             body: (
               <Card>
                 <div className="flex flex-wrap gap-2">
@@ -226,7 +261,7 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
 }
 
 /** Tabs for the wallet's secondary tools. Remembers the last tab in this browser. */
-function WalletTabs({ tabs }: { tabs: { id: string; label: string; body: React.ReactNode }[] }) {
+function WalletTabs({ tabs }: { tabs: { id: string; label: string; icon?: string; count?: number; hint?: string; body: React.ReactNode }[] }) {
   const [cur, setCur] = useState(tabs[0].id);
   useEffect(() => {
     try {
@@ -257,12 +292,17 @@ function WalletTabs({ tabs }: { tabs: { id: string; label: string; body: React.R
             aria-selected={x.id === active.id}
             aria-controls={`panel-${x.id}`}
             onClick={() => pick(x.id)}
-            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${x.id === active.id ? "bg-ink text-tape" : "bg-panel text-dim hover:text-ink"}`}
+            className={`inline-flex items-center gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${x.id === active.id ? "bg-ink text-tape" : "bg-panel text-dim hover:text-ink"}`}
           >
+            {x.icon && <span aria-hidden>{x.icon}</span>}
             {x.label}
+            {x.count ? (
+              <span className={`rounded-full px-1.5 text-xs leading-5 tabular-nums ${x.id === active.id ? "bg-tape/15" : "bg-raise text-ink"}`}>{x.count}</span>
+            ) : null}
           </button>
         ))}
       </div>
+      {active.hint && <p className="-mt-2 mb-4 text-sm text-dim">{active.hint}</p>}
       <div role="tabpanel" id={`panel-${active.id}`} aria-labelledby={`tab-${active.id}`}>
         {active.body}
       </div>
@@ -342,15 +382,28 @@ function WalletStage({ bal, outgoing, cfg, accounts }: { bal?: BalanceView; outg
           </p>
         </div>
       ) : null}
-      <p className="mt-3 text-sm text-dim">
-        {locked && state === "pause" && (
-          <>
-            {t("Bisa dipakai", "Available")} <b className="text-ink tabular-nums">{fmt(bal?.available)}</b> ·{" "}
-          </>
-        )}
-        {t("Masuk, masih pending", "Incoming, still pending")} <b className="text-ink tabular-nums">{fmt(bal?.pending_in)}</b> · {t("Dibekukan", "Frozen")}{" "}
-        <b className="text-ink tabular-nums">{fmt(bal?.frozen_in)}</b> · {t("Dalam sengketa", "In dispute")} <b className="text-ink tabular-nums">{fmt(bal?.disputed_in)}</b>
-      </p>
+      {/* The other buckets as chips: one glance, no sentence to parse. Empty buckets fade back. */}
+      <ul className="mt-4 flex flex-wrap justify-center gap-2 text-sm">
+        {(
+          [
+            ...(locked && state === "pause" ? [["◉", t("Bisa dipakai", "Available"), bal?.available, "text-ink"] as const] : []),
+            ["▶", t("Masuk, pending", "Incoming, pending"), bal?.pending_in, "text-signal"],
+            ["❚❚", t("Dibekukan", "Frozen"), bal?.frozen_in, "text-ice"],
+            ["⚖", t("Dalam sengketa", "In dispute"), bal?.disputed_in, "text-plum"],
+          ] as const
+        ).map(([icon, name, raw, color]) => {
+          const zero = !raw || raw === "0";
+          return (
+            <li key={name} className={`inline-flex items-center gap-2 rounded-full bg-panel px-3.5 py-1.5 ${zero ? "opacity-60" : ""}`}>
+              <span aria-hidden className={`text-xs ${zero ? "text-muted" : color}`}>
+                {icon}
+              </span>
+              <span className="text-dim">{name}</span>
+              <b className={`tabular-nums ${zero ? "text-dim" : "text-ink"}`}>{fmt(raw)}</b>
+            </li>
+          );
+        })}
+      </ul>
       {heldSum > 0n && state !== "pause" && (
         <p className="mt-1 text-xs text-muted">
           {t(`❚❚ Ditahan: ${fmt(heldSum)} rUSDC keluar (${held.length} transfer) · Riwayat → Keluar`, `❚❚ On hold: ${fmt(heldSum)} rUSDC outgoing (${held.length} transfer(s)) · History → Outgoing`)}
@@ -362,7 +415,7 @@ function WalletStage({ bal, outgoing, cfg, accounts }: { bal?: BalanceView; outg
 
 // Top-level on purpose: a component defined inside another remounts on every render (buttons vanish mid-click).
 /** One stop on the drill's tape: a dot, a short name, one sentence, and its button. */
-function Stop({ name, title, state, tone = "signal", children }: { name: string; title: string; state: "done" | "now" | "todo"; tone?: "signal" | "ice" | "rec"; children?: React.ReactNode }) {
+function Stop({ name, title, state, tone = "signal", pulse = true, children }: { name: string; title: string; state: "done" | "now" | "todo"; tone?: "signal" | "ice" | "rec"; pulse?: boolean; children?: React.ReactNode }) {
   const now = tone === "ice" ? "bg-ice text-tape shadow-[0_0_0_6px_#9fe8ff26]" : tone === "rec" ? "bg-rec text-white shadow-[0_0_0_6px_#ff3b5f26]" : "bg-signal text-tape shadow-[0_0_0_6px_#ffb22426]";
   return (
     <li aria-current={state === "now" ? "step" : undefined} className="relative flex min-w-0 gap-4 sm:flex-col sm:items-center sm:gap-3 sm:text-center">
@@ -372,9 +425,14 @@ function Stop({ name, title, state, tone = "signal", children }: { name: string;
       <span className="flex min-w-0 flex-1 flex-col gap-2 sm:items-center">
         <span>
           <span className={`block font-semibold ${state === "todo" ? "text-dim" : "text-ink"}`}>{name}</span>
-          <span className="block text-xs leading-snug text-muted">{title}</span>
+          <span className={`block text-sm leading-snug ${state === "now" ? "text-dim" : "text-muted"}`}>{title}</span>
         </span>
-        {children}
+        {/* The stop you are on gets a soft pulsing ring around its button, so the eye lands on it. */}
+        {children && pulse && state === "now" ? (
+          <span className={`now-cta self-start sm:self-center ${tone === "ice" ? "[--pulse:var(--color-ice)]" : tone === "rec" ? "[--pulse:var(--color-rec)]" : "[--pulse:var(--color-signal)]"}`}>{children}</span>
+        ) : (
+          children
+        )}
       </span>
     </li>
   );
@@ -480,9 +538,46 @@ function PanicTest({
   const stolenNow = stolen.some((x) => x.to === thiefId);
   // Where the drill is: 0 steal · 1 panic · 2 wait · 3 finalize · 4 unlock · 5 done.
   const stage = bal.locked ? (frozen.length > 0 ? (ready.length > 0 ? 3 : 2) : 4) : stolenNow ? 1 : guardHas ? 5 : 0;
+  const soonestTheft = stolen
+    .filter((x) => x.to === thiefId)
+    .map((x) => x.unlock_at)
+    .sort((a, b) => (BigInt(a) < BigInt(b) ? -1 : 1))[0];
+  const empty = bal.available === "0" && !bal.locked;
+  const guide =
+    stage === 0 && empty
+      ? { icon: "∅", tone: "signal" as const, title: t("Dompet ini kosong", "This wallet is empty"), sub: t("Kirim balik uang dari HP pemulihan di bawah, lalu mulai lagi.", "Send the money back from the recovery phone below, then start again.") }
+      : stage === 0
+        ? { icon: "🎯", tone: "signal" as const, title: t("Mulai latihan: tekan Simulasikan pencurian", "Start the drill: press Simulate theft"), sub: t("Pencuri pura-pura mengambil 90% saldo. Ini testnet, tidak ada yang hilang sungguhan.", "A pretend thief takes 90% of the balance. It's testnet, nothing real is lost.") }
+        : stage === 1
+          ? {
+              icon: "🚨",
+              tone: "rec" as const,
+              title: t("Uang sedang dicuri — tekan PANIK sebelum final", "Money is being stolen — hit PANIC before it's final"),
+              sub: <Countdown ns={soonestTheft} prefix={t("Final dalam ", "Final in ")} done={t("hampir final", "almost final")} />,
+            }
+          : stage === 2
+            ? {
+                icon: "❄",
+                tone: "ice" as const,
+                title: t("Dibekukan. Sekarang tunggu, tanpa voting", "Frozen. Now just wait, nobody has to vote"),
+                sub: <Countdown ns={nextFrozen} prefix={t("Finalisasi terbuka dalam ", "Finalize opens in ")} done={t("sebentar lagi…", "any second…")} />,
+              }
+            : stage === 3
+              ? { icon: "◀◀", tone: "ice" as const, title: t("Tekan Finalisasi: uangnya kembali", "Press Finalize: the money rewinds"), sub: t("Ke HP pemulihan, bukan ke pencuri.", "To the recovery phone, not to the thief.") }
+              : stage === 4
+                ? { icon: "🔓", tone: "sky" as const, title: t("Uang aman. Buka kunci dompet", "Money is safe. Unlock the wallet"), sub: t("Di dunia nyata: ganti kunci yang dicuri dulu.", "In real life: replace the stolen key first.") }
+                : {
+                    icon: "✓",
+                    tone: "sky" as const,
+                    title: t("Latihan selesai — uangmu kembali", "Drill done — your money came back"),
+                    sub: t("Berikutnya: coba pengadilan penipuan. Kirim ke Penjual, lalu Riwayat → Laporkan penipuan.", "Next: try the fraud court. Send to the Seller, then History → Report fraud."),
+                  };
 
   return (
     <Card title={t("Uji Tombol Panik", "Test the panic button")} tone={stage === 2 || stage === 3 ? "frozen" : "danger"} right={<span className="text-xs text-muted">📱 {short(guard.id)}</span>}>
+      <div className="mb-7">
+        <NextStep icon={guide.icon} tone={guide.tone} title={guide.title} sub={guide.sub} label={stage >= 5 ? t("Selesai", "Done") : t(`Langkah ${stage + 1} dari 5`, `Step ${stage + 1} of 5`)} />
+      </div>
       {/* The drill as one tape with five stops; the stretch already travelled is blue. */}
       <ol className="relative grid gap-6 sm:grid-cols-5 sm:gap-3">
         <span aria-hidden className="absolute left-[10%] right-[10%] top-4 hidden h-1 rounded-full bg-raise sm:block" />
@@ -497,7 +592,7 @@ function PanicTest({
             {t("PANIK", "PANIC")}
           </Button>
         </Stop>
-        <Stop name={t("Tunggu", "Wait")} title={t(`Tunggu ${cfg.contest_window_sec} dtk, lalu finalisasi — tanpa voting`, `Wait ${cfg.contest_window_sec} s, then finalize — no vote`)} state={stage >= 3 ? "done" : stage === 2 ? "now" : "todo"} tone="ice">
+        <Stop name={t("Tunggu", "Wait")} title={t(`Tunggu ${cfg.contest_window_sec} dtk, lalu finalisasi — tanpa voting`, `Wait ${cfg.contest_window_sec} s, then finalize — no vote`)} state={stage >= 3 ? "done" : stage === 2 ? "now" : "todo"} tone="ice" pulse={false}>
           {frozen.length > 0 && ready.length === 0 && (
             <span className="flex items-center gap-2 text-xs text-ice">
               <WindowBar from={(BigInt(nextFrozen) - BigInt(cfg.contest_window_sec) * 1_000_000_000n).toString()} to={nextFrozen} tone="ice" />

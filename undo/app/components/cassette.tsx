@@ -49,7 +49,18 @@ export function Cassette({
     <div className={`cas ${className}`} data-state={state} aria-hidden={decorative || undefined}>
       <div className="cas-glow" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="cas-shell" src="/undo/cassette.webp" alt="" width={1536} height={1024} draggable={false} fetchPriority="high" />
+      {/* 960w (262 KB) for phones and 1x screens, the full 1536w (419 KB) only for big 2x screens. */}
+      <img
+        className="cas-shell"
+        src="/undo/cassette.webp"
+        srcSet="/undo/cassette-960.webp 960w, /undo/cassette.webp 1536w"
+        sizes="(max-width: 700px) 94vw, 640px"
+        alt=""
+        width={1536}
+        height={1024}
+        draggable={false}
+        fetchPriority="high"
+      />
       <div className="cas-window" style={box(GEOM.window)}>
         <span className="cas-tape" />
         <span className="cas-reel" style={{ left: "19%" }} />
@@ -61,7 +72,17 @@ export function Cassette({
         {timer !== undefined && <span className="cas-timer">{timer}</span>}
       </div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="cas-frost" src="/undo/frost.webp" alt="" width={1536} height={1024} loading="lazy" draggable={false} />
+      <img
+        className="cas-frost"
+        src="/undo/frost.webp"
+        srcSet="/undo/frost-sm.webp 768w, /undo/frost.webp 1536w"
+        sizes="(max-width: 700px) 94vw, 640px"
+        alt=""
+        width={1536}
+        height={1024}
+        loading="lazy"
+        draggable={false}
+      />
       {label !== undefined && (
         <div className="cas-label" style={box(GEOM.label)}>
           {label}

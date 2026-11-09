@@ -5,9 +5,9 @@ import { useState } from "react";
 import { useAccounts } from "@/components/accounts";
 import { Button, Card, Countdown, Notice, Pill, StatusBadge, TxLink, btnClass, inputClass, usePoll } from "@/components/ui";
 import { UNDO } from "@/lib/config";
-import { Stepper } from "@/components/visual";
+import { NextStep, Stepper } from "@/components/visual";
 import { encryptTo, sha256hex, type Side } from "@/lib/court";
-import { useFmt, useGasNote, useLang, useReason, useT } from "@/lib/i18n";
+import { useAccountLabel, useFmt, useGasNote, useLang, useReason, useT } from "@/lib/i18n";
 import { call, short, view } from "@/lib/near-client";
 import type { AccountView, Config, Transfer } from "@/lib/types";
 
@@ -21,7 +21,8 @@ export default function SidangPage() {
   const lang = useLang();
   const fmt = useFmt();
   const reason = useReason();
-  const { active } = useAccounts();
+  const { active, accounts } = useAccounts();
+  const accountLabel = useAccountLabel();
   const [cfg] = usePoll(() => view<Config>(UNDO, "get_config"), [], 15000);
   const [t, refreshT] = usePoll(() => view<Transfer | null>(UNDO, "get_transfer", { transfer_id: id }), [id], 5000);
   const [senderAcct] = usePoll(() => (t ? view<AccountView>(UNDO, "get_account", { account_id: t.from }) : Promise.resolve(undefined)), [t?.from], 20000);
@@ -134,6 +135,82 @@ export default function SidangPage() {
   // Active stage: 1 evidence · 2 AI court · 3 council; 5 = all done ("reported" is always done).
   const stage = decided || t.status !== "Disputed" ? 5 : rec ? 3 : readyToJudge ? 2 : 1;
 
+  // One "do this next" line for whoever is looking, worked out from the same state the cards below use.
+  const nameOf = (id: string) => {
+    const a = accounts.find((x) => x.id === id);
+    return a ? accountLabel(a.label) : short(id);
+  };
+  const jump = (href: string, label: string) => (
+    <a href={href} className={btnClass("ghost", true)}>
+      {label}
+    </a>
+  );
+  const sideName = mySide === "pengirim" ? tr("pengirim", "sender") : tr("penerima", "receiver");
+  const verdict = rec ? (rec.rekomendasi === "kembalikan" ? tr("kembalikan ke pengirim", "return to sender") : rec.rekomendasi === "lanjutkan" ? tr("bayar penerima", "pay the receiver") : rec.rekomendasi) : "";
+  const guide =
+    stage === 5
+      ? {
+          icon: "■",
+          tone: "sky" as const,
+          label: tr("Selesai", "Done"),
+          title: t.final_to ? tr(`Diputus: uang ke ${nameOf(t.final_to)}`, `Decided: the money went to ${nameOf(t.final_to)}`) : tr("Perkara ini sudah selesai", "This case is closed"),
+          sub: tr("Detailnya ada di kartu Putusan di bawah.", "The details are in the Decision card below."),
+        }
+      : stage === 1
+        ? !active
+          ? {
+              icon: "👛",
+              tone: "signal" as const,
+              title: tr("Buat dompet demo untuk ikut sidang", "Make a demo wallet to take part"),
+              sub: tr("Hanya pengirim dan penerima yang bisa mengirim bukti.", "Only the sender and the receiver can send evidence."),
+              action: (
+                <Link href="/dompet" className={btnClass("primary", true)}>
+                  {tr("Buka Dompet", "Open Wallet")}
+                </Link>
+              ),
+            }
+          : mySide && !slotFilled && evidenceOpen
+            ? {
+                icon: "✍",
+                tone: "signal" as const,
+                title: tr(`Kamu ${sideName}: tulis buktimu di bawah`, `You are the ${sideName}: write your evidence below`),
+                sub: <Countdown ns={d.evidence_deadline} prefix={tr("Bukti ditutup dalam ", "Evidence closes in ")} done={tr("ditutup", "closed")} />,
+                action: jump("#evidence", tr("Tulis bukti ↓", "Write evidence ↓")),
+              }
+            : mySide && slotFilled && leftover && !court?.stored?.[mySide]
+              ? { icon: "⤴", tone: "rec" as const, title: tr("Buktimu belum terunggah: unggah ulang", "Your evidence didn't upload: send it again"), action: jump("#evidence", tr("Unggah ulang ↓", "Re-upload ↓")) }
+              : {
+                  icon: "⏳",
+                  tone: "plum" as const,
+                  title: tr("Menunggu bukti pihak lain", "Waiting for the other side's evidence"),
+                  sub: <Countdown ns={d.evidence_deadline} prefix={tr("Bukti ditutup dalam ", "Evidence closes in ")} done={tr("ditutup", "closed")} />,
+                }
+        : stage === 2
+          ? allUploaded
+            ? {
+                icon: "🤖",
+                tone: "sky" as const,
+                title: tr("Siap: jalankan sidang AI", "Ready: run the AI court"),
+                sub: tr("Satu panggilan NEAR AI terenkripsi. Hasilnya rekomendasi; dewan yang memutus.", "One encrypted NEAR AI call. It gives a recommendation; the council decides."),
+                action: jump("#ai-court", tr("Ke sidang AI ↓", "To the AI court ↓")),
+              }
+            : { icon: "⏳", tone: "plum" as const, title: tr("Menunggu bukti terenkripsi diunggah", "Waiting for the encrypted evidence to upload") }
+          : {
+              icon: "⚖",
+              tone: "plum" as const,
+              title: tr(`AI menyarankan: ${verdict}. Sekarang dewan memutus`, `The AI says: ${verdict}. Now the council decides`),
+              sub: timedOut ? (
+                tr("Batas dewan lewat: siapa pun bisa menerapkan diamnya dewan.", "The council deadline has passed: anyone can apply council silence.")
+              ) : (
+                <Countdown ns={timeoutAt} prefix={tr("Batas dewan dalam ", "Council deadline in ")} done={tr("habis", "expired")} />
+              ),
+              action: timedOut && active ? jump("#decision", tr("Ke putusan ↓", "To the decision ↓")) : (
+                <Link href="/dewan" className={btnClass("primary", true)}>
+                  {tr("Ke Dewan →", "To the Council →")}
+                </Link>
+              ),
+            };
+
   return (
     <div className="space-y-12 [overflow-wrap:anywhere] sm:space-y-16">
       <div className="rounded-[14px] bg-panel p-5">
@@ -147,6 +224,9 @@ export default function SidangPage() {
             { icon: "■", label: tr("Diputus", "Decided") },
           ]}
         />
+        <div className="mt-5">
+          <NextStep icon={guide.icon} tone={guide.tone} title={guide.title} sub={"sub" in guide ? guide.sub : undefined} action={"action" in guide ? guide.action : undefined} label={"label" in guide ? guide.label : undefined} />
+        </div>
       </div>
       {t.status === "Disputed" && (
         <div className="flex flex-wrap items-center gap-3 rounded-[14px] bg-plum/10 p-5 text-sm">
@@ -188,6 +268,7 @@ export default function SidangPage() {
         </div>
       </Card>
 
+      <div id="evidence" className="scroll-mt-28">
       <Card title={tr("🔒 Bukti terenkripsi", "🔒 Encrypted evidence")}>
         <ul className="mb-5 space-y-4 text-sm">
           {(["pengirim", "penerima"] as Side[]).map((s) => {
@@ -251,7 +332,9 @@ export default function SidangPage() {
           </p>
         )}
       </Card>
+      </div>
 
+      <div id="ai-court" className="scroll-mt-28">
       <Card title={tr("🤖 Rekomendasi AI (TEE)", "🤖 AI recommendation (TEE)")} tone={rec ? "accent" : undefined}>
         {rec ? (
           <div className="space-y-4 text-sm">
@@ -317,7 +400,9 @@ export default function SidangPage() {
           </div>
         )}
       </Card>
+      </div>
 
+      <div id="decision" className="scroll-mt-28">
       <Card title={tr("⚖️ Putusan", "⚖️ Decision")}>
         {decided ? (
           <div className="text-sm">
@@ -356,6 +441,7 @@ export default function SidangPage() {
           </div>
         )}
       </Card>
+      </div>
 
       {msg && (
         <Notice kind={msg.kind}>
