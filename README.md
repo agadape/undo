@@ -230,3 +230,9 @@ These are listed in full in [CLAIMS.md §7–8](CLAIMS.md#7-trust-boundaries-wha
 ## Credits
 
 Design help: Dex Bennett (visual direction and front-end design, not a team member)
+
+**Sister project** by the same team, disclosed per hackathon rule Q-015: [Laurel](https://github.com/agadape/laurel), small
+decision models as on-chain infrastructure on NEAR. Models compete on a private test set scored inside a TEE (OutLayer), and
+the winner becomes a contract method that AI agents and other contracts pay per prediction (live at
+https://laurel-near.vercel.app). The two projects are independent products with separate contracts, sites and repositories;
+they share only the team and some early research notes. Laurel's README carries the same disclosure pointing here.
