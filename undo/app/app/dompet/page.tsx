@@ -372,7 +372,7 @@ function WalletStage({ bal, outgoing, cfg, accounts }: { bal?: BalanceView; outg
         timer={state === "pause" ? "❚❚ PAUSE" : state === "play" ? `▶ ${mmss(secsLeft(nextUnlock))}` : "■ STOP"}
       />
       {state === "pause" && nextFrozen ? (
-        <div className="-mt-2 flex items-center justify-center gap-4 sm:-mt-4">
+        <div className="relative z-10 mt-3 flex items-center justify-center gap-4">
           <span aria-hidden className="ring" style={{ "--p": waitLeft / Number(cfg.contest_window_sec), "--ring": "3.25rem" } as React.CSSProperties} />
           <p className="text-left">
             <span className="serif block text-3xl leading-none text-ice tabular-nums">{waitLeft > 0 ? mmss(waitLeft) : t("siap", "ready")}</span>
@@ -388,8 +388,8 @@ function WalletStage({ bal, outgoing, cfg, accounts }: { bal?: BalanceView; outg
           [
             ...(locked && state === "pause" ? [["◉", t("Bisa dipakai", "Available"), bal?.available, "text-ink"] as const] : []),
             ["▶", t("Masuk, pending", "Incoming, pending"), bal?.pending_in, "text-signal"],
-            ["❚❚", t("Dibekukan", "Frozen"), bal?.frozen_in, "text-ice"],
-            ["⚖", t("Dalam sengketa", "In dispute"), bal?.disputed_in, "text-plum"],
+            ["❚❚", t("Masuk, dibekukan", "Incoming, frozen"), bal?.frozen_in, "text-ice"],
+            ["⚖", t("Masuk, sengketa", "Incoming, in dispute"), bal?.disputed_in, "text-plum"],
           ] as const
         ).map(([icon, name, raw, color]) => {
           const zero = !raw || raw === "0";
@@ -544,7 +544,9 @@ function PanicTest({
     .sort((a, b) => (BigInt(a) < BigInt(b) ? -1 : 1))[0];
   const empty = bal.available === "0" && !bal.locked;
   const guide =
-    stage === 0 && empty
+    stage === 0 && empty && bal.pending_in !== "0"
+      ? { icon: "↩", tone: "signal" as const, title: t("Uangnya sedang kembali", "The money is on its way back"), sub: t("Masuk sebagai pending: bisa dipakai setelah jendelanya habis (lihat Riwayat), lalu mulai lagi.", "It arrives as pending: usable once its window ends (see History), then start again.") }
+      : stage === 0 && empty
       ? { icon: "∅", tone: "signal" as const, title: t("Dompet ini kosong", "This wallet is empty"), sub: t("Kirim balik uang dari HP pemulihan di bawah, lalu mulai lagi.", "Send the money back from the recovery phone below, then start again.") }
       : stage === 0
         ? { icon: "🎯", tone: "signal" as const, title: t("Mulai latihan: tekan Simulasikan pencurian", "Start the drill: press Simulate theft"), sub: t("Pencuri pura-pura mengambil 90% saldo. Ini testnet, tidak ada yang hilang sungguhan.", "A pretend thief takes 90% of the balance. It's testnet, nothing real is lost.") }
@@ -596,7 +598,9 @@ function PanicTest({
           {frozen.length > 0 && ready.length === 0 && (
             <span className="flex items-center gap-2 text-xs text-ice">
               <WindowBar from={(BigInt(nextFrozen) - BigInt(cfg.contest_window_sec) * 1_000_000_000n).toString()} to={nextFrozen} tone="ice" />
-              <Countdown ns={nextFrozen} />
+              <span className="shrink-0 whitespace-nowrap tabular-nums">
+                <Countdown ns={nextFrozen} />
+              </span>
             </span>
           )}
         </Stop>
