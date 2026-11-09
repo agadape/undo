@@ -37,9 +37,16 @@
 
 body {
   @apply bg-tape font-sans text-ink antialiased;
-  /* One continuous backdrop: a faint blue glow high up, fading into matte black. No lines between sections. */
-  background-image: radial-gradient(1200px 700px at 50% -10%, #8fdcff12, transparent 70%);
-  background-attachment: fixed;
+}
+/* One continuous backdrop: a faint blue glow high up, fading into matte black. No lines between sections.
+   A fixed layer of its own instead of `background-attachment: fixed`, which repaints the whole page on every scroll. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(1200px 700px at 50% -10%, #8fdcff12, transparent 70%);
 }
 
 ::selection {
@@ -102,12 +109,16 @@ body {
     -webkit-background-clip: text;
     background-clip: text;
   }
-  /* Glass, the material of the two header buttons. Blur only on small elements, never on large panels over motion. */
+  /* Glass, the material of the ghost buttons. No backdrop blur: a blurred button that moves while scrolling, or sits
+     over the 3D canvas, is re-blurred on every frame. A tint with an inner highlight reads the same on dark surfaces. */
   .glass-btn {
-    background-color: #eaf6ff14;
+    background-color: #eaf6ff17;
     box-shadow: inset 0 1px 0 #ffffff29, inset 0 0 0 1px #ffffff0f;
-    -webkit-backdrop-filter: blur(12px) saturate(1.4);
-    backdrop-filter: blur(12px) saturate(1.4);
+  }
+  /* Over the moving canvas (Home header, intro controls) a darker tint keeps the text readable without blur. */
+  .home-hdr .glass-btn,
+  .intro .glass-btn {
+    background-color: #0c1018c2;
   }
   .glass-flat {
     background-color: #12161ecc;
@@ -493,6 +504,16 @@ html[data-fx="play"] .fx-layer {
   height: 100%;
   display: block;
   pointer-events: none;
+}
+/* Layers whose opacity follows the scroll get their own compositor layer, so a fade is not a repaint
+   (the headlines carry a drop-shadow filter and a clipped image, which are costly to repaint). */
+.intro-line,
+.intro-hero,
+.intro-frost,
+.intro-fog,
+.intro-clock,
+.intro-heroui {
+  will-change: opacity;
 }
 .intro-frost {
   pointer-events: none;

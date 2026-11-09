@@ -77,7 +77,8 @@ export function SiteHeader() {
   const home = path === "/";
   // Home floats a transparent header over the 3D intro: only small glass pills, no bar, no blur over the moving canvas.
   return (
-    <header className={home ? "fixed inset-x-0 top-0 z-30" : "sticky top-0 z-20 bg-tape/85 backdrop-blur-md"}>
+    // No backdrop blur on the sticky header: it would be recomputed on every scroll frame. A solid header looks the same.
+    <header className={home ? "home-hdr fixed inset-x-0 top-0 z-30" : "sticky top-0 z-20 bg-tape"}>
       {home ? (
         <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <Wordmark />

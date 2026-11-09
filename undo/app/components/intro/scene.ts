@@ -2,8 +2,9 @@
 //   A  trailer + hero: a glass coin flies in, frost stops it, it cracks and shatters into 24 shards that hang in the air;
 //      Ctrl+Z (keys or the real keyboard) flies the shards home and the coin leaves for its wallet.
 //   B  the PANIC rig: frosted ice plinth, steel collar, red dome; it pulses during a theft and sinks when pressed.
-// Weight budget (the v4 prototype was too heavy): no transmission pass, pixel ratio capped at 1.25,
-// text stays HTML (sharp), no backdrop blur over the canvas, nothing renders when its section is off screen.
+// Weight budget (the v4 prototype was too heavy): no transmission pass, pixel ratio capped at 1.25 (1 on phones,
+// and lowered further while frames run slow), no antialias on phones, text stays HTML (sharp), no backdrop blur over
+// the canvas. The loop only runs while one of the two sections is on screen, and it never reads layout per frame.
 // Everything here is decoration: it never touches the chain, and nothing claims to be a real transfer.
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
@@ -100,8 +101,9 @@ const darkGlass = (o: THREE.MeshPhysicalMaterialParameters = {}) =>
   });
 
 function makeRenderer(canvas: HTMLCanvasElement, mobile: boolean) {
-  const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
-  r.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 1.25));
+  // Phones: 1x pixels and no MSAA (a 3x screen at 1.5x was four times the pixels of a laptop). See govern() for the rest.
+  const r = new THREE.WebGLRenderer({ canvas, antialias: !mobile, alpha: true, powerPreference: "high-performance" });
+  r.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1 : 1.25));
   r.toneMapping = THREE.ACESFilmicToneMapping;
   r.toneMappingExposure = 1.05;
   r.outputColorSpace = THREE.SRGBColorSpace;
@@ -508,8 +510,9 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
   streaks.frustumCulled = false;
   sceneA.add(streaks);
 
-  const burst = smoke(mobile ? 50 : 90, "burst", 21, PUFF, R);
-  const wisps = smoke(mobile ? 18 : 30, "wisp", 33, PUFF, R);
+  // Smoke is the main overdraw: every puff is a large transparent quad. Fewer, same look at speed.
+  const burst = smoke(mobile ? 32 : 64, "burst", 21, PUFF, R);
+  const wisps = smoke(mobile ? 12 : 22, "wisp", 33, PUFF, R);
   holder.add(burst, wisps);
   const burstU = (burst.material as THREE.ShaderMaterial).uniforms,
     wispU = (wisps.material as THREE.ShaderMaterial).uniforms;
@@ -656,7 +659,7 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
     m.scale.y = 0.7;
     rig.add(m);
   });
-  const panicBurst = smoke(mobile ? 30 : 50, "ring", 44, PUFF, R, 0xff6b80);
+  const panicBurst = smoke(mobile ? 20 : 36, "ring", 44, PUFF, R, 0xff6b80);
   panicBurst.position.y = 0.9;
   rig.add(panicBurst);
   const panicU = (panicBurst.material as THREE.ShaderMaterial).uniforms;
@@ -669,6 +672,22 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
   const halfH = (z: number) => (camZ - z) * tanH,
     halfW = (z: number) => halfH(z) * aspect;
   const worldY = (frac: number, z: number) => (1 - 2 * frac) * halfH(z);
+
+  // Section geometry, measured outside the frame (on resize and when the page height changes). Reading
+  // getBoundingClientRect inside the frame, after writing styles, forced a full layout on every frame while scrolling.
+  const box = { tTop: 0, tH: 1, vh: window.innerHeight };
+  let scrollY = window.scrollY;
+  function measure() {
+    scrollY = window.scrollY;
+    box.tTop = els.trailer.getBoundingClientRect().top + scrollY;
+    box.tH = els.trailer.offsetHeight;
+    box.vh = window.innerHeight;
+  }
+  const onScroll = () => (scrollY = window.scrollY);
+  window.addEventListener("scroll", onScroll, { passive: true });
+  const heightWatch = new ResizeObserver(measure);
+  heightWatch.observe(document.body);
+
   function resize() {
     const w = els.canvasA.clientWidth || window.innerWidth,
       h = els.canvasA.clientHeight || window.innerHeight;
@@ -695,9 +714,29 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
     camB.position.set(0, (3.2 * dist) / 11, dist);
     camB.lookAt(0, 0.6, 0);
     camB.updateProjectionMatrix();
+    measure();
   }
   resize();
   window.addEventListener("resize", resize);
+
+  // Adaptive resolution: when frames run slow, draw fewer pixels (down to 0.7x); give them back once there is room.
+  const qual = { dpr: A.r.getPixelRatio(), cap: A.r.getPixelRatio(), ema: 16.7, fast: 0, cool: 0 };
+  function govern(ms: number, now: number) {
+    if (ms > 250 || document.hidden) return; // a throttled or hidden tab, not a slow GPU
+    qual.ema += (ms - qual.ema) * 0.1;
+    qual.fast = qual.ema < 18 ? qual.fast + ms : 0;
+    if (now < qual.cool) return;
+    let next = qual.dpr;
+    if (qual.ema > 24) next = Math.max(0.7, qual.dpr - 0.15);
+    else if (qual.fast > 4000 && qual.dpr < qual.cap) next = Math.min(qual.cap, qual.dpr + 0.1);
+    if (next === qual.dpr) return;
+    qual.dpr = next;
+    qual.fast = 0;
+    qual.cool = now + 1200;
+    A.r.setPixelRatio(next);
+    B.r.setPixelRatio(next);
+    resize();
+  }
 
   // ======================= timeline =======================
   const st = { p: 0, intro: 0, spin: 0, from: null as number | null, target: 0, clock: 300, time: 0, h: 0, hT: 0 };
@@ -715,16 +754,13 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
   const q = new THREE.Quaternion(),
     hang = new THREE.Vector3(),
     from = new THREE.Vector3();
-  const trailerP = () => {
-    const r = els.trailer.getBoundingClientRect();
-    return clamp(-r.top / (r.height - window.innerHeight));
-  };
+  const trailerP = () => clamp((scrollY - box.tTop) / (box.tH - box.vh));
   const keyDown = { c: 0, z: 0 };
   let ctrlHeld = false;
 
   // programmatic scroll for Skip intro and for Ctrl+Z pressed during the trailer
   let auto: { from: number; to: number; t0: number; ms: number } | null = null;
-  const pToY = (p: number) => els.trailer.getBoundingClientRect().top + window.scrollY + p * (els.trailer.offsetHeight - window.innerHeight);
+  const pToY = (p: number) => box.tTop + p * (box.tH - box.vh);
   const scrollToY = (to: number, ms: number) => (auto = { from: window.scrollY, to, t0: performance.now(), ms });
   const cancelAuto = () => (auto = null);
   window.addEventListener("wheel", cancelAuto, { passive: true });
@@ -747,7 +783,7 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
     }
     if ((ev.ctrlKey || ev.metaKey) && !ev.shiftKey && ev.key.toLowerCase() === "z") {
       // only while the intro is on screen; elsewhere Ctrl+Z keeps its normal meaning
-      if (els.trailer.getBoundingClientRect().bottom < 0) return;
+      if (box.tTop + box.tH - scrollY < 0) return;
       ev.preventDefault();
       undo();
     }
@@ -760,23 +796,45 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
   window.addEventListener("keyup", onKeyUp);
   window.addEventListener("blur", onBlur);
 
-  const visible = (el: HTMLElement) => {
-    const r = el.getBoundingClientRect();
-    return r.bottom > 0 && r.top < window.innerHeight;
-  };
   let last = performance.now(),
     raf = 0,
     clockStr = "",
     capStr = "";
-  const setO = (el: HTMLElement, v: number) => {
+  /** `off`: at 0 the layer is also hidden, so a blended full-screen layer costs nothing while it is invisible. */
+  const setO = (el: HTMLElement, v: number, off = false) => {
     const s = v.toFixed(3);
     if (el.style.opacity !== s) el.style.opacity = s;
+    if (off) {
+      const vis = v < 0.002 ? "hidden" : "";
+      if (el.style.visibility !== vis) el.style.visibility = vis;
+    }
   };
 
+  // The loop runs only while the trailer or the PANIC section is on screen; scrolling past the intro stops it.
+  let onT = false,
+    onP = false;
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.target === els.trailer) onT = e.isIntersecting;
+      else if (e.target === els.panic) onP = e.isIntersecting;
+    }
+    if ((onT || onP) && !raf) {
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    }
+  });
+  io.observe(els.trailer);
+  io.observe(els.panic);
+
   function frame(now: number) {
+    if (!onT && !onP && !auto) {
+      raf = 0;
+      return;
+    }
     raf = requestAnimationFrame(frame);
     const raw = Math.max(0, (now - last) / 1000),
       dt = Math.min(0.05, raw);
+    govern(now - last, now);
     last = now;
     st.time += dt;
     if (auto) {
@@ -787,7 +845,7 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
     }
 
     // ---------- A ----------
-    if (visible(els.trailer)) {
+    if (onT) {
       st.p += (trailerP() - st.p) * (1 - Math.exp(-raw * 8));
       const p = st.p;
       st.intro = clamp(st.intro + (raw / 2.6) * (p > 0.03 ? 4 : 1));
@@ -903,8 +961,8 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
       setO(els.hero, rev);
       els.hero.style.transform = `scale(${(1.06 - 0.06 * rev).toFixed(4)})`;
       els.hero.classList.toggle("melt", h > 0.5);
-      setO(els.frost, f0 * 0.85 * (1 - ss(0.6, 0.76, p)));
-      setO(els.fog, 0.4 * ss(0.58, 0.64, p) * (1 - ss(0.66, 0.8, p)));
+      setO(els.frost, f0 * 0.85 * (1 - ss(0.6, 0.76, p)), true);
+      setO(els.fog, 0.4 * ss(0.58, 0.64, p) * (1 - ss(0.66, 0.8, p)), true);
       setO(els.clock, st.intro < 0.6 ? ss(0.3, 0.6, st.intro) : 1 - ss(0.54, 0.6, p));
       setO(els.heroUi, kv);
       els.heroUi.style.pointerEvents = kv > 0.5 ? "auto" : "none";
@@ -930,7 +988,7 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
     }
 
     // ---------- B ----------
-    if (visible(els.panic)) {
+    if (onP) {
       rigFx.press = Math.max(0, rigFx.press - raw * 2.5);
       const pulse = rigFx.armed ? 0.5 + 0.5 * Math.sin(st.time * 6) : 0;
       dome.position.y = 0.86 - 0.14 * Math.sin((Math.min(1, rigFx.press) * Math.PI) / 2);
@@ -948,13 +1006,17 @@ export async function startIntro(els: IntroEls, copy: { current: IntroCopy }, ri
       B.r.render(sceneB, camB);
     }
   }
-  raf = requestAnimationFrame(frame);
-
   return {
     undo,
-    skip: () => scrollToY(pToY(1), 1600),
+    skip: () => {
+      scrollToY(pToY(1), 1600);
+      if (!raf) raf = requestAnimationFrame(frame);
+    },
     stop: () => {
       cancelAnimationFrame(raf);
+      io.disconnect();
+      heightWatch.disconnect();
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", resize);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("keyup", onKeyUp);
