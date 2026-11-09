@@ -2,10 +2,11 @@
 export type Lang = "id" | "en";
 export const LANG_COOKIE = "undo.lang";
 
-/** A saved choice (the ID / EN switch, or ?lang=) wins; otherwise English, whatever the browser's language. */
+/** The interface is English only. An old "id" cookie (from the former ID / EN switch) and ?lang=id are ignored.
+ * The Indonesian strings stay in t("id", "en") calls, so the switch could come back later. */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function pickLang(cookie?: string | null, _acceptLanguage?: string | null): Lang {
-  return cookie === "id" ? "id" : "en";
+export function pickLang(_cookie?: string | null, _acceptLanguage?: string | null): Lang {
+  return "en";
 }
 
 export function langFromCookieHeader(cookieHeader?: string | null): string | undefined {

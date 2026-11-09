@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AccountSwitcher } from "@/components/accounts";
 import { btnClass } from "@/components/ui";
-import { LangToggle, useT } from "@/lib/i18n";
+import { useT } from "@/lib/i18n";
 import { TIME_FX_EVENT, type TimeFx } from "@/lib/timefx";
 
 function Wordmark() {
@@ -85,7 +85,6 @@ export function SiteHeader() {
             <Nav home />
           </div>
           <div className="flex items-center gap-2">
-            <LangToggle />
             <Link href="/dompet" className={btnClass("ghost", true)}>
               {t("Buka dompet", "Open wallet")}
             </Link>
@@ -102,7 +101,6 @@ export function SiteHeader() {
           </div>
           <div className="flex min-w-0 items-center gap-2">
             <AccountSwitcher />
-            <LangToggle />
           </div>
         </div>
       )}

@@ -63,7 +63,7 @@ sequenceDiagram
 
 ## Try it (no wallet needed, about 5 minutes)
 
-The interface is in English and Indonesian. It opens in English, the **ID / EN** switch in the header changes it, and the links below add `?lang=en`. The court's prompt is in English, and the AI writes its public reason in both languages ("ID: … EN: …"); the page shows the part in your language. Demo accounts and their keys live in your browser only.
+The interface is in English. The court's prompt is in English too; the AI writes its public reason in two languages ("ID: … EN: …") and the page shows the English part. Demo accounts and their keys live in your browser only.
 
 **A. A stolen key, undone without a vote**
 

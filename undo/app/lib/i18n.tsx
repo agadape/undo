@@ -1,7 +1,7 @@
 "use client";
-// Two-language UI (Indonesian / English). Strings live next to each other in the components:
+// The UI is shown in English only (lib/lang.ts pickLang). Strings still live in pairs in the components:
 //   const t = useT();  t("Kirim", "Send")
-// The server picks the first language (cookie, else the browser's language), so there is no flash.
+// so an Indonesian version could be switched back on later.
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { LANG_COOKIE, splitReason, type Lang } from "./lang";
 import { formatAmount } from "./near-client";
@@ -21,11 +21,10 @@ export function LangProvider({ initial, children }: { initial: Lang; children: R
       /* ignore */
     }
   }, []);
-  // A link such as /dompet?lang=en (used in the README) switches and remembers the language.
+  // English only: an old "id" cookie or ?lang=id from a saved link is replaced with "en".
   useEffect(() => {
-    const q = new URLSearchParams(window.location.search).get("lang");
-    if (q === "en" || q === "id") setLang(q);
-  }, [setLang]);
+    if (initial !== "en" || document.cookie.includes(`${LANG_COOKIE}=id`)) setLang("en");
+  }, [initial, setLang]);
   return <LangContext.Provider value={{ lang, setLang }}>{children}</LangContext.Provider>;
 }
 
@@ -78,20 +77,3 @@ export function useAccountLabel() {
   return useCallback((label: string) => (lang === "en" ? (ACCOUNT_LABELS[label] ?? label) : label), [lang]);
 }
 
-export function LangToggle() {
-  const { lang, setLang } = useContext(LangContext);
-  return (
-    <div role="group" aria-label="Language / Bahasa" className="flex shrink-0 overflow-hidden rounded-full bg-raise p-0.5 text-xs font-semibold leading-6">
-      {(["id", "en"] as const).map((l) => (
-        <button
-          key={l}
-          onClick={() => setLang(l)}
-          aria-pressed={lang === l}
-          className={`rounded-full px-2.5 ${lang === l ? "bg-ink text-tape" : "text-dim hover:text-ink"}`}
-        >
-          {l.toUpperCase()}
-        </button>
-      ))}
-    </div>
-  );
-}
