@@ -80,6 +80,13 @@ async function callGasless(who: DemoAccount, method: string, args: Record<string
   }
 }
 
+/** Fired on window after every successful call, so watchers (the outgoing-money alert) re-read at once. */
+export const CHAIN_EVENT = "undo:chain-changed";
+const changed = (r: CallResult): CallResult => {
+  if (r.ok && typeof window !== "undefined") window.dispatchEvent(new Event(CHAIN_EVENT));
+  return r;
+};
+
 /** Sign and send one function call — from a demo account (local key) or the connected wallet.
  * Undo's safety actions from a demo account go gasless through our relayer, with a normal signed call as fallback. */
 export async function call(
@@ -93,7 +100,7 @@ export async function call(
     const gas = Number(opts.gasTera ?? "100");
     if (who.kind !== "wallet" && receiverId === UNDO && GASLESS_METHODS.includes(method) && !opts.deposit) {
       const g = await callGasless(who, method, args, gas);
-      if (g) return g;
+      if (g) return changed(g);
     }
     const r: Outcome =
       who.kind === "wallet"
@@ -106,7 +113,7 @@ export async function call(
             90_000,
             "no answer from the RPC after 90 s: check the history before trying again",
           )) as unknown as Outcome);
-    return parseOutcome(r);
+    return changed(parseOutcome(r));
   } catch (e) {
     return { ok: false, error: cleanError(e) };
   }

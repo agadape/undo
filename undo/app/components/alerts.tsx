@@ -2,14 +2,14 @@
 // Rule-based alert for money leaving a protected account (PLAN §3, no AI): every pending outgoing transfer and
 // every scheduled recovery change on an account whose recovery account is in this browser (or on the connected
 // wallet) shows "Was this you?" until acknowledged. "No → PANIC" signs `panic` with the recovery account's key.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAccounts } from "@/components/accounts";
 import { Button, Countdown, TxLink, usePoll } from "@/components/ui";
 import { WindowBar } from "@/components/visual";
 import { ACK_EVENT, ack, ackKey, contactAckKey, loadAcks, recoveryAckKey } from "@/lib/alerts";
 import { UNDO } from "@/lib/config";
 import { useAccountLabel, useFmt, useGasNote, useT } from "@/lib/i18n";
-import { call, short, view } from "@/lib/near-client";
+import { CHAIN_EVENT, call, short, view } from "@/lib/near-client";
 import { playTimeFx } from "@/lib/timefx";
 import type { AccountView, Contact, Transfer } from "@/lib/types";
 
@@ -55,6 +55,14 @@ export function OutgoingAlerts() {
     [ids.join(","), hasContacts],
     12000,
   );
+  // Re-read at once after any transaction from this page (e.g. PANIC pressed in the drill card), not 12 s later.
+  const refreshRef = useRef(refresh);
+  refreshRef.current = refresh;
+  useEffect(() => {
+    const on = () => refreshRef.current();
+    window.addEventListener(CHAIN_EVENT, on);
+    return () => window.removeEventListener(CHAIN_EVENT, on);
+  }, []);
 
   const now = BigInt(Date.now()) * 1_000_000n;
   const isActive = (c: Contact) => c.active || BigInt(c.active_at) <= now;
