@@ -1,26 +1,34 @@
 @import "tailwindcss";
 
-/* "Pita Mundur" (VHS) theme: a dark tape deck. Undo = rewinding time on a payment:
-   ▶ PLAY = the undo window is running, ❚❚ PAUSE = panic froze the money, ◀◀ REW = the money comes back. */
+/* "Ice" theme (design help: Dex Bennett, see DESIGN.md in the design hand-off).
+   Undo holds every transfer for 5 minutes; PANIC freezes it. So the material of the whole site is cold glass and ice:
+   matte black stage, ice-white light, frost on whatever is frozen, one hot red for PANIC only.
+   One type family (Archivo): Expanded Black for headlines (`.serif`), normal width for text, tabular figures for timers.
+   Token names from the older themes are kept so every page re-skins from here; only their values changed. */
 @theme {
-  --color-tape: #07070c; /* page */
-  --color-panel: #10122a; /* cards */
-  --color-well: #0b0c1d; /* inputs, stat wells */
-  --color-line: #2c2f55; /* borders */
-  --color-line-2: #4a4f86; /* stronger borders, ghost buttons */
-  --color-ink: #eef0ff; /* text */
-  --color-dim: #c6cae9; /* secondary text */
-  --color-muted: #9ca2c9; /* meta text */
-  --color-phosphor: #3dff9a; /* primary, ok, money */
-  --color-rec: #ff3b5f; /* danger, panic */
-  --color-signal: #ffb000; /* pending, warnings */
-  --color-ice: #2ec8ff; /* frozen */
-  --color-vhs: #2433ff; /* OSD highlight (blue screen) */
+  --color-tape: #07080b; /* page: matte black with a hint of blue */
+  --color-panel: #11141b; /* glass surface */
+  --color-well: #0b0d12; /* inputs, sunken areas */
+  --color-raise: #1a1e28; /* hover, active tab */
+  --color-line: #232733; /* hairlines (rare: inputs, focus) */
+  --color-line-2: #343a4a;
+  --color-ink: #f4f8fc; /* text */
+  --color-dim: #b9c1cd; /* secondary text */
+  --color-muted: #848c9b; /* meta text, AA on tape */
+  --color-snow: #eaf6ff; /* ice white: primary buttons, the brightest light */
+  --color-phosphor: #8fdcff; /* cold blue: your money, safe (name kept from the old theme) */
+  --color-sky: #8fdcff;
+  --color-rec: #ff2e4d; /* PANIC, danger, thief: the only hot colour */
+  --color-signal: #ffb224; /* pending: the clock is running */
+  --color-ice: #9fe8ff; /* frozen */
+  --color-vhs: #8fdcff; /* highlight */
   --color-plum: #c3a2ff; /* disputed */
 
-  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-archivo), "Helvetica Neue", Arial, ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-archivo), "Helvetica Neue", Arial, sans-serif; /* used with font-stretch 125% (see .serif) */
+  --font-btn: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --font-display: var(--font-vt323), var(--font-jetbrains), ui-monospace, monospace;
+  --font-display: var(--font-archivo), "Helvetica Neue", Arial, sans-serif; /* timers: tabular figures */
 }
 
 :root {
@@ -29,55 +37,127 @@
 
 body {
   @apply bg-tape font-sans text-ink antialiased;
-}
-
-/* Scan lines over the whole screen (static, very faint). */
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  pointer-events: none;
-  background: repeating-linear-gradient(0deg, #ffffff08 0 1px, transparent 1px 3px);
+  /* One continuous backdrop: a faint blue glow high up, fading into matte black. No lines between sections. */
+  background-image: radial-gradient(1200px 700px at 50% -10%, #8fdcff12, transparent 70%);
+  background-attachment: fixed;
 }
 
 ::selection {
-  background: var(--color-vhs);
-  color: #fff;
+  background: var(--color-sky);
+  color: var(--color-tape);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-phosphor);
-  outline-offset: 2px;
+  outline: 2px solid var(--color-sky);
+  outline-offset: 3px;
 }
 
-/* In the components layer so a utility on the same element (normal-case, font-sans …) still wins. */
 @layer components {
   .mono {
     font-family: var(--font-mono);
   }
-
-  /* On-screen-display text: the pixel font with a slight red/cyan colour split. */
+  /* Was the pixel OSD face. Now a calm semibold label in the text face, sized down a step so the
+     old pixel-font sizes (text-xl, text-2xl) read as normal label sizes on every page. */
   .osd {
-    font-family: var(--font-display);
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    font-family: var(--font-sans);
+    font-weight: 600;
+    letter-spacing: 0;
+    font-size-adjust: 0.4;
   }
+  /* The old red/cyan split. Kept as a class name, now a soft glow on big serif numbers only. */
   .rgb {
-    text-shadow:
-      2px 0 #ff2d55aa,
-      -2px 0 #19c3ffaa;
+    text-shadow: none;
+  }
+  /* Headlines and big numbers: Archivo Expanded, very heavy. */
+  .serif {
+    font-family: var(--font-serif);
+    font-stretch: 125%;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+  .timer {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+  }
+  /* Frozen headline: ice gradient with real frost crystals inside the letters (public/undo/frost.webp). */
+  .ice-text {
+    color: transparent;
+    background:
+      url("/undo/frost.webp") 50% 40% / 120% auto,
+      linear-gradient(180deg, #ffffff 0%, #e4f5ff 34%, #9ccbe6 62%, #d9f1ff 82%, #ffffff 100%);
+    background-blend-mode: screen, normal;
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0 0 22px #9fe8ff59);
+  }
+  .ice-text .hot {
+    background: linear-gradient(180deg, #ffd1d8, #ff5a73 45%, #ff2e4d 75%, #ff8a9c);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  .ice-text .cold {
+    background: linear-gradient(180deg, #e9fbff, #9fe8ff 45%, #4fb6e6 75%, #bff0ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  /* Glass, the material of the two header buttons. Blur only on small elements, never on large panels over motion. */
+  .glass-btn {
+    background-color: #eaf6ff14;
+    box-shadow: inset 0 1px 0 #ffffff29, inset 0 0 0 1px #ffffff0f;
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    backdrop-filter: blur(12px) saturate(1.4);
+  }
+  .glass-flat {
+    background-color: #12161ecc;
+    box-shadow: inset 0 1px 0 #ffffff1f, inset 0 0 0 1px #ffffff0d, 0 18px 50px -24px #000e;
+  }
+  /* Every button: a cold glint runs across on hover and the button lifts 2px. */
+  .btn-glint {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.25s, background-color 0.25s;
+  }
+  .btn-glint::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 30%, #ffffffa6 48%, transparent 66%);
+    transform: translateX(-120%);
+    transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .glass-btn.btn-glint::after {
+    background: linear-gradient(105deg, transparent 30%, #ffffff38 48%, transparent 66%);
+  }
+  .btn-glint:not(:disabled):hover {
+    transform: translateY(-2px);
+  }
+  .btn-glint:not(:disabled):hover::after {
+    transform: translateX(120%);
+  }
+  .btn-glint:not(:disabled):active {
+    transform: translateY(1px) scale(0.98);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-glint,
+    .btn-glint::after {
+      transition: none;
+    }
   }
 }
 
-/* Tape reels (decorative). They turn while a transfer is in its window and spin backwards on a rewind. */
+/* Small tape reels (used in compact places). They turn while a transfer runs and spin back on a rewind. */
 .reel {
   display: inline-block;
   width: var(--reel, 2.5rem);
   height: var(--reel, 2.5rem);
   border-radius: 9999px;
-  border: 3px solid var(--color-ink);
-  background: repeating-conic-gradient(var(--color-ink) 0 20deg, transparent 20deg 60deg);
+  border: 2px solid #ffffff55;
+  background: repeating-conic-gradient(#ffffff44 0 18deg, transparent 18deg 60deg);
   mask: radial-gradient(circle, transparent 22%, #000 24%);
 }
 .reels-play .reel {
@@ -85,7 +165,7 @@ body::after {
 }
 html[data-fx="rewind"] .reel,
 .reels-rew .reel {
-  animation: tape-spin 0.25s linear infinite reverse;
+  animation: tape-spin 0.3s linear infinite reverse;
 }
 
 .blink {
@@ -103,6 +183,179 @@ html[data-fx="rewind"] .reel,
   }
 }
 
+/* ---------- the cassette (components/cassette.tsx) ---------- */
+.cas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  container-type: inline-size;
+  isolation: isolate;
+}
+.cas-shell {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+.cas-glow {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 6%;
+  height: 18%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #8fdcff40, transparent);
+  filter: blur(18px);
+  transition: background 0.9s;
+}
+.cas[data-state="pause"] .cas-glow {
+  background: radial-gradient(closest-side, #9fe8ff55, transparent);
+}
+.cas-label,
+.cas-window {
+  position: absolute;
+  display: flex;
+}
+.cas-label {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+.cas-window {
+  overflow: hidden;
+  border-radius: 1.2cqw;
+}
+.cas-reel {
+  position: absolute;
+  top: 50%;
+  aspect-ratio: 1;
+  height: 66%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #08090c 0 17%, transparent 18%),
+    repeating-conic-gradient(from 8deg, #ffffff38 0 9deg, transparent 9deg 60deg),
+    radial-gradient(circle, transparent 27%, #ffffff22 28% 30%, #ffffff0d 31% 100%);
+  box-shadow:
+    inset 0 0 0 0.25cqw #ffffff40,
+    0 0 2cqw #8fdcff22;
+}
+.cas-reel::after {
+  content: "";
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  border: 0.35cqw solid #ffffff70;
+}
+.cas[data-state="play"] .cas-reel {
+  animation: tape-spin 3.2s linear infinite;
+}
+.cas[data-state="rew"] .cas-reel,
+html[data-fx="rewind"] .cas-reel {
+  animation: tape-spin 0.35s linear infinite reverse;
+}
+.cas-tape {
+  position: absolute;
+  left: 19%;
+  right: 19%;
+  top: 50%;
+  height: 0.5cqw;
+  translate: 0 -50%;
+  background: linear-gradient(90deg, #2a2f3d, #3a4153, #2a2f3d);
+}
+.cas-playhead {
+  position: absolute;
+  top: 18%;
+  bottom: 18%;
+  width: 0.28cqw;
+  translate: -50% 0;
+  background: var(--color-sky);
+  box-shadow: 0 0 1.6cqw #8fdcffcc;
+  transition: left 1s linear;
+}
+.cas-disc {
+  position: absolute;
+  top: 50%;
+  aspect-ratio: 1;
+  height: 20%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffffcc 0 6%, #ffffff33 18%, #ffffff10 55%, transparent 70%);
+  box-shadow:
+    inset 0 0 0 0.3cqw var(--disc, #8fdcff),
+    0 0 2cqw color-mix(in srgb, var(--disc, #8fdcff) 60%, transparent);
+  transition:
+    left 1s linear,
+    box-shadow 0.6s;
+}
+.cas-timer {
+  position: absolute;
+  right: 3%;
+  top: 6%;
+  font-family: var(--font-display);
+  font-size: 2.6cqw;
+  line-height: 1;
+  color: var(--color-ink);
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+.cas-frost {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 0;
+  clip-path: circle(0% at 50% 50%);
+  transition:
+    opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    clip-path 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.cas[data-state="pause"] .cas-frost {
+  opacity: 0.95;
+  clip-path: circle(75% at 50% 50%);
+}
+.cas[data-state="pause"] .cas-disc {
+  --disc: var(--color-ice);
+  animation: ice-tick 4s steps(1) infinite;
+}
+.cas[data-state="rew"] .cas-disc {
+  transition: left 1.2s cubic-bezier(0.87, 0, 0.13, 1);
+}
+@keyframes ice-tick {
+  0%,
+  96% {
+    translate: -50% -50%;
+  }
+  98% {
+    translate: calc(-50% + 1px) -50%;
+  }
+}
+
+/* The undo window as a draining ring (the 120-second wait after a panic). */
+@property --p {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+.ring {
+  --p: 1;
+  width: var(--ring, 4rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(var(--ring-c, var(--color-ice)) calc(var(--p) * 360deg), #ffffff14 0);
+  mask: radial-gradient(circle, transparent 60%, #000 61%);
+  transition: --p 1s linear;
+}
+
 /* ---------- time effects (components/time-fx.tsx sets html[data-fx]) ---------- */
 .fx-layer {
   position: fixed;
@@ -110,6 +363,7 @@ html[data-fx="rewind"] .reel,
   z-index: 50;
   pointer-events: none;
   overflow: hidden;
+  contain: strict;
 }
 .fx-stamp {
   position: fixed;
@@ -121,53 +375,38 @@ html[data-fx="rewind"] .reel,
   padding: 1rem;
 }
 
-/* ❚❚ PAUSE: the frame freezes, loses its colour and shakes; a tracking band rolls through. */
+/* ❚❚ PAUSE: the page cools and dims, frost closes in from the screen edges. */
 html[data-fx="stop"] #tape {
-  filter: saturate(0.15) brightness(0.85);
-  animation: fx-jitter 0.16s steps(2) infinite;
+  filter: saturate(0.45) brightness(0.8);
+  transition: filter 0.4s;
 }
 html[data-fx="stop"] .fx-layer {
-  background: linear-gradient(transparent 0 58%, #ffffff3a 58% 60%, transparent 60% 63%, #ffffff1f 63% 64%, transparent 64%);
-  animation: fx-band 1.4s linear;
+  background: radial-gradient(ellipse at center, transparent 45%, #9fe8ff2e 80%, #9fe8ff55 100%);
+  animation: fx-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-/* ◀◀ REW: tracking lines race upwards and the picture skews. */
-html[data-fx="rewind"] #tape {
-  animation: fx-skew 0.12s steps(2) infinite;
-}
+/* ◀◀ REW: thin blue streaks race right-to-left (time running back). Nothing moves the page itself, so no sideways scroll. */
 html[data-fx="rewind"] .fx-layer {
-  background: repeating-linear-gradient(0deg, transparent 0 30px, #ffffff40 30px 33px, transparent 33px 90px);
-  animation: fx-rew 0.3s linear infinite;
+  background: repeating-linear-gradient(90deg, transparent 0 140px, #8fdcff40 140px 240px, transparent 240px 400px);
+  mask: repeating-linear-gradient(0deg, transparent 0 46px, #000 46px 48px, transparent 48px 120px);
+  animation: fx-rew 0.35s linear infinite;
 }
-/* ▶ PLAY: one short flash of the blue screen. */
+/* ▶ PLAY: one thin flash of blue. */
 html[data-fx="play"] .fx-layer {
-  background: #2433ff33;
+  background: radial-gradient(ellipse at center, #8fdcff22, transparent 70%);
   animation: fx-fade 0.6s ease-out forwards;
 }
 .fx-stamp-box {
-  animation: fx-stamp 0.9s steps(2) 2 forwards;
+  animation: fx-stamp 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
 }
 
-@keyframes fx-jitter {
-  50% {
-    transform: translate(2px, -1px);
-  }
-}
-@keyframes fx-band {
+@keyframes fx-in {
   from {
-    transform: translateY(-70%);
-  }
-  to {
-    transform: translateY(70%);
-  }
-}
-@keyframes fx-skew {
-  50% {
-    transform: skewX(-2deg) translateX(-6px);
+    opacity: 0;
   }
 }
 @keyframes fx-rew {
   to {
-    background-position: 0 -180px;
+    background-position: -400px 0;
   }
 }
 @keyframes fx-fade {
@@ -178,10 +417,15 @@ html[data-fx="play"] .fx-layer {
 @keyframes fx-stamp {
   0% {
     opacity: 0;
+    transform: scale(0.96);
   }
-  50%,
-  100% {
+  15%,
+  75% {
     opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
   }
 }
 
@@ -194,6 +438,313 @@ html[data-fx="play"] .fx-layer {
     transition-duration: 0.01ms !important;
   }
   html[data-fx] #tape {
-    animation: none !important;
+    filter: none !important;
   }
+}
+
+/* ---------- Home intro (components/intro) ----------
+   One stage per act, pinned while you scroll. The photographed stage (stage-*.webp) is fixed behind both acts and
+   clipped to the intro, so the trailer, the hero and the PANIC run share one floor with no seam between them.
+   Text is HTML under the canvas, so the shards can pass in front of the headline and the words stay sharp. */
+.intro {
+  position: relative;
+  clip-path: inset(0);
+  margin-inline: calc(50% - 50vw);
+  width: 100vw;
+  margin-top: -1rem;
+}
+.intro-plate {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: url("/undo/stage-wide.webp") 50% 62% / cover no-repeat;
+  opacity: 0.75;
+}
+@media (max-aspect-ratio: 4/5) {
+  .intro-plate {
+    background-image: url("/undo/stage-tall.webp");
+  }
+}
+.intro-trailer {
+  position: relative;
+  height: 480vh;
+}
+.intro-panic {
+  position: relative;
+  height: 180vh;
+}
+.intro-stage {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+.intro-words,
+.intro-canvas,
+.intro-frost,
+.intro-fog {
+  position: absolute;
+  inset: 0;
+}
+.intro-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.intro-frost {
+  pointer-events: none;
+  opacity: 0;
+  background: url("/undo/frost.webp") center / cover no-repeat;
+  mix-blend-mode: screen;
+  -webkit-mask: radial-gradient(75% 70% at 50% 52%, transparent 40%, #000 92%);
+  mask: radial-gradient(75% 70% at 50% 52%, transparent 40%, #000 92%);
+}
+.intro-fog {
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(90% 80% at 50% 55%, #d9eef8, #7f97a6);
+}
+.intro-line,
+.intro-hero {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  padding-inline: 16px;
+  text-align: center;
+  text-wrap: balance;
+  line-height: 0.95;
+}
+.intro-line {
+  top: clamp(84px, 12vh, 130px);
+  max-width: 20ch;
+  font-size: clamp(2rem, 5vw, 4.4rem);
+}
+.intro-hero {
+  top: clamp(90px, 15vh, 170px);
+  font-size: clamp(2.7rem, 8.6vw, 10rem);
+  white-space: nowrap;
+  font-weight: 900;
+  transition: filter 1.2s ease;
+}
+.intro-hero.melt {
+  filter: drop-shadow(0 0 30px #eaf6ffa6) brightness(1.25) saturate(0.6);
+}
+@media (max-aspect-ratio: 4/5) {
+  .intro-hero {
+    white-space: normal;
+    max-width: 7ch;
+    font-size: 15vw;
+    top: clamp(84px, 13vh, 140px);
+  }
+}
+.intro-clock {
+  position: absolute;
+  left: 50%;
+  bottom: max(26px, 5vh);
+  translate: -50% 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.intro-clock b {
+  font-size: clamp(1.5rem, 2.6vw, 2.1rem);
+  line-height: 1;
+  color: var(--color-signal);
+  transition: color 0.4s;
+}
+.intro-clock span {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-dim);
+}
+.intro-clock.frozen b {
+  color: var(--color-ice);
+}
+.intro-toast {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  translate: -50% -50%;
+  padding: 14px 22px;
+  border-radius: 999px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s, translate 0.45s;
+}
+.intro-toast.on {
+  opacity: 1;
+  translate: -50% -70%;
+}
+.intro-heroui {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(12px, 2vh, 18px);
+  padding: 0 16px max(24px, 4.5vh);
+  pointer-events: none;
+}
+/* an invisible button over the 3D keycaps (they sit about 66% down the screen) */
+.intro-keys {
+  position: absolute;
+  left: 50%;
+  top: 57%;
+  width: min(360px, 70vw);
+  height: 18%;
+  translate: -50% 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 28px;
+}
+.intro-keys:focus-visible {
+  outline: 2px solid var(--color-ice);
+}
+.intro-cap {
+  margin: 0;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 600;
+  text-align: center;
+}
+.intro-skip {
+  position: absolute;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: max(22px, 4vh);
+}
+@media (max-width: 640px) {
+  .intro-skip {
+    bottom: auto;
+    top: 76px;
+  }
+}
+.intro-ptop {
+  position: absolute;
+  inset: 0 0 auto;
+  padding: clamp(80px, 12vh, 130px) 16px 0;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  z-index: 2;
+  pointer-events: none;
+}
+.intro-ptop h2 {
+  margin: 0;
+  font-size: clamp(2.6rem, 7.5vw, 7.5rem);
+  font-weight: 900;
+  line-height: 0.95;
+}
+.intro-ptop p {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--color-dim);
+  font-size: clamp(1rem, 1.5vw, 1.15rem);
+}
+.intro-panic .intro-canvas {
+  z-index: 1;
+}
+.intro-dome {
+  position: absolute;
+  z-index: 3;
+  left: 34%;
+  right: 34%;
+  top: 38%;
+  height: 22%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 50%;
+}
+.intro-dome:focus-visible {
+  outline: 2px solid var(--color-ice);
+}
+.intro-pbottom {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 0 16px max(22px, 4vh);
+}
+.intro-alert {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  text-align: center;
+  padding: 14px 22px;
+  border-radius: 28px;
+  width: min(440px, 100%);
+  transition: box-shadow 0.4s;
+}
+.intro-alert.hot {
+  box-shadow: inset 0 1px 0 #ffffff29, 0 0 0 1px #ff2e4d8c, 0 0 50px -8px #ff2e4d99;
+}
+.intro-alert.cold {
+  box-shadow: inset 0 1px 0 #ffffff29, 0 0 0 1px #9fe8ff80, 0 0 50px -8px #9fe8ff99;
+}
+.intro-alert .timer {
+  color: var(--color-signal);
+}
+.intro-alert.cold .timer {
+  color: var(--color-ice);
+}
+.intro-bar {
+  width: 160px;
+  height: 5px;
+  border-radius: 99px;
+  background: #ffffff1a;
+  overflow: hidden;
+}
+.intro-bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--color-signal);
+}
+.intro-alert.cold .intro-bar i {
+  background: var(--color-ice);
+}
+/* no WebGL or reduced motion: a calm, complete page with the same words */
+.intro[data-still] .intro-trailer,
+.intro[data-still] .intro-panic {
+  height: auto;
+}
+.intro[data-still] .intro-stage {
+  position: relative;
+  height: auto;
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+  gap: 24px;
+  padding: 96px 16px 40px;
+}
+.intro[data-still] :is(.intro-words, .intro-heroui, .intro-ptop, .intro-pbottom) {
+  position: relative;
+  inset: auto;
+  padding-top: 0;
+}
+.intro[data-still] :is(.intro-line, .intro-hero) {
+  position: relative;
+  top: auto;
+}
+.intro[data-still] :is(.intro-line, .intro-hero, .intro-heroui) {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+.intro[data-still] :is(.intro-canvas, .intro-clock, .intro-skip, .intro-keys, .intro-dome, .intro-frost, .intro-fog, .intro-toast) {
+  display: none;
 }

@@ -226,3 +226,7 @@ These are listed in full in [CLAIMS.md §7–8](CLAIMS.md#7-trust-boundaries-wha
 - Testnet only.
 - A payment to a trusted contact cannot be undone: a stolen key can pay the owner's ACTIVE contacts at once. Keep few contacts; the recovery account can remove one at any time.
 - Not built yet: appeal keys, notifications outside the browser (the alert shows only where the recovery account's key is), mainnet. v1 instances (the v1 demo, Coba Curi) were built before the reproducible setup; only v2 is a reproducible build.
+
+## Credits
+
+Design help: Dex Bennett (visual direction and front-end design, not a team member)

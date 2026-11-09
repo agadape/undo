@@ -144,10 +144,10 @@ export function OutgoingAlerts() {
         }
         if (!items.length && !rec && !newContacts.length && done) {
           return (
-            <div key={w.id} className={`flex flex-wrap items-center justify-between gap-2 rounded-[2px] border-l-4 px-4 py-3 text-sm ${done.ok ? "border-ice bg-ice/10" : "border-rec bg-rec/10"}`}>
+            <div key={w.id} className={`flex flex-wrap items-center justify-between gap-2 rounded-[14px] px-5 py-3.5 text-sm ${done.ok ? "bg-ice/12" : "bg-rec/12"}`}>
               <span>
                 {done.ok && (
-                  <span aria-hidden className="osd mr-2 text-lg leading-none text-ice">
+                  <span aria-hidden className="timer mr-2 text-lg leading-none text-ice">
                     ❚❚ PAUSE
                   </span>
                 )}
@@ -160,8 +160,8 @@ export function OutgoingAlerts() {
           );
         }
         return (
-          <div key={w.id} className="space-y-2 rounded-[3px] border-2 border-rec bg-[#1c0710] px-4 py-3 text-sm shadow-[0_0_0_1px_#07070c,0_0_32px_-12px_#ff3b5f]">
-            <div aria-hidden className="osd flex items-center justify-between text-xl leading-none text-rec">
+          <div key={w.id} className="space-y-3 rounded-[18px] bg-[#1a0a10] bg-[radial-gradient(120%_120%_at_0%_0%,#ff3b5f33,transparent_60%)] px-5 py-4 text-sm shadow-[0_24px_60px_-28px_#ff3b5f]">
+            <div aria-hidden className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.12em] text-rec">
               <span>
                 <span className="blink">●</span> {t("PERINGATAN", "ALERT")}
               </span>

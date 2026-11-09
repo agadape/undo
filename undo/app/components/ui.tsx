@@ -3,27 +3,23 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { TX } from "@/lib/config";
 import { useT } from "@/lib/i18n";
 
-/** `tone`: danger (red frame), accent (green frame), frozen (ice-blue frame: the money in it is paused). */
+/** A smoked-glass surface. No outline: space and a slightly lighter surface separate it from the page.
+ *  `tone`: danger (a faint red glow), accent (a faint blue glow), frozen (ice: the money in it is paused). */
 export function Card({ title, children, right, tone }: { title?: ReactNode; children: ReactNode; right?: ReactNode; tone?: "danger" | "accent" | "frozen" }) {
-  const ring =
+  const surface =
     tone === "danger"
-      ? "border-rec/70 bg-panel"
+      ? "bg-panel bg-[radial-gradient(120%_80%_at_0%_0%,#ff3b5f14,transparent_60%)]"
       : tone === "accent"
-        ? "border-phosphor/60 bg-panel"
+        ? "bg-panel bg-[radial-gradient(120%_80%_at_0%_0%,#8fdcff14,transparent_60%)]"
         : tone === "frozen"
-          ? "border-ice/70 bg-[#0c1a33] bg-[repeating-linear-gradient(115deg,transparent_0_22px,#2ec8ff0d_22px_24px)]"
-          : "border-line bg-panel";
+          ? "bg-panel bg-[radial-gradient(120%_90%_at_50%_0%,#9fe8ff1f,transparent_65%)]"
+          : "bg-panel";
   return (
     // overflow-wrap:anywhere so long account ids, hashes and test names wrap on a phone instead of widening the page.
-    <section className={`relative rounded-[3px] border ${ring} p-4 transition-colors [overflow-wrap:anywhere] sm:p-5`}>
+    <section className={`relative rounded-[14px] ${surface} p-5 transition-colors [overflow-wrap:anywhere] sm:p-7`}>
       {(title || right) && (
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
-          <h2 className="osd rgb flex min-w-0 items-center gap-1.5 text-2xl leading-none text-ink">
-            <span aria-hidden className={tone === "danger" ? "text-rec" : tone === "frozen" ? "text-ice" : "text-phosphor"}>
-              ▌
-            </span>
-            {title}
-          </h2>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <h2 className="serif min-w-0 text-[1.4rem] leading-tight text-ink sm:text-[1.6rem]">{title}</h2>
           {right}
         </div>
       )}
@@ -34,19 +30,20 @@ export function Card({ title, children, right, tone }: { title?: ReactNode; chil
 
 type Variant = "primary" | "danger" | "ghost";
 const BTN: Record<Variant, string> = {
-  primary: "border-phosphor text-phosphor hover:bg-phosphor hover:text-tape disabled:hover:bg-transparent disabled:hover:text-phosphor",
-  danger: "border-rec bg-rec text-tape hover:bg-transparent hover:text-rec disabled:hover:bg-rec disabled:hover:text-tape",
-  ghost: "border-line-2 text-ink hover:border-ink hover:bg-ink hover:text-tape disabled:hover:border-line-2 disabled:hover:bg-transparent disabled:hover:text-ink",
+  primary: "bg-snow text-tape shadow-[0_10px_30px_-12px_#9fe8ff8c] hover:shadow-[0_0_0_6px_#9fe8ff24,0_18px_40px_-14px_#9fe8ffbf] disabled:hover:shadow-none",
+  danger: "bg-rec text-white shadow-[0_12px_34px_-12px_#ff2e4dcc] hover:bg-[#ff4d68] disabled:hover:bg-rec",
+  ghost: "glass-btn text-ink hover:bg-[#eaf6ff26] disabled:hover:bg-[#eaf6ff14]",
 };
 
-/** Classes for a button-looking link (Link / a) so it matches <Button>. */
+/** Classes for a button-looking link (Link / a) so it matches <Button>.
+ *  `btn-glint` = a cold glint that runs across on hover, plus a 2px lift (globals.css). */
 export const btnClass = (variant: Variant = "primary", small = false) =>
-  `osd inline-flex items-center justify-center gap-1.5 rounded-[2px] border-2 text-center transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-    small ? "px-2.5 py-0.5 text-lg leading-6" : "px-4 py-1 text-xl leading-7"
+  `btn-glint inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full text-center font-btn font-bold disabled:cursor-not-allowed disabled:opacity-40 ${
+    small ? "min-h-9 px-4 py-1.5 text-sm" : "min-h-11 px-6 py-2.5 text-[0.95rem]"
   } ${BTN[variant]}`;
 
 /** Classes for text inputs, selects and text areas. */
-export const inputClass = "rounded-[2px] border border-line-2 bg-well px-2 py-1.5 text-ink placeholder:text-muted/70 focus:border-phosphor focus:outline-none";
+export const inputClass = "min-h-10 rounded-[10px] border border-line bg-well px-3 py-2 text-ink placeholder:text-muted focus:border-sky focus:outline-none";
 
 type BtnProps = { children: ReactNode; onClick?: () => void | Promise<void>; variant?: Variant; disabled?: boolean; small?: boolean; title?: string };
 export function Button({ children, onClick, variant = "primary", disabled, small, title }: BtnProps) {
@@ -67,7 +64,7 @@ export function Button({ children, onClick, variant = "primary", disabled, small
       }}
       className={btnClass(variant, small)}
     >
-      {busy ? <span className="blink">■ ■ ■</span> : children}
+      {busy ? <span className="blink">● ● ●</span> : children}
     </button>
   );
 }
@@ -78,8 +75,8 @@ const STATUS: Record<string, [string, string]> = {
   Pending: ["▶", "bg-signal/15 text-signal"],
   Frozen: ["❚❚", "bg-ice/15 text-ice"],
   Disputed: ["❚❚", "bg-plum/15 text-plum"],
-  Settled: ["■", "bg-phosphor/15 text-phosphor"],
-  Reversed: ["◀◀", "bg-ink/10 text-dim"],
+  Settled: ["■", "bg-ink/10 text-ink"],
+  Reversed: ["◀◀", "bg-sky/15 text-sky"],
 };
 const LABEL: Record<string, [string, string]> = {
   Pending: ["Pending", "Pending"],
@@ -94,7 +91,7 @@ export function StatusBadge({ status }: { status: string }) {
   const l = LABEL[status];
   const [icon, cls] = STATUS[status] ?? ["", "bg-ink/10 text-dim"];
   return (
-    <span className={`osd inline-flex items-center gap-1 whitespace-nowrap rounded-[2px] px-1.5 text-base leading-6 ${cls}`}>
+    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 text-xs font-semibold leading-6 ${cls}`}>
       {icon && <span aria-hidden>{icon}</span>}
       {l ? t(l[0], l[1]) : status}
     </span>
@@ -102,8 +99,8 @@ export function StatusBadge({ status }: { status: string }) {
 }
 
 export function Pill({ children, tone = "neutral" }: { children: ReactNode; tone?: "neutral" | "danger" | "ok" }) {
-  const c = tone === "danger" ? "bg-rec text-tape" : tone === "ok" ? "bg-phosphor/15 text-phosphor" : "bg-ink/10 text-dim";
-  return <span className={`osd inline-block rounded-[2px] px-1.5 text-base leading-6 ${c}`}>{children}</span>;
+  const c = tone === "danger" ? "bg-rec text-white" : tone === "ok" ? "bg-sky/15 text-sky" : "bg-ink/10 text-dim";
+  return <span className={`inline-block rounded-full px-2.5 text-xs font-semibold leading-6 ${c}`}>{children}</span>;
 }
 
 export function TxLink({ hash, label }: { hash?: string; label?: string }) {
@@ -141,7 +138,7 @@ export function Countdown({ ns, done, prefix }: { ns: string | null | undefined;
   return (
     <span>
       {prefix}
-      <span className="font-display text-[1.2em] leading-none tabular-nums">{m > 0 ? `${m}m ${s}s` : `${s}s`}</span>
+      <span className="font-semibold tabular-nums">{m > 0 ? `${m}m ${s}s` : `${s}s`}</span>
     </span>
   );
 }
@@ -186,15 +183,11 @@ export function usePoll<T>(load: () => Promise<T>, deps: unknown[], ms = 6000): 
 }
 
 export function Notice({ kind, children }: { kind: "ok" | "error" | "info"; children: ReactNode }) {
-  const c = kind === "ok" ? "border-phosphor bg-phosphor/5" : kind === "error" ? "border-rec bg-rec/10" : "border-line-2 bg-well text-dim";
-  const tag = kind === "ok" ? <span className="text-phosphor">■ OK</span> : kind === "error" ? <span className="text-rec">● ERR</span> : null;
+  const c = kind === "ok" ? "bg-sky/10" : kind === "error" ? "bg-rec/12" : "bg-well text-dim";
+  const dot = kind === "ok" ? "bg-sky" : kind === "error" ? "bg-rec" : null;
   return (
-    <div className={`flex gap-2.5 rounded-[2px] border-l-4 px-3 py-2 text-sm ${c}`}>
-      {tag && (
-        <span aria-hidden className="osd shrink-0 text-base leading-5">
-          {tag}
-        </span>
-      )}
+    <div className={`flex items-start gap-2.5 rounded-[10px] px-3.5 py-2.5 text-sm ${c}`}>
+      {dot && <span aria-hidden className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dot}`} />}
       <div className="min-w-0 break-words">{children}</div>
     </div>
   );

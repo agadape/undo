@@ -47,9 +47,12 @@ export function TimeFx() {
       <div className="fx-layer" aria-hidden="true" />
       {stamp && (
         <div className="fx-stamp" aria-hidden="true">
-          <div key={fx!.n} className="fx-stamp-box osd rgb flex flex-col items-center bg-vhs px-6 py-3 text-center text-white shadow-[0_0_0_4px_#07070c]">
-            <span className="text-6xl leading-none sm:text-8xl">{stamp.big}</span>
-            <span className="text-xl sm:text-2xl">{stamp.small}</span>
+          <div
+            key={fx!.n}
+            className={`fx-stamp-box flex flex-col items-center gap-2 rounded-[22px] bg-tape/70 px-8 py-6 text-center backdrop-blur-md ${fx!.kind === "stop" ? "text-ice" : "text-sky"}`}
+          >
+            <span className="timer text-6xl leading-none sm:text-8xl">{stamp.big}</span>
+            <span className="text-sm font-semibold text-ink sm:text-base">{stamp.small}</span>
           </div>
         </div>
       )}

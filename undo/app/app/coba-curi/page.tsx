@@ -58,14 +58,14 @@ export default function CobaCuriPage() {
   const target = BigInt(s.balance.available) + BigInt(s.balance.pending_in) + BigInt(s.balance.frozen_in);
 
   return (
-    <div className="space-y-4">
-      <section className="space-y-2 pt-2">
-        <p aria-hidden className="osd text-xl leading-none text-rec">
-          <span className="blink">●</span> LIVE · testnet
-        </p>
-        <h1 className="osd rgb text-5xl leading-none sm:text-6xl">{t("Coba Curi", "Coba Curi (try to steal)")}</h1>
-        <p className="text-lg font-bold sm:text-xl">
-          {t("Kuncinya bisa dicuri.", "The key can be stolen.")} <span className="text-phosphor">{t("Uangnya tidak bisa dicairkan.", "The money can't be cashed out.")}</span>
+    <div className="space-y-12 [overflow-wrap:anywhere] sm:space-y-16">
+      <section className="space-y-4 pt-2">
+        <h1 className="serif text-4xl leading-tight sm:text-5xl">{t("Coba Curi", "Coba Curi (try to steal)")}</h1>
+        <p className="text-lg font-medium text-dim sm:text-xl">
+          {t("Kuncinya bisa dicuri.", "The key can be stolen.")} <span className="text-sky">{t("Uangnya tidak bisa dicairkan.", "The money can't be cashed out.")}</span>{" "}
+          <span aria-hidden className="inline-flex items-center gap-1.5 text-sm font-semibold text-rec">
+            <span className="blink">●</span> LIVE · testnet
+          </span>
         </p>
       </section>
 
@@ -92,7 +92,7 @@ export default function CobaCuriPage() {
         </p>
       </More>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Tile label={t("Saldo umpan", "Bait balance")} value={fmt(target)} unit="rUSDC" />
         <Tile label={t("Percobaan", "Attempts")} value={String(s.attempts)} />
         <Tile label={t("Berhasil dicairkan", "Cashed out")} value={fmt(s.escaped)} unit="rUSDC" tone={s.escaped === "0" ? "ok" : "danger"} />
@@ -100,7 +100,7 @@ export default function CobaCuriPage() {
       </div>
 
       <Card title="Status">
-        <ul className="space-y-1 text-sm">
+        <ul className="space-y-4 text-sm">
           <li className="flex flex-wrap items-center gap-2">
             {t("Akun umpan:", "Bait account:")}{" "}
             <a className="mono text-xs underline" href={ADDR(s.demoId)} target="_blank" rel="noreferrer">
@@ -139,8 +139,8 @@ export default function CobaCuriPage() {
 
       <Card title={t("Kunci akun umpan", "Bait account key")}>
         {s.publishedKey ? (
-          <div className="space-y-2">
-            <code className="mono block break-all rounded-[2px] border border-line bg-well p-2 text-xs text-phosphor">{s.publishedKey}</code>
+          <div className="space-y-4">
+            <code className="mono block break-all rounded-[12px] bg-well p-4 text-xs text-sky">{s.publishedKey}</code>
             <p className="text-xs text-muted">
               {lang === "en" ? (
                 <>
@@ -162,11 +162,11 @@ export default function CobaCuriPage() {
         {s.recent.length === 0 ? (
           <p className="text-sm text-muted">{t("Belum ada yang mencoba.", "No one has tried yet.")}</p>
         ) : (
-          <ul className="space-y-1 text-sm">
+          <ul className="space-y-4 text-sm">
             {s.recent.map((tx) => (
               <li key={tx.id} className="flex flex-wrap items-center gap-2">
-                <span className="mono text-xs text-muted">#{tx.id}</span>
-                <span className="osd text-xl leading-none tabular-nums">{fmt(tx.amount)}</span>
+                <span className="text-xs text-muted">#{tx.id}</span>
+                <span className="text-sm font-semibold tabular-nums text-ink">{fmt(tx.amount)}</span>
                 <span className="text-muted">{tx.kind === "Exit" ? "USDC" : "rUSDC"} → {short(tx.to)}</span>
                 <StatusBadge status={tx.status} />
                 {tx.final_to && <span className="text-xs text-muted">{t("akhir:", "ended at:")} {short(tx.final_to)}</span>}
@@ -176,11 +176,11 @@ export default function CobaCuriPage() {
         )}
       </Card>
 
-      <div className="grid gap-3 text-sm sm:grid-cols-2">
-        <p className="rounded-[2px] border-l-4 border-phosphor bg-phosphor/5 px-3 py-2">
-          <b className="text-phosphor">✓ {t("Membuktikan:", "Proves:")}</b> {t("uang curian tidak bisa dicairkan.", "stolen money can't be cashed out.")}
+      <div className="grid gap-4 text-sm sm:grid-cols-2">
+        <p className="rounded-[14px] bg-sky/10 p-5">
+          <b className="text-sky">✓ {t("Membuktikan:", "Proves:")}</b> {t("uang curian tidak bisa dicairkan.", "stolen money can't be cashed out.")}
         </p>
-        <p className="rounded-[2px] border-l-4 border-line-2 bg-well px-3 py-2 text-dim">
+        <p className="rounded-[14px] bg-panel p-5 text-dim">
           <b className="text-ink">✗ {t("Tidak membuktikan:", "Doesn't prove:")}</b> {t("akunnya tidak bisa dibobol — kuncinya memang sengaja dibagikan.", "the account can't be broken into — the key is given away on purpose.")}
         </p>
       </div>
@@ -189,14 +189,14 @@ export default function CobaCuriPage() {
 }
 
 function Tile({ label, value, unit, tone }: { label: string; value: string; unit?: string; tone?: "ok" | "danger" }) {
-  const c = tone === "ok" ? "text-phosphor" : tone === "danger" ? "text-rec" : "text-ink";
+  const c = tone === "ok" ? "text-sky" : tone === "danger" ? "text-rec" : "text-ink";
   return (
-    <div className="rounded-[3px] border border-line bg-panel p-3">
-      <div className="osd text-base leading-5 text-muted">{label}</div>
-      <div className={`osd rgb mt-1 text-3xl leading-none tabular-nums sm:text-4xl ${c}`}>
+    <div className="min-w-0 rounded-[14px] bg-panel p-5">
+      <div className="text-sm font-semibold text-muted">{label}</div>
+      <div className={`serif mt-3 break-words text-4xl leading-tight tabular-nums ${c}`}>
         {value}
         {/* The token name keeps its lowercase r (OSD text is otherwise all caps). */}
-        {unit && <span className="ml-1.5 text-xl normal-case text-muted">{unit}</span>}
+        {unit && <span className="ml-1.5 inline-block font-sans text-sm font-semibold normal-case text-muted">{unit}</span>}
       </div>
     </div>
   );

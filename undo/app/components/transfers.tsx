@@ -66,11 +66,11 @@ export function TransferRow({ t, me, cfg, mode, onDone, onMessage }: { t: Transf
 
   const who = isSender ? tr(`ke ${short(t.to)}`, `to ${short(t.to)}`) : tr(`dari ${short(t.from)}`, `from ${short(t.from)}`);
   return (
-    <li className={`flex flex-col gap-2 border-b border-line py-3 last:border-0 ${t.status === "Frozen" ? "-mx-2 bg-ice/5 px-2" : ""}`}>
+    <li className={`flex flex-col gap-2 rounded-[12px] px-3 py-3 ${t.status === "Frozen" ? "bg-ice/8" : "odd:bg-ink/[0.025]"}`}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span className="mono text-xs text-muted">#{t.id}</span>
-          <span className="osd text-2xl leading-none tabular-nums text-ink">{fmt(t.amount)}</span>
+          <span className="serif text-xl leading-none tabular-nums text-ink">{fmt(t.amount)}</span>
           <span className="text-xs text-muted">{(lang === "en" ? KIND_EN : KIND)[t.kind]}</span>
           <span className="text-sm">{ownUnwrap ? tr("unwrap ke diri sendiri", "unwrap to self") : who}</span>
         </div>
@@ -161,7 +161,7 @@ export function TransferList({
   const tr = useT();
   return (
     <div>
-      <h3 className="osd mb-1 text-xl leading-6 text-dim">{title}</h3>
+      <h3 className="mb-2 text-sm font-semibold uppercase tracking-[0.1em] text-dim">{title}</h3>
       {!items ? (
         <p className="text-sm text-muted">{tr("memuat…", "loading…")}</p>
       ) : items.length === 0 ? (

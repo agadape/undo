@@ -24,7 +24,7 @@ export default function JanjiPage() {
   const keysEn = (n: number) => `${n} ${n === 1 ? "key" : "keys"}`;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-12 [overflow-wrap:anywhere] sm:space-y-16">
       <Card title={t("Janji yang dikunci kode", "Promises enforced by the code")}>
         <p className="text-base font-semibold text-ink">🔒 {t("Jangan percaya kami. Setiap janji dikunci oleh kontrak.", "Don't trust us. Every promise is locked in by the contract.")}</p>
         <p className="mt-2 flex flex-wrap items-center gap-2 text-sm text-dim">
@@ -32,13 +32,13 @@ export default function JanjiPage() {
         </p>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 md:gap-8">
 
         <PromiseCard id="J1" title={t("Uang pending hanya bisa berakhir di dua tempat", "Pending money can end in only two places")} tests={t("j1_*, property_j1_j2_j6 (16.000 langkah acak)", "j1_*, property_j1_j2_j6 (16,000 random steps)")}>
           <span className="flex flex-wrap gap-2">
-            <span className="osd rounded-[2px] bg-ink/10 px-1.5 text-lg leading-6 text-ink">▶ {t("Penerima", "Receiver")}</span>
-            <span className="osd text-lg leading-6 text-muted">{t("atau", "or")}</span>
-            <span className="osd rounded-[2px] bg-phosphor/15 px-1.5 text-lg leading-6 text-phosphor">◀◀ {t("Pihak pengirim", "Sender's side")}</span>
+            <span className="rounded-full bg-ink/10 px-2.5 text-sm font-semibold leading-6 text-ink">▶ {t("Penerima", "Receiver")}</span>
+            <span className="text-sm font-semibold leading-6 text-muted">{t("atau", "or")}</span>
+            <span className="rounded-full bg-sky/15 px-2.5 text-sm font-semibold leading-6 text-sky">◀◀ {t("Pihak pengirim", "Sender's side")}</span>
           </span>
           <span className="mt-1.5 block">
             {lang === "en" ? (
@@ -61,8 +61,8 @@ export default function JanjiPage() {
         <PromiseCard id="J3" title={t("Tidak ada pembatalan tanpa aksi aktif; AI tidak memindahkan uang", "No reversal without an active step; the AI does not move money")} tests="j3_*, j7_an_honest_court_recommendation_is_stored_and_moves_no_money">
           <span className="block">{t("Kalau dewan diam:", "If the council stays silent:")}</span>
           <span className="mt-1.5 flex flex-wrap gap-2">
-            <span className="rounded-[2px] bg-plum/15 px-2 py-0.5 text-plum">🚩 {t("laporan → penerima dibayar", "report → receiver gets paid")}</span>
-            <span className="rounded-[2px] bg-ice/15 px-2 py-0.5 text-ice">❚❚ {t("Panik dibantah → Panik tetap berlaku", "contested panic → panic stands")}</span>
+            <span className="rounded-full bg-plum/15 px-3 py-1 text-plum">🚩 {t("laporan → penerima dibayar", "report → receiver gets paid")}</span>
+            <span className="rounded-full bg-ice/15 px-3 py-1 text-ice">❚❚ {t("Panik dibantah → Panik tetap berlaku", "contested panic → panic stands")}</span>
           </span>
         </PromiseCard>
         <PromiseCard id="J4" title={t("Hanya pihak pengirim yang bisa melapor, dan laporan palsu ada harganya", "Only the sender's side can report, and a false report has a cost")} tests="j4_*">
@@ -73,10 +73,10 @@ export default function JanjiPage() {
         </PromiseCard>
 
         <PromiseCard id="J5" wide title={t("Kami tidak bisa mengubah aturan diam-diam", "We cannot change the rules quietly")} tests={t("S25 (penguncian)", "S25 (locking)")} live>
-          <ul className="mt-2 space-y-1 text-sm">
+          <ul className="mt-4 space-y-4 text-sm">
             <li className="flex flex-wrap items-center gap-2">
               {t("Kontrak terkunci (salinan v1):", "Locked contract (v1 copy):")}{" "}
-              <a className="mono text-xs text-phosphor underline decoration-dotted underline-offset-2" href={ADDR(LOCKED_EXAMPLE)} target="_blank" rel="noreferrer">
+              <a className="mono text-xs text-sky underline decoration-dotted underline-offset-2" href={ADDR(LOCKED_EXAMPLE)} target="_blank" rel="noreferrer">
                 {LOCKED_EXAMPLE}
               </a>
               {locked && <Pill tone={locked.keys === 0 ? "ok" : "danger"}>{lang === "en" ? `${locked.keys} access ${locked.keys === 1 ? "key" : "keys"}` : `${locked.keys} access key`}</Pill>}
@@ -111,9 +111,9 @@ export default function JanjiPage() {
 
         <PromiseCard id="J7" wide title={t("Server sidang tidak perlu dipercaya", "The court server needs no trust")} tests={t("j7_*, S26 (model NEAR AI asli)", "j7_*, S26 (real NEAR AI model)")} live>
           {cfg && (
-            <div className="mt-2 space-y-1 text-sm">
+            <div className="mt-4 space-y-4 text-sm">
               <div className="flex flex-wrap items-center gap-2">
-                {t("Model yang di-pin dewan:", "Model pinned by the council:")} <span className="mono text-xs">{cfg.court.model_id}</span>
+                {t("Model yang di-pin dewan:", "Model pinned by the council:")} <span className="text-xs">{cfg.court.model_id}</span>
                 <Pill tone={cfg.court.model_id === MODEL ? "ok" : "danger"}>{cfg.court.model_id === MODEL ? t("sesuai prosedur", "matches the procedure") : t("beda", "differs")}</Pill>
                 <span className="mono text-xs text-muted">{t("kunci", "key")} {cfg.court.signer?.slice(0, 16)}…</span>
               </div>
@@ -129,7 +129,7 @@ export default function JanjiPage() {
                     "Prompt v2 (English; the model writes the public reason in both languages). The contract checks the sha256 of this exact text, so what you see is what the model reads. The JSON keys and verdict values stay Indonesian because the contract reads them.",
                   )}
                 </p>
-                <pre className="mono mt-1 whitespace-pre-wrap rounded-[2px] border border-line bg-well p-2 text-dim">{PROMPT}</pre>
+                <pre className="mono mt-3 min-w-0 whitespace-pre-wrap break-words rounded-[12px] bg-well p-4 text-dim">{PROMPT}</pre>
               </details>
             </div>
           )}
@@ -164,7 +164,7 @@ export default function JanjiPage() {
 /** "● LIVE": this promise is checked against the chain from the visitor's browser. */
 function LiveTag() {
   return (
-    <span className="osd inline-flex items-center gap-1 rounded-[2px] bg-phosphor/15 px-1.5 text-base leading-6 text-phosphor">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-sky/15 px-2.5 font-sans text-sm font-semibold leading-6 text-sky">
       <span aria-hidden className="blink text-rec">
         ●
       </span>
@@ -175,18 +175,18 @@ function LiveTag() {
 
 function PromiseCard({ id, title, tests, live, wide, children }: { id: string; title: string; tests: string; live?: boolean; wide?: boolean; children: React.ReactNode }) {
   return (
-    <div className={wide ? "md:col-span-2" : ""}>
+    <div className={wide ? "min-w-0 md:col-span-2" : "min-w-0"}>
       <Card
         title={
-          <span className="flex items-start gap-2.5">
-            <span className="shrink-0 whitespace-nowrap rounded-[2px] bg-vhs px-1.5 text-xl leading-6 text-white">CH {id}</span>
-            <span className="pt-0.5 font-sans text-base font-bold normal-case leading-snug tracking-normal text-ink [text-shadow:none]">{title}</span>
+          <span className="flex min-w-0 flex-wrap items-start gap-3">
+            <span className="shrink-0 whitespace-nowrap rounded-full bg-sky/15 px-2.5 font-sans text-sm font-semibold leading-6 text-sky">CH {id}</span>
+            <span className="serif min-w-0 flex-1 text-xl normal-case leading-tight text-ink sm:text-2xl">{title}</span>
           </span>
         }
         right={live ? <LiveTag /> : null}
       >
-        <div className="text-sm text-dim">{children}</div>
-        <p className="mono mt-2 text-xs text-muted">🧪 {tests}</p>
+        <div className="text-sm leading-relaxed text-dim">{children}</div>
+        <p className="mt-4 text-xs text-muted">🧪 {tests}</p>
       </Card>
     </div>
   );

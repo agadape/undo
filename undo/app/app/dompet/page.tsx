@@ -2,12 +2,13 @@
 import { useEffect, useState } from "react";
 import { useAccounts } from "@/components/accounts";
 import { TransferList } from "@/components/transfers";
-import { Button, Card, Countdown, Notice, Pill, Reels, TxLink, inputClass, usePoll } from "@/components/ui";
+import { Cassette, type Disc } from "@/components/cassette";
+import { Button, Card, Countdown, Notice, Pill, TxLink, inputClass, usePoll } from "@/components/ui";
 import { ack, ackKey, contactAckKey } from "@/lib/alerts";
 import { ADDR, UNDO, USDC } from "@/lib/config";
 import { useAccountLabel, useFmt, useGasNote, useLang, useT } from "@/lib/i18n";
 import { USD, call, createDemoAccount, parseOutcome, provider, short, view, type DemoAccount } from "@/lib/near-client";
-import { More, Stepper, WindowBar } from "@/components/visual";
+import { More, WindowBar } from "@/components/visual";
 import { playTimeFx } from "@/lib/timefx";
 import { walletBatch } from "@/lib/wallet";
 import type { AccountView, BalanceView, Config, Contact, Transfer } from "@/lib/types";
@@ -59,32 +60,30 @@ function Setup() {
   }
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
-      <Card title={t("Dompet demo", "Demo wallet")}>
-        {/* What one click creates, as two "cassettes". */}
-        <div className="mb-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-          <div className="rounded-[2px] border border-phosphor/50 bg-well p-3 text-center">
-            <div aria-hidden className="text-3xl leading-none">
-              💼
-            </div>
-            <div className="osd mt-1 text-xl leading-5">{t("Dompet utama", "Main wallet")}</div>
-            <div className="osd text-lg leading-5 text-phosphor">
-              100 <span className="normal-case">rUSDC</span>
+    <div className="mx-auto max-w-2xl text-center">
+      <section>
+        <h1 className="sr-only">{t("Dompet demo", "Demo wallet")}</h1>
+        <div className="mx-auto max-w-[560px]">
+          <Cassette decorative label={<span className="serif whitespace-nowrap text-[6.8cqw] leading-none">{t("Dompet demo", "Demo wallet")}</span>} />
+        </div>
+        {/* What one click creates: two accounts that belong together. */}
+        <div className="mx-auto mt-2 grid max-w-lg grid-cols-[1fr_auto_1fr] items-center gap-3">
+          <div className="rounded-[14px] bg-panel p-4">
+            <div className="font-semibold">{t("Dompet utama", "Main wallet")}</div>
+            <div className="serif text-2xl text-sky">
+              100 <span className="text-base">rUSDC</span>
             </div>
           </div>
-          <span aria-hidden className="osd text-2xl text-muted">
+          <span aria-hidden className="text-xl text-muted">
             ⇄
           </span>
-          <div className="rounded-[2px] border border-ice/50 bg-well p-3 text-center">
-            <div aria-hidden className="text-3xl leading-none">
-              📱
-            </div>
-            <div className="osd mt-1 text-xl leading-5">{t("Akun pemulihan", "Recovery account")}</div>
-            <div className="osd text-lg leading-5 text-ice">{t("tombol PANIK", "the PANIC button")}</div>
+          <div className="rounded-[14px] bg-panel p-4">
+            <div className="font-semibold">📱 {t("Akun pemulihan", "Recovery account")}</div>
+            <div className="text-sm font-semibold text-rec">{t("tombol PANIK", "the PANIC button")}</div>
           </div>
         </div>
-        <p className="mb-3 text-sm text-dim">{t("Dua akun testnet sekali pakai. Kuncinya hanya di browser ini.", "Two throwaway testnet accounts. Keys stay in this browser.")}</p>
-        <div className="flex flex-wrap gap-2">
+        <p className="mb-5 mt-4 text-sm text-dim">{t("Dua akun testnet sekali pakai. Kuncinya hanya di browser ini.", "Two throwaway testnet accounts. Keys stay in this browser.")}</p>
+        <div className="flex flex-wrap justify-center gap-2">
           <Button onClick={run}>{t("Siapkan dompet demo", "Set up demo wallet")}</Button>
           <Button variant="ghost" onClick={connectWallet}>
             {t("atau hubungkan wallet NEAR (testnet)", "or connect a NEAR wallet (testnet)")}
@@ -92,18 +91,18 @@ function Setup() {
         </div>
         {walletError && <p className="mt-2 text-xs text-rec">{walletError}</p>}
         {log.length > 0 && (
-          <ol className="osd mt-3 space-y-0.5 rounded-[2px] border border-line bg-well p-3 text-lg leading-6 normal-case text-phosphor" aria-live="polite">
+          <ol className="mono mx-auto mt-5 max-w-lg space-y-1 rounded-[14px] bg-well p-4 text-left text-xs leading-5 text-sky" aria-live="polite">
             {log.map((l, i) => (
               <li key={i}>{l}</li>
             ))}
           </ol>
         )}
         {error && (
-          <div className="mt-3">
+          <div className="mx-auto mt-3 max-w-lg text-left">
             <Notice kind="error">{error}</Notice>
           </div>
         )}
-      </Card>
+      </section>
     </div>
   );
 }
@@ -132,50 +131,30 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
   const protectedId = me.recoveryFor;
 
   return (
-    <div className="space-y-4">
-      <Card
-        tone={bal?.locked ? "frozen" : undefined}
-        title={accountLabel(me.label)}
-        right={
-          <div className="flex items-center gap-2">
-            {bal?.locked && <Pill tone="danger">{t("TERKUNCI (Panik)", "LOCKED (Panic)")}</Pill>}
-            {acct?.recovery ? <Pill tone="ok">{t("dilindungi akun pemulihan", "protected by a recovery account")}</Pill> : <Pill>{t("tanpa akun pemulihan", "no recovery account")}</Pill>}
-          </div>
-        }
-      >
-        <a className="mono text-xs text-muted underline decoration-dotted underline-offset-2 hover:text-ink" href={ADDR(me.id)} target="_blank" rel="noreferrer">
+    <div className="space-y-14 sm:space-y-20">
+      <section aria-label={accountLabel(me.label)} className="text-center">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <h1 className="serif text-2xl leading-tight sm:text-3xl">{accountLabel(me.label)}</h1>
+          {bal?.locked && <Pill tone="danger">{t("TERKUNCI (Panik)", "LOCKED (Panic)")}</Pill>}
+          {acct?.recovery ? <Pill tone="ok">{t("dilindungi akun pemulihan", "protected by a recovery account")}</Pill> : <Pill>{t("tanpa akun pemulihan", "no recovery account")}</Pill>}
+        </div>
+        <a className="mono mt-1 inline-block text-xs text-muted underline decoration-dotted underline-offset-2 hover:text-ink" href={ADDR(me.id)} target="_blank" rel="noreferrer">
           {me.id}
         </a>
-        <div className="mt-3 grid gap-3 lg:grid-cols-[1fr_auto]">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Stat label={t("Bisa dipakai", "Available")} value={fmt(bal?.available)} strong />
-            <Stat label={t("Masuk, masih pending", "Incoming, still pending")} value={fmt(bal?.pending_in)} />
-            <Stat label={t("Dibekukan", "Frozen")} value={fmt(bal?.frozen_in)} />
-            <Stat label={t("Dalam sengketa", "In dispute")} value={fmt(bal?.disputed_in)} />
-          </div>
-          <TapeDeck locked={!!bal?.locked} outgoing={outgoing} />
-        </div>
-        {(() => {
-          // balance_of counts incoming money only; show this wallet's own outgoing money that is held.
-          const held = (outgoing ?? []).filter((x) => x.status === "Frozen" || x.status === "Disputed");
-          const sum = held.reduce((s, x) => s + BigInt(x.amount), 0n);
-          return sum > 0n ? (
-            <p className="mt-2 text-xs text-muted">
-              {t(`❚❚ Ditahan: ${fmt(sum)} rUSDC keluar (${held.length} transfer) · Riwayat → Keluar`, `❚❚ On hold: ${fmt(sum)} rUSDC outgoing (${held.length} transfer(s)) · History → Outgoing`)}
-            </p>
-          ) : null;
-        })()}
+        <WalletStage bal={bal} outgoing={outgoing} cfg={cfg} accounts={accounts} />
         {acct?.recovery && (
-          <p className="mt-3 text-xs text-muted">
+          <p className="mt-2 text-xs text-muted">
             {t(`Akun pemulihan: ${short(acct.recovery)} · kalah sengketa: ${acct.lost_disputes}`, `Recovery account: ${short(acct.recovery)} · disputes lost: ${acct.lost_disputes}`)}
           </p>
         )}
         {acct?.pending_recovery && (
-          <Notice kind="info">
-            {t(`⏳ Akun pemulihan akan diganti ke ${short(acct.pending_recovery[0])} (akun lama masih bisa membatalkan).`, `⏳ Recovery account changing to ${short(acct.pending_recovery[0])} (the old one can still cancel).`)}
-          </Notice>
+          <div className="mx-auto mt-3 max-w-xl text-left">
+            <Notice kind="info">
+              {t(`⏳ Akun pemulihan akan diganti ke ${short(acct.pending_recovery[0])} (akun lama masih bisa membatalkan).`, `⏳ Recovery account changing to ${short(acct.pending_recovery[0])} (the old one can still cancel).`)}
+            </Notice>
+          </div>
         )}
-      </Card>
+      </section>
 
       {me.kind === "wallet" && acct && bal && (!acct.recovery || bal.available === "0") && (
         <WalletOnboarding
@@ -196,44 +175,207 @@ function Wallet({ me, cfg }: { me: DemoAccount; cfg: Config }) {
         return guard && bal ? <PanicTest me={me} guard={guard} cfg={cfg} accounts={accounts} bal={bal} outgoing={outgoing} onAdd={add} onDone={refresh} /> : null;
       })()}
 
-      {hasContacts && <ContactsCard me={me} cfg={cfg} accounts={accounts} contacts={contacts} locked={!!bal?.locked} onDone={refresh} />}
+      {/* Everything else sits in tabs, so the wallet is three blocks instead of eight stacked cards. */}
+      <WalletTabs
+        tabs={[
+          {
+            id: "send",
+            label: t("Kirim", "Send"),
+            body: <SendCard me={me} cfg={cfg} accounts={accounts} available={bal?.available} contacts={contacts} canSimulateTheft={!!acct?.recovery} onDone={refresh} onAddAccount={add} />,
+          },
+          ...(hasContacts
+            ? [{ id: "contacts", label: t("Kontak tepercaya", "Trusted contacts"), body: <ContactsCard me={me} cfg={cfg} accounts={accounts} contacts={contacts} locked={!!bal?.locked} onDone={refresh} /> }]
+            : []),
+          {
+            id: "history",
+            label: t("Riwayat", "History"),
+            body: (
+              <Card>
+                <div className="grid gap-8 md:grid-cols-2">
+                  <TransferList title={t("Masuk", "Incoming")} items={incoming} me={me} cfg={cfg} mode="self" onDone={refresh} empty={t("Belum ada yang masuk.", "Nothing incoming yet.")} />
+                  <TransferList title={t("Keluar", "Outgoing")} items={outgoing} me={me} cfg={cfg} mode="self" onDone={refresh} empty={t("Belum ada yang keluar.", "Nothing outgoing yet.")} />
+                </div>
+              </Card>
+            ),
+          },
+          {
+            id: "others",
+            label: t("Akun demo lain", "Other demo accounts"),
+            body: (
+              <Card>
+                <div className="flex flex-wrap gap-2">
+                  <AddAccount label="Penjual / toko" onAdd={add} />
+                  <AddAccount label="Pencuri" onAdd={add} />
+                  <Button
+                    small
+                    variant="ghost"
+                    onClick={() => {
+                      if (confirm(t("Hapus semua akun demo dari browser ini? (akunnya tetap ada di testnet)", "Remove all demo accounts from this browser? (the accounts stay on testnet)"))) reset();
+                    }}
+                  >
+                    {t("Hapus akun demo dari browser", "Remove demo accounts from this browser")}
+                  </Button>
+                </div>
+              </Card>
+            ),
+          },
+        ]}
+      />
+    </div>
+  );
+}
 
-      <SendCard me={me} cfg={cfg} accounts={accounts} available={bal?.available} contacts={contacts} canSimulateTheft={!!acct?.recovery} onDone={refresh} onAddAccount={add} />
-
-
-      <Card title={t("Riwayat", "History")}>
-        <div className="grid gap-6 md:grid-cols-2">
-          <TransferList title={t("Masuk", "Incoming")} items={incoming} me={me} cfg={cfg} mode="self" onDone={refresh} empty={t("Belum ada yang masuk.", "Nothing incoming yet.")} />
-          <TransferList title={t("Keluar", "Outgoing")} items={outgoing} me={me} cfg={cfg} mode="self" onDone={refresh} empty={t("Belum ada yang keluar.", "Nothing outgoing yet.")} />
-        </div>
-      </Card>
-
-      <Card title={t("Akun demo lain", "Other demo accounts")}>
-        <div className="flex flex-wrap gap-2">
-          <AddAccount label="Penjual / toko" onAdd={add} />
-          <AddAccount label="Pencuri" onAdd={add} />
-          <Button
-            small
-            variant="ghost"
-            onClick={() => {
-              if (confirm(t("Hapus semua akun demo dari browser ini? (akunnya tetap ada di testnet)", "Remove all demo accounts from this browser? (the accounts stay on testnet)"))) reset();
-            }}
+/** Tabs for the wallet's secondary tools. Remembers the last tab in this browser. */
+function WalletTabs({ tabs }: { tabs: { id: string; label: string; body: React.ReactNode }[] }) {
+  const [cur, setCur] = useState(tabs[0].id);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("undo.wallet.tab");
+      if (saved && tabs.some((x) => x.id === saved)) setCur(saved);
+    } catch {
+      /* storage blocked */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const pick = (id: string) => {
+    setCur(id);
+    try {
+      localStorage.setItem("undo.wallet.tab", id);
+    } catch {
+      /* storage blocked */
+    }
+  };
+  const active = tabs.find((x) => x.id === cur) ?? tabs[0];
+  return (
+    <section>
+      <div role="tablist" className="-mx-1 mb-5 flex gap-1 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {tabs.map((x) => (
+          <button
+            key={x.id}
+            role="tab"
+            id={`tab-${x.id}`}
+            aria-selected={x.id === active.id}
+            aria-controls={`panel-${x.id}`}
+            onClick={() => pick(x.id)}
+            className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-colors ${x.id === active.id ? "bg-ink text-tape" : "bg-panel text-dim hover:text-ink"}`}
           >
-            {t("Hapus akun demo dari browser", "Remove demo accounts from this browser")}
-          </Button>
+            {x.label}
+          </button>
+        ))}
+      </div>
+      <div role="tabpanel" id={`panel-${active.id}`} aria-labelledby={`tab-${active.id}`}>
+        {active.body}
+      </div>
+    </section>
+  );
+}
+
+/** The wallet as the cassette. The label shows the balance; each disc on the tape is a real outgoing transfer
+ *  (its position = how far through its undo window it is); frost covers the glass while a panic holds the money. */
+function WalletStage({ bal, outgoing, cfg, accounts }: { bal?: BalanceView; outgoing?: Transfer[]; cfg: Config; accounts: DemoAccount[] }) {
+  const t = useT();
+  const fmt = useFmt();
+  const [nowMs, setNowMs] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNowMs(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const now = BigInt(nowMs) * 1_000_000n;
+  const list = outgoing ?? [];
+  const thief = accounts.find((a) => a.label === "Pencuri")?.id;
+  const running = list.filter((x) => x.kind !== "Sweep" && x.status === "Pending" && BigInt(x.unlock_at) > now);
+  const frozen = list.filter((x) => x.status === "Frozen");
+  const held = list.filter((x) => x.status === "Frozen" || x.status === "Disputed");
+  const heldSum = held.reduce((s, x) => s + BigInt(x.amount), 0n);
+  const nextFrozen = frozen.map((x) => x.frozen_until!).filter(Boolean).sort()[0];
+  const nextUnlock = running.map((x) => x.unlock_at).sort((a, b) => (BigInt(a) < BigInt(b) ? -1 : 1))[0];
+  const locked = !!bal?.locked;
+  const state = locked && frozen.length > 0 ? "pause" : running.length > 0 ? "play" : "stop";
+
+  const progress = (from: string, to: string, at: bigint) => {
+    const a = Number(BigInt(from) / 1_000_000n);
+    const b = Number(BigInt(to) / 1_000_000n);
+    return Math.max(0, Math.min(1, (Number(at / 1_000_000n) - a) / Math.max(1, b - a)));
+  };
+  const contestNs = BigInt(cfg.contest_window_sec) * 1_000_000_000n;
+  const discs: Disc[] = [
+    ...running.map((x) => ({ id: x.id, at: progress(x.created_at, x.unlock_at, now), tone: (x.to === thief ? "danger" : "pending") as Disc["tone"] })),
+    ...frozen.map((x) => ({ id: x.id, at: x.frozen_until ? progress(x.created_at, x.unlock_at, BigInt(x.frozen_until) - contestNs) : 0.5, tone: "frozen" as const })),
+  ];
+  const secsLeft = (ns?: string) => (ns ? Math.max(0, Math.ceil(Number(BigInt(ns) - now) / 1e9)) : 0);
+  const mmss = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  const waitLeft = secsLeft(nextFrozen);
+
+  const label =
+    state === "pause" ? (
+      <span className="flex items-baseline gap-[2.4cqw] whitespace-nowrap">
+        <span className="text-[2.6cqw] font-semibold text-ice">{t("Dibekukan", "Frozen")}</span>
+        <span className="serif text-[6.8cqw] leading-none text-ice tabular-nums">
+          {fmt(heldSum)} <span className="text-[3.2cqw]">rUSDC</span>
+        </span>
+      </span>
+    ) : (
+      <span className="flex items-baseline gap-[2.4cqw] whitespace-nowrap">
+        <span className="text-[2.6cqw] font-semibold text-dim">{t("Bisa dipakai", "Available")}</span>
+        <span className={`serif text-[6.8cqw] leading-none tabular-nums ${locked ? "text-ice" : "text-ink"}`}>
+          {fmt(bal?.available)} <span className="text-[3.2cqw] text-dim">rUSDC</span>
+        </span>
+      </span>
+    );
+
+  return (
+    <div className="mx-auto mt-2 max-w-[640px]">
+      <Cassette
+        state={state}
+        discs={discs}
+        label={label}
+        timer={state === "pause" ? "❚❚ PAUSE" : state === "play" ? `▶ ${mmss(secsLeft(nextUnlock))}` : "■ STOP"}
+      />
+      {state === "pause" && nextFrozen ? (
+        <div className="-mt-2 flex items-center justify-center gap-4 sm:-mt-4">
+          <span aria-hidden className="ring" style={{ "--p": waitLeft / Number(cfg.contest_window_sec), "--ring": "3.25rem" } as React.CSSProperties} />
+          <p className="text-left">
+            <span className="serif block text-3xl leading-none text-ice tabular-nums">{waitLeft > 0 ? mmss(waitLeft) : t("siap", "ready")}</span>
+            <span className="text-sm text-dim">
+              {waitLeft > 0 ? t("lalu uangnya kembali ke akun pemulihan. Tanpa voting.", "then the money goes back to the recovery account. No vote.") : t("Tekan Finalisasi di bawah.", "Press Finalize below.")}
+            </span>
+          </p>
         </div>
-      </Card>
+      ) : null}
+      <p className="mt-3 text-sm text-dim">
+        {locked && state === "pause" && (
+          <>
+            {t("Bisa dipakai", "Available")} <b className="text-ink tabular-nums">{fmt(bal?.available)}</b> ·{" "}
+          </>
+        )}
+        {t("Masuk, masih pending", "Incoming, still pending")} <b className="text-ink tabular-nums">{fmt(bal?.pending_in)}</b> · {t("Dibekukan", "Frozen")}{" "}
+        <b className="text-ink tabular-nums">{fmt(bal?.frozen_in)}</b> · {t("Dalam sengketa", "In dispute")} <b className="text-ink tabular-nums">{fmt(bal?.disputed_in)}</b>
+      </p>
+      {heldSum > 0n && state !== "pause" && (
+        <p className="mt-1 text-xs text-muted">
+          {t(`❚❚ Ditahan: ${fmt(heldSum)} rUSDC keluar (${held.length} transfer) · Riwayat → Keluar`, `❚❚ On hold: ${fmt(heldSum)} rUSDC outgoing (${held.length} transfer(s)) · History → Outgoing`)}
+        </p>
+      )}
     </div>
   );
 }
 
 // Top-level on purpose: a component defined inside another remounts on every render (buttons vanish mid-click).
-function Step({ n, title, done, children }: { n: number; title: string; done: boolean; children?: React.ReactNode }) {
+/** One stop on the drill's tape: a dot, a short name, one sentence, and its button. */
+function Stop({ name, title, state, tone = "signal", children }: { name: string; title: string; state: "done" | "now" | "todo"; tone?: "signal" | "ice" | "rec"; children?: React.ReactNode }) {
+  const now = tone === "ice" ? "bg-ice text-tape shadow-[0_0_0_6px_#9fe8ff26]" : tone === "rec" ? "bg-rec text-white shadow-[0_0_0_6px_#ff3b5f26]" : "bg-signal text-tape shadow-[0_0_0_6px_#ffb22426]";
   return (
-    <li className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-dashed border-line py-2.5 last:border-0">
-      <span className={`osd grid h-7 w-9 shrink-0 place-items-center rounded-[2px] text-lg leading-none ${done ? "bg-phosphor text-tape" : "border border-line-2 text-dim"}`}>{done ? "✓" : `0${n}`}</span>
-      <span className="min-w-0 flex-1 basis-56 text-sm">{title}</span>
-      {children}
+    <li aria-current={state === "now" ? "step" : undefined} className="relative flex min-w-0 gap-4 sm:flex-col sm:items-center sm:gap-3 sm:text-center">
+      <span className={`relative z-10 grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-bold ${state === "done" ? "bg-sky text-tape" : state === "now" ? now : "bg-raise text-muted"}`}>
+        {state === "done" ? "✓" : ""}
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col gap-2 sm:items-center">
+        <span>
+          <span className={`block font-semibold ${state === "todo" ? "text-dim" : "text-ink"}`}>{name}</span>
+          <span className="block text-xs leading-snug text-muted">{title}</span>
+        </span>
+        {children}
+      </span>
     </li>
   );
 }
@@ -340,55 +482,51 @@ function PanicTest({
   const stage = bal.locked ? (frozen.length > 0 ? (ready.length > 0 ? 3 : 2) : 4) : stolenNow ? 1 : guardHas ? 5 : 0;
 
   return (
-    <Card title={t("Uji Tombol Panik", "Test the panic button")} tone="danger" right={<span className="text-xs text-muted">📱 {short(guard.id)}</span>}>
-      <div className="mb-3">
-        <Stepper
-          current={stage}
-          steps={[
-            { icon: "🔑", label: t("Curi", "Steal") },
-            { icon: "❚❚", label: t("Panik", "Panic") },
-            { icon: "⏱", label: t("Tunggu", "Wait") },
-            { icon: "◀◀", label: t("Finalisasi", "Finalize") },
-            { icon: "▶", label: t("Buka kunci", "Unlock") },
-          ]}
-        />
-      </div>
-      <ol>
-        <Step n={1} title={t("Pura-pura kuncimu dicuri: 90% saldo dikirim ke Pencuri", "Pretend your key is stolen: 90% goes to a Thief")} done={stage >= 1}>
+    <Card title={t("Uji Tombol Panik", "Test the panic button")} tone={stage === 2 || stage === 3 ? "frozen" : "danger"} right={<span className="text-xs text-muted">📱 {short(guard.id)}</span>}>
+      {/* The drill as one tape with five stops; the stretch already travelled is blue. */}
+      <ol className="relative grid gap-6 sm:grid-cols-5 sm:gap-3">
+        <span aria-hidden className="absolute left-[10%] right-[10%] top-4 hidden h-1 rounded-full bg-raise sm:block" />
+        <span aria-hidden className="absolute left-[10%] top-4 hidden h-1 rounded-full bg-sky transition-[width] duration-700 sm:block" style={{ width: `${Math.min(stage, 4) * 20}%` }} />
+        <Stop name={t("Curi", "Steal")} title={t("Pura-pura kuncimu dicuri: 90% saldo dikirim ke Pencuri", "Pretend your key is stolen: 90% goes to a Thief")} state={stage >= 1 ? "done" : "now"} tone="rec">
           <Button small variant="danger" onClick={steal} disabled={bal.locked || bal.available === "0"}>
             {t("Simulasikan pencurian", "Simulate theft")}
           </Button>
-        </Step>
-        <Step n={2} title={t("HP pemulihan: tekan PANIK", "Recovery phone: hit PANIC")} done={stage >= 2}>
+        </Stop>
+        <Stop name={t("Panik", "Panic")} title={t("HP pemulihan: tekan PANIK", "Recovery phone: hit PANIC")} state={stage >= 2 ? "done" : stage === 1 ? "now" : "todo"} tone="rec">
           <Button variant="danger" onClick={panic} disabled={bal.locked && stolen.length === 0}>
             {t("PANIK", "PANIC")}
           </Button>
-        </Step>
-        <Step n={3} title={t(`Tunggu ${cfg.contest_window_sec} dtk, lalu finalisasi — tanpa voting`, `Wait ${cfg.contest_window_sec} s, then finalize — no vote`)} done={stage >= 4}>
+        </Stop>
+        <Stop name={t("Tunggu", "Wait")} title={t(`Tunggu ${cfg.contest_window_sec} dtk, lalu finalisasi — tanpa voting`, `Wait ${cfg.contest_window_sec} s, then finalize — no vote`)} state={stage >= 3 ? "done" : stage === 2 ? "now" : "todo"} tone="ice">
           {frozen.length > 0 && ready.length === 0 && (
             <span className="flex items-center gap-2 text-xs text-ice">
               <WindowBar from={(BigInt(nextFrozen) - BigInt(cfg.contest_window_sec) * 1_000_000_000n).toString()} to={nextFrozen} tone="ice" />
               <Countdown ns={nextFrozen} />
             </span>
           )}
+        </Stop>
+        <Stop name={t("Finalisasi", "Finalize")} title={t("Uang kembali ke HP pemulihan", "The money goes back to the recovery phone")} state={stage >= 4 ? "done" : stage === 3 ? "now" : "todo"} tone="ice">
           <Button small onClick={finalizeAll} disabled={ready.length === 0}>
             {t("Finalisasi", "Finalize")} {ready.length > 0 ? `(${ready.length})` : ""}
           </Button>
-        </Step>
-        <Step n={4} title={t("Kunci sudah diganti? Buka kunci", "Key replaced? Unlock")} done={stage >= 5}>
+        </Stop>
+        <Stop name={t("Buka kunci", "Unlock")} title={t("Kunci sudah diganti? Buka kunci", "Key replaced? Unlock")} state={stage >= 5 ? "done" : stage === 4 ? "now" : "todo"}>
           <Button small variant="ghost" onClick={unlock} disabled={!bal.locked || frozen.length > 0}>
             {t("Buka kunci", "Unlock")}
           </Button>
-        </Step>
-        <Step n={5} title={t("Opsional: kirim uangnya balik ke dompet", "Optional: send the money back")} done={false}>
-          <span className="osd text-lg leading-none text-phosphor">
-            📱 {fmt(guardBal?.available)} <span className="normal-case">rUSDC</span>
-          </span>
-          <Button small variant="ghost" onClick={giveBack} disabled={bal.locked || !guardBal || guardBal.available === "0"}>
-            {t("Kirim balik", "Send back")}
-          </Button>
-        </Step>
+        </Stop>
       </ol>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[10px] bg-well px-4 py-3">
+        <span className="text-sm text-dim">
+          {t("Opsional: kirim uangnya balik ke dompet", "Optional: send the money back")} ·{" "}
+          <b className="text-sky tabular-nums">
+            📱 {fmt(guardBal?.available)} <span className="normal-case">rUSDC</span>
+          </b>
+        </span>
+        <Button small variant="ghost" onClick={giveBack} disabled={bal.locked || !guardBal || guardBal.available === "0"}>
+          {t("Kirim balik", "Send back")}
+        </Button>
+      </div>
       <p className="mt-3 text-xs text-muted">
         {t(`⛽ Langkah 2–4 tanpa gas (relayer Undo, NEP-366) · NEAR akun pemulihan: ${nearText}`, `⛽ Steps 2–4 are gasless (Undo relayer, NEP-366) · recovery account NEAR: ${nearText}`)}
       </p>
@@ -532,45 +670,6 @@ function WalletOnboarding({
         </div>
       )}
     </Card>
-  );
-}
-
-function Stat({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
-  return (
-    <div className={`rounded-[2px] border bg-well p-3 ${strong ? "border-phosphor/40" : "border-line"}`}>
-      <div className="osd text-base leading-5 text-muted">{label}</div>
-      <div className={`osd mt-1 leading-none tabular-nums ${strong ? "rgb text-5xl text-phosphor" : "text-3xl text-ink"}`}>{value}</div>
-    </div>
-  );
-}
-
-/** The wallet as a tape deck: ▶ PLAY while an outgoing transfer is in its undo window, ❚❚ PAUSE while locked by a panic. */
-function TapeDeck({ locked, outgoing }: { locked: boolean; outgoing: Transfer[] | undefined }) {
-  const t = useT();
-  const now = BigInt(Date.now()) * 1_000_000n;
-  const next = (outgoing ?? [])
-    .filter((x) => x.kind !== "Sweep" && x.status === "Pending" && BigInt(x.unlock_at) > now)
-    .map((x) => x.unlock_at)
-    .sort((a, b) => (BigInt(a) < BigInt(b) ? -1 : 1))[0];
-  const state = locked ? "pause" : next ? "play" : "stop";
-  return (
-    <div className={`flex items-center gap-4 rounded-[2px] border bg-well p-3 lg:flex-col lg:items-start lg:gap-2 ${state === "pause" ? "border-ice/60" : state === "play" ? "border-signal/60" : "border-line"}`}>
-      <Reels state={state === "play" ? "play" : "stop"} size="2.25rem" />
-      <div>
-        <div className={`osd rgb text-2xl leading-none ${state === "pause" ? "text-ice" : state === "play" ? "text-signal" : "text-muted"}`}>
-          {state === "pause" ? "❚❚ PAUSE" : state === "play" ? "▶ PLAY" : "■ STOP"}
-        </div>
-        <div className="mt-1 text-xs text-dim">
-          {state === "pause" ? (
-            t("akun dikunci (Panik)", "account locked (panic)")
-          ) : state === "play" ? (
-            <Countdown ns={next} prefix={t("final dalam ", "final in ")} />
-          ) : (
-            t("tidak ada transfer berjalan", "no transfer running")
-          )}
-        </div>
-      </div>
-    </div>
   );
 }
 

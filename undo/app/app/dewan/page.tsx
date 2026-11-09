@@ -65,42 +65,42 @@ export default function DewanPage() {
   const open = items?.filter((t) => t.status === "Disputed") ?? [];
   const closed = items?.filter((t) => t.status !== "Disputed") ?? [];
   return (
-    <div className="space-y-4">
+    <div className="space-y-12 [overflow-wrap:anywhere] sm:space-y-16">
       <Card
         title={tr("Dewan", "Council")}
         right={
-          <a className="osd text-lg leading-none text-phosphor underline decoration-dotted underline-offset-4" href={ADDR(DAO)} target="_blank" rel="noreferrer">
+          <a className="text-sm font-semibold text-sky underline decoration-dotted underline-offset-4" href={ADDR(DAO)} target="_blank" rel="noreferrer">
             ⚖️ Sputnik DAO ↗
           </a>
         }
       >
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+        <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
           {/* who votes */}
-          <div className="rounded-[2px] border border-line bg-well p-3">
-            <div className="osd text-lg leading-5 text-muted">{tr("Anggota", "Members")}</div>
+          <div className="min-w-0 rounded-[12px] bg-well p-4">
+            <div className="text-sm font-semibold text-muted">{tr("Anggota", "Members")}</div>
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               {(council?.members ?? []).map((m) => (
-                <span key={m} className="mono rounded-[2px] bg-ink/10 px-1.5 py-0.5 text-xs">
+                <span key={m} className="mono rounded-full bg-ink/10 px-2.5 py-1 text-xs">
                   👤 {short(m)}
                 </span>
               ))}
             </div>
             {council && (
-              <div className="osd rgb mt-2 text-2xl leading-none text-plum">
+              <div className="serif mt-3 text-2xl leading-tight tabular-nums text-plum">
                 {tr(`${council.needed} dari ${council.members.length} suara`, `${council.needed} of ${council.members.length} votes`)}
               </div>
             )}
           </div>
-          <span aria-hidden className="osd hidden text-3xl text-muted sm:block">
+          <span aria-hidden className="hidden text-xl text-muted sm:block">
             ▶
           </span>
           {/* only two outcomes */}
-          <div className="grid gap-2">
-            <div className="rounded-[2px] border border-phosphor/50 bg-phosphor/5 px-3 py-2 text-sm font-semibold">
-              <span className="osd text-xl text-phosphor">◀◀</span> {tr("Kembali ke pihak pengirim", "Back to the sender's side")}
+          <div className="grid min-w-0 gap-3">
+            <div className="rounded-[12px] bg-sky/10 p-4 text-sm font-semibold">
+              <span className="text-sm font-semibold text-sky">◀◀</span> {tr("Kembali ke pihak pengirim", "Back to the sender's side")}
             </div>
-            <div className="rounded-[2px] border border-line-2 bg-well px-3 py-2 text-sm font-semibold">
-              <span className="osd text-xl text-ink">▶</span> {tr("Diteruskan ke penerima", "Paid to the receiver")}
+            <div className="rounded-[12px] bg-well p-4 text-sm font-semibold">
+              <span className="text-sm font-semibold text-ink">▶</span> {tr("Diteruskan ke penerima", "Paid to the receiver")}
             </div>
           </div>
         </div>
@@ -123,14 +123,14 @@ export default function DewanPage() {
       )}
       {closed.length > 0 && (
         <Card title={tr("Sudah diputus", "Decided")}>
-          <ul className="space-y-1 text-sm">
+          <ul className="space-y-4 text-sm">
             {closed.map((t) => (
               <li key={t.id} className="flex flex-wrap items-center gap-2">
-                <Link className="mono text-xs text-phosphor underline decoration-dotted underline-offset-2" href={`/sidang/${t.id}`}>
+                <Link className="text-xs font-semibold text-sky underline decoration-dotted underline-offset-2" href={`/sidang/${t.id}`}>
                   #{t.id}
                 </Link>
                 <StatusBadge status={t.status} />
-                <span className="osd text-xl leading-none tabular-nums">{fmt(t.amount)}</span>
+                <span className="text-sm font-semibold tabular-nums text-ink">{fmt(t.amount)}</span>
                 <span className="text-muted">
                   {tr("oleh", "decided by")}{" "}
                   {t.dispute?.decided_by === "council" ? tr("dewan", "the council") : t.dispute?.decided_by === "timeout" ? tr("diamnya dewan", "council silence") : t.dispute?.decided_by} →{" "}
@@ -201,19 +201,19 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
   return (
     <Card
       title={
-        <span className="flex items-center gap-2 normal-case">
+        <span className="flex min-w-0 flex-wrap items-center gap-2 normal-case">
           <Link href={`/sidang/${t.id}`} className="underline decoration-dotted underline-offset-4">
             {tr(`Sengketa #${t.id}`, `Dispute #${t.id}`)}
           </Link>
-          <span className="text-muted">{d.origin === "Report" ? tr("laporan penipuan", "fraud report") : tr("bantahan Panik", "contested panic")}</span>
+          <span className="font-sans text-sm font-semibold text-muted">{d.origin === "Report" ? tr("laporan penipuan", "fraud report") : tr("bantahan Panik", "contested panic")}</span>
         </span>
       }
-      right={<span className="osd rgb text-3xl leading-none tabular-nums text-plum">❚❚ {fmt(t.amount)}</span>}
+      right={<span className="serif min-w-0 text-4xl leading-tight tabular-nums text-plum">❚❚ {fmt(t.amount)}</span>}
     >
       <p className="text-sm text-muted">
         {short(t.from)} → {short(t.to)} · {tr("dibuka oleh", "opened by")} {short(d.opened_by)}: “{d.reason}”
       </p>
-      <div className="my-3 rounded-[2px] border border-line bg-well p-3 text-sm">
+      <div className="my-5 rounded-[12px] bg-well p-4 text-sm">
         {rec ? (
           <>
             <div className="flex flex-wrap items-center gap-2">
@@ -239,11 +239,11 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
         )}
       </div>
       {proposals.length > 0 && (
-        <div className="mb-3 space-y-1 text-sm">
-          <b className="osd text-lg font-normal leading-5 text-muted">{tr("Usulan di DAO", "Proposals in the DAO")}</b>
+        <div className="mb-5 space-y-3 text-sm">
+          <b className="text-sm font-semibold text-muted">{tr("Usulan di DAO", "Proposals in the DAO")}</b>
           {proposals.map((p) => (
             <div key={p.id} className="flex flex-wrap items-center gap-2">
-              <a className="mono text-xs text-phosphor underline decoration-dotted underline-offset-2" href={ADDR(DAO)} target="_blank" rel="noreferrer">
+              <a className="text-xs font-semibold text-sky underline decoration-dotted underline-offset-2" href={ADDR(DAO)} target="_blank" rel="noreferrer">
                 #{p.id}
               </a>
               <span>{p.reverse ? (sweep ? tr("kembalikan ke pemilik", "return to the owner") : tr("kembalikan ke pengirim", "return to the sender")) : sweep ? tr("teruskan ke akun pemulihan", "release to the recovery account") : tr("teruskan ke penerima", "pay the receiver")}</span>
@@ -281,7 +281,7 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
         {tr("Alasan publik putusan", "Public reason for the decision")}
         <input value={reason} onChange={(e) => setReason(e.target.value)} className={`${inputClass} mt-1 block w-full text-sm`} />
       </label>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-5 flex flex-wrap gap-3">
         <Button onClick={() => decide(true)}>{sweep ? tr("Kembalikan ke pemilik akun", "Return to the account owner") : tr("Kembalikan ke pihak pengirim", "Return to the sender's side")}</Button>
         <Button variant="ghost" onClick={() => decide(false)}>
           {sweep ? tr("Teruskan ke akun pemulihan", "Release to the recovery account") : tr("Teruskan ke penerima", "Pay the receiver")}

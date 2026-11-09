@@ -135,8 +135,8 @@ export default function SidangPage() {
   const stage = decided || t.status !== "Disputed" ? 5 : rec ? 3 : readyToJudge ? 2 : 1;
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-[3px] border border-line bg-panel p-3 sm:p-4">
+    <div className="space-y-12 [overflow-wrap:anywhere] sm:space-y-16">
+      <div className="rounded-[14px] bg-panel p-5">
         <Stepper
           current={stage}
           steps={[
@@ -149,8 +149,8 @@ export default function SidangPage() {
         />
       </div>
       {t.status === "Disputed" && (
-        <div className="flex flex-wrap items-center gap-3 rounded-[3px] border border-plum/50 bg-plum/10 px-4 py-3 text-sm">
-          <span aria-hidden className="osd rgb text-4xl leading-none text-plum">
+        <div className="flex flex-wrap items-center gap-3 rounded-[14px] bg-plum/10 p-5 text-sm">
+          <span aria-hidden className="text-3xl leading-none text-plum">
             ❚❚
           </span>
           <p className="min-w-0 flex-1">
@@ -163,9 +163,9 @@ export default function SidangPage() {
         </div>
       )}
       <Card title={tr(`Sidang #${t.id}`, `Court case #${t.id}`)} right={<StatusBadge status={t.status} />}>
-        <div className="grid gap-2 text-sm sm:grid-cols-2">
-          <div>
-            <b className="osd rgb text-3xl font-normal leading-none">{fmt(t.amount)}</b> {t.kind === "Sweep" ? tr("rUSDC (sapu Panik)", "rUSDC (panic sweep)") : t.kind === "Exit" ? "USDC" : "rUSDC"}
+        <div className="grid gap-4 text-sm sm:grid-cols-2">
+          <div className="min-w-0">
+            <b className="serif text-4xl leading-tight tabular-nums">{fmt(t.amount)}</b> {t.kind === "Sweep" ? tr("rUSDC (sapu Panik)", "rUSDC (panic sweep)") : t.kind === "Exit" ? "USDC" : "rUSDC"}
             <div className="text-muted">
               {short(t.from)} → {short(t.to)}
             </div>
@@ -189,7 +189,7 @@ export default function SidangPage() {
       </Card>
 
       <Card title={tr("🔒 Bukti terenkripsi", "🔒 Encrypted evidence")}>
-        <ul className="mb-3 space-y-1 text-sm">
+        <ul className="mb-5 space-y-4 text-sm">
           {(["pengirim", "penerima"] as Side[]).map((s) => {
             const h = s === "pengirim" ? d.evidence_sender : d.evidence_receiver;
             return (
@@ -206,16 +206,16 @@ export default function SidangPage() {
           <Notice kind="info">
             {lang === "en" ? (
               <>
-                Create a demo wallet on the <Link href="/dompet" className="text-phosphor underline">Wallet</Link> page to take part in the court case.
+                Create a demo wallet on the <Link href="/dompet" className="text-sky underline">Wallet</Link> page to take part in the court case.
               </>
             ) : (
               <>
-                Buat dompet demo di <Link href="/dompet" className="text-phosphor underline">Dompet</Link> untuk ikut sidang.
+                Buat dompet demo di <Link href="/dompet" className="text-sky underline">Dompet</Link> untuk ikut sidang.
               </>
             )}
           </Notice>
         ) : mySide && !slotFilled && evidenceOpen && t.status === "Disputed" ? (
-          <div className="space-y-2">
+          <div className="space-y-4">
             <p className="text-xs text-muted">
               {lang === "en" ? (
                 <>
@@ -254,9 +254,9 @@ export default function SidangPage() {
 
       <Card title={tr("🤖 Rekomendasi AI (TEE)", "🤖 AI recommendation (TEE)")} tone={rec ? "accent" : undefined}>
         {rec ? (
-          <div className="space-y-2 text-sm">
+          <div className="space-y-4 text-sm">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="osd rgb text-4xl leading-none text-phosphor">
+              <span className="serif min-w-0 text-2xl leading-tight text-sky sm:text-3xl">
                 {rec.rekomendasi === "kembalikan" ? tr("Kembalikan", "Return to sender") : rec.rekomendasi === "lanjutkan" ? tr("Teruskan", "Pay the receiver") : rec.rekomendasi}
               </span>
               {lang === "en" && (rec.rekomendasi === "kembalikan" || rec.rekomendasi === "lanjutkan") && (
@@ -296,7 +296,7 @@ export default function SidangPage() {
         ) : t.status !== "Disputed" ? (
           <p className="text-sm text-muted">{tr("Tidak ada rekomendasi (diputus tanpa sidang AI).", "No recommendation (decided without the AI court).")}</p>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-4">
             <p className="text-sm text-dim">
               {readyToJudge
                 ? allUploaded
@@ -333,7 +333,7 @@ export default function SidangPage() {
             )}
           </div>
         ) : (
-          <div className="space-y-2 text-sm">
+          <div className="space-y-4 text-sm">
             <p>
               {tr("Menunggu dewan. Kalau dewan diam sampai batasnya,", "Waiting for the council. If the council stays silent until its deadline,")}{" "}
               {d.fallback_reverse
@@ -343,7 +343,7 @@ export default function SidangPage() {
                   : tr("uang diteruskan ke penerima", "the money is paid to the receiver")}
               .
             </p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-3">
               <Link href="/dewan" className={btnClass("ghost", true)}>
                 {tr("Ke halaman Dewan →", "Go to the Council page →")}
               </Link>
