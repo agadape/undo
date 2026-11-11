@@ -2,7 +2,7 @@
 
 [![test](https://github.com/agadape/undo/actions/workflows/test.yml/badge.svg)](https://github.com/agadape/undo/actions/workflows/test.yml) Contract tests (60 unit + property) and a web app type check run on every push.
 
-**Live app (NEAR testnet):** https://undo-cyan.vercel.app/?lang=en · **Every claim with its evidence:** [CLAIMS.md](CLAIMS.md) · Built at NEAR HACKATHON (1–14 Nov 2026)
+**Live app (NEAR testnet):** https://undo-cyan.vercel.app · **Every claim with its evidence:** [CLAIMS.md](CLAIMS.md) · Built at NEAR HACKATHON (1–14 Nov 2026)
 
 Undo is a wrapped-USDC token (`rUSDC`, 1:1) where every outgoing transfer waits in an undo window before it becomes final. It undoes two kinds of loss:
 
@@ -11,7 +11,35 @@ Undo is a wrapped-USDC token (`rUSDC`, 1:1) where every outgoing transfer waits 
 
 Everything runs on NEAR testnet. No real money is involved.
 
+Most security projects for crypto payments build a fence before money leaves: spending limits, allowlists, checks before signing. Undo works after the money has left: a payment that already went out can still be taken back while its window runs.
+
+## Verify in 60 seconds (no wallet, no keys)
+
+The product contract is [`undo-demo-v2.testnet`](https://testnet.nearblocks.io/address/undo-demo-v2.testnet). It has no access keys, so nobody (including us) can change or upgrade it, and its code is the reproducible v2 build:
+
+```bash
+curl -s https://rpc.testnet.fastnear.com -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_access_key_list","finality":"final","account_id":"undo-demo-v2.testnet"}}'
+# → "keys":[]
+curl -s https://rpc.testnet.fastnear.com -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_account","finality":"final","account_id":"undo-demo-v2.testnet"}}'
+# → "code_hash":"AzDhXsj2JzWQAEjScj5SrubF4Q96VCLPHTRawcpHnZkJ"  (rebuild it from source: see "Build and test")
+```
+
+Four transactions, one per mechanism (all on NEAR testnet, all successful):
+
+| What happened | Transaction |
+|---|---|
+| A theft frozen by **panic**, signed by the owner's recovery account as a NEP-366 delegate action; our relayer paid the gas, so the recovery account's NEAR did not move | [`59goVnnP…`](https://testnet.nearblocks.io/txns/59goVnnPt1KxLAWYxjPjJQwPdBqqtCXZqQbCdaMXwrYG) |
+| A **private AI verdict** accepted by the contract: TEE signature checked, request rebuilt from the registered prompt and both sides' encrypted evidence, only the verdict field opened (`kembalikan`, confidence 85, the seller's prompt injection flagged). No money moved | [`5qChMdoW…`](https://testnet.nearblocks.io/txns/5qChMdoWVfEmUkRFWe2de6QTd7wNFpU1CLa33pQFMe4v) |
+| The **council** (Sputnik DAO, 3 members) reaching 2 of 3 votes; the DAO then ran `resolve` and the money went back to the buyer's recovery account | [`26G1vz5z…`](https://testnet.nearblocks.io/txns/26G1vz5z7TF3DAUpKDy6WjccVJF9nePbJ7uRH3db8WgM) |
+| The **Coba Curi guard**, a bot holding a function-call key that can only call `panic`, `finalize`, `unlock` and `release_expired`, freezing a transfer out of the bait account 21 s after it was sent | [`DaN7WLrt…`](https://testnet.nearblocks.io/txns/DaN7WLrt8LzaFkj7JpztsWYddfv1LiG4gJzUNTpUgRYr) |
+
+The same checks run live in the browser at https://undo-cyan.vercel.app/janji. Every other claim, with its code line, test and transaction, is in [CLAIMS.md](CLAIMS.md).
+
 ## The problem
+
+In 2025, Americans reported $11.366 billion in losses involving cryptocurrency to the FBI, across 181,565 complaints, 22% more than in 2024 ([FBI IC3 2025 Internet Crime Report](https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf)).
 
 A crypto transfer is final. With a leaked key or a fake online seller, the money is gone once it leaves. Card networks have chargebacks and banks can recall transfers, but those depend on an operator who sees all your evidence and can move money anywhere. Undo keeps the undo, removes the operator:
 
@@ -69,7 +97,7 @@ The interface is in English. The court's prompt is in English too; the AI writes
 
 **A. A stolen key, undone without a vote**
 
-1. Open https://undo-cyan.vercel.app/dompet?lang=en and click **Set up demo wallet**.
+1. Open https://undo-cyan.vercel.app/dompet and click **Set up demo wallet**.
    You should see two new testnet accounts: the main wallet and its recovery account. **Available** shows 100.00 rUSDC.
 2. In the card **Test the panic button**, step 1, click **Simulate theft**.
    You should see 90 rUSDC sent to a "Thief" account. The transfer is pending, so the thief cannot use it. A red alert appears at the top of the page: "Money is leaving Main wallet. Was this you?".
@@ -102,13 +130,13 @@ The interface is in English. The court's prompt is in English too; the AI writes
 
 **D. Check the promises and the challenge**
 
-15. https://undo-cyan.vercel.app/janji?lang=en runs the J1–J7 checks live against the chain:
+15. https://undo-cyan.vercel.app/janji runs the J1–J7 checks live against the chain:
     - 0 access keys on the contract;
     - code hash = the reproducible v2 build;
     - reserve 1:1;
     - pinned model key;
     - the prompt hash recomputed in your browser matches the on-chain hash.
-16. https://undo-cyan.vercel.app/coba-curi?lang=en ("try to steal") is a locked instance whose bait account key is meant to be published. A guard presses panic on every outgoing transfer. The page shows attempts, frozen transfers, money cashed out (0 so far) and reaction time.
+16. https://undo-cyan.vercel.app/coba-curi ("try to steal") is a locked instance whose bait account key is meant to be published. A guard presses panic on every outgoing transfer. The page shows attempts, frozen transfers, money cashed out (0 so far) and reaction time.
 
 You can also click **Connect wallet** to use a real NEAR testnet wallet through NEAR Connect instead of the demo keys.
 
