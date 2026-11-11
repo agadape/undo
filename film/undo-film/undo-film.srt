@@ -1,0 +1,63 @@
+1
+00:00:03,200 --> 00:00:08,000
+THIEF: Your key. Your money. In crypto, every transfer is final.
+
+2
+00:00:18,600 --> 00:00:21,100
+UNDO: Final? Not for five minutes.
+
+3
+00:00:26,800 --> 00:00:30,100
+UNDO: Time has stopped. Only you and I can see this.
+
+4
+00:00:30,300 --> 00:00:35,900
+UNDO: Every transfer waits five minutes. Until then, nothing is final. Not even for him.
+
+5
+00:00:36,400 --> 00:00:39,100
+UNDO: No judge. No vote. Just: back.
+
+6
+00:00:40,200 --> 00:00:42,000
+THIEF: Hey. Where did it go?
+
+7
+00:00:43,400 --> 00:00:46,100
+THIEF: Fine. I'm a store now. Pay up.
+
+8
+00:00:46,600 --> 00:00:53,700
+UNDO: Got scammed? Hit report. A private AI reads both sides, sealed. Three people decide. The AI can't move a cent.
+
+9
+00:00:56,200 --> 00:00:59,000
+UNDO: That was a story. This part is real.
+
+10
+00:01:00,600 --> 00:01:05,400
+UNDO: A real panic, on the NEAR test network. We paid the gas, not your phone.
+
+11
+00:01:06,600 --> 00:01:11,200
+UNDO: We set a trap wallet and tried to rob it. Frozen in 21 seconds.
+
+12
+00:01:11,300 --> 00:01:13,100
+THIEF: 21?!
+
+13
+00:01:13,600 --> 00:01:18,100
+UNDO: A fake seller slipped a secret order to the AI judge. It noticed.
+
+14
+00:01:19,800 --> 00:01:23,600
+UNDO: The contract has no keys. Not even we can change it.
+
+15
+00:01:23,600 --> 00:01:25,400
+THIEF: I quit.
+
+16
+00:01:27,600 --> 00:01:30,300
+UNDO: Undo. Ctrl+Z, for your money.

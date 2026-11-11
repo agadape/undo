@@ -1,0 +1,18 @@
+[
+ {"id": "t1", "text": "Your key. Your money. In crypto, every transfer is final.", "voice": "bm_lewis", "speed": 0.9},
+ {"id": "u1", "text": "Final? Not for five minutes.", "voice": "am_onyx", "speed": 0.86},
+ {"id": "u2", "text": "Time has stopped. Only you and I can see this.", "voice": "am_onyx", "speed": 0.86},
+ {"id": "u3", "text": "Every transfer waits five minutes. Until then, nothing is final. Not even for him.", "voice": "am_onyx", "speed": 0.88},
+ {"id": "u4", "text": "No judge. No vote. Just, back.", "voice": "am_onyx", "speed": 0.86},
+ {"id": "t2", "text": "Hey. Where did it go?", "voice": "bm_lewis", "speed": 0.95},
+ {"id": "t3", "text": "Fine. I'm a store now. Pay up.", "voice": "bm_lewis", "speed": 0.92},
+ {"id": "u5", "text": "Got scammed? Hit report. A private A.I. reads both sides, sealed. Three people decide. The A.I. can't move a cent.", "voice": "am_onyx", "speed": 0.9, "asr": "Got scammed? Hit report. A private AI reads both sides, sealed. Three people decide. The AI can't move a cent."},
+ {"id": "u6", "text": "That was a story. This part is real.", "voice": "am_onyx", "speed": 0.88},
+ {"id": "u7", "text": "A real panic, on the NEAR test network. We paid the gas, not your phone.", "voice": "am_onyx", "speed": 0.9},
+ {"id": "u8", "text": "We set a trap wallet and tried to rob it. Frozen in twenty-one seconds.", "voice": "am_onyx", "speed": 0.9},
+ {"id": "t4", "text": "Twenty-one?", "voice": "bm_lewis", "speed": 0.95},
+ {"id": "u9", "text": "A fake seller slipped a secret order to the A.I. judge. It noticed.", "voice": "am_onyx", "speed": 0.9, "asr": "A fake seller slipped a secret order to the A. I. judge. It noticed."},
+ {"id": "u10", "text": "The contract has no keys. Not even we can change it.", "voice": "am_onyx", "speed": 0.88},
+ {"id": "t5", "text": "I quit.", "voice": "bm_lewis", "speed": 0.9},
+ {"id": "u11", "text": "Undo. Control Z, for your money.", "voice": "am_onyx", "speed": 0.86}
+]

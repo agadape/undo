@@ -30,3 +30,9 @@ spikes/out/ref/
 .wrangler/
 # temporary secret files for wrangler secret bulk
 *.tmp.json
+
+# film renders (large): keep the code, not the outputs
+film/**/out/
+film/**/stills/
+film/**/*.mp4
+film/**/v1/voice_v1/

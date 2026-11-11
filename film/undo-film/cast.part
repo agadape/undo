@@ -1,0 +1,117 @@
+
+// ---------- UNDO: the guardian that comes out of your phone. Frosted ice armour, a cassette visor, magnetic tape for a cape ----------
+function makeGuardian(){const root=new THREE.Group(),body=new THREE.Group();root.add(body);
+ const armour=ghostMat(0xc9d8e3,ICE,{op:.95,rimK:1.5,rough:.34}),dark=ghostMat(0x0d1520,ICE,{op:.96,rimK:1.6,rough:.15,metal:.5}),glow=new THREE.MeshBasicMaterial({color:hot(ICE,2.4)});
+ const hips=new THREE.Group();hips.position.y=1.5;body.add(hips);
+ const pelvis=new THREE.Mesh(new THREE.SphereGeometry(.32,32,20),dark);pelvis.scale.set(1.15,.7,.8);hips.add(pelvis);
+ const spine=new THREE.Group();spine.position.y=.08;hips.add(spine);
+ const torso=new THREE.Mesh(new THREE.CylinderGeometry(.56,.3,1.0,40),armour);torso.scale.z=.6;torso.position.y=.56;spine.add(torso);
+ const abs=new THREE.Mesh(new THREE.CylinderGeometry(.31,.28,.3,32),dark);abs.scale.z=.62;abs.position.y=.1;spine.add(abs);
+ const plate=new THREE.Mesh(new RoundedBoxGeometry(.9,.46,.1,4,.05),dark);plate.position.set(0,.78,.31);plate.rotation.x=-.08;spine.add(plate);
+ const glyphP=new THREE.Mesh(new THREE.PlaneGeometry(.78,.36),new THREE.MeshBasicMaterial({transparent:true,color:hot(ICE,2.2),depthWrite:false}));glyphP.position.set(0,.78,.365);glyphP.rotation.x=-.08;spine.add(glyphP);
+ const collar=new THREE.Mesh(new THREE.TorusGeometry(.2,.06,12,32),armour);collar.rotation.x=Math.PI/2;collar.position.y=1.08;spine.add(collar);
+ const neck=new THREE.Group();neck.position.y=1.12;spine.add(neck);{const nk=new THREE.Mesh(new THREE.CylinderGeometry(.11,.13,.22,16),dark);nk.position.y=.08;neck.add(nk)}
+ const head=new THREE.Group();head.position.y=.22;neck.add(head);
+ const helm=new THREE.Mesh(new RoundedBoxGeometry(.5,.56,.52,5,.15),armour);helm.position.y=.24;head.add(helm);
+ const visor=new THREE.Mesh(new RoundedBoxGeometry(.46,.17,.1,4,.05),dark);visor.position.set(0,.27,.23);head.add(visor);
+ const reels=[-1,1].map(s=>{const r=new THREE.Group();const ring=new THREE.Mesh(new THREE.TorusGeometry(.052,.014,10,28),glow);r.add(ring);for(let i=0;i<3;i++){const sp=new THREE.Mesh(new THREE.BoxGeometry(.012,.07,.01),glow);sp.rotation.z=i*Math.PI/3;r.add(sp)}r.position.set(s*.11,.27,.285);head.add(r);return r});
+ const crest=new THREE.Mesh(new THREE.BoxGeometry(.05,.16,.5),glow);crest.position.set(0,.55,-.02);head.add(crest);
+ [-1,1].forEach(s=>{const ear=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,.06,24),dark);ear.rotation.z=Math.PI/2;ear.position.set(s*.27,.24,0);head.add(ear);const er=new THREE.Mesh(new THREE.TorusGeometry(.06,.012,8,24),glow);er.rotation.y=Math.PI/2;er.position.set(s*.305,.24,0);head.add(er)});
+ const vl=new THREE.PointLight(ICE,4,3,1.6);vl.position.set(0,.27,.5);head.add(vl);
+ const arms=[-1,1].map(s=>{const S=new THREE.Group();S.position.set(s*.66,.98,0);spine.add(S);
+  const pad=new THREE.Mesh(new THREE.SphereGeometry(.27,24,16,0,Math.PI*2,0,Math.PI*.55),armour);pad.position.y=.06;pad.scale.set(1.1,.9,1);S.add(pad);
+  const up=new THREE.Mesh(new THREE.CapsuleGeometry(.11,.46,6,16),dark);up.position.y=-.3;S.add(up);const E=new THREE.Group();E.position.y=-.6;S.add(E);
+  const fo=new THREE.Mesh(new THREE.CapsuleGeometry(.1,.42,6,16),armour);fo.position.y=-.26;E.add(fo);const cuff=new THREE.Mesh(new THREE.TorusGeometry(.11,.025,8,24),glow);cuff.rotation.x=Math.PI/2;cuff.position.y=-.42;E.add(cuff);
+  const hand=new THREE.Group();hand.position.y=-.58;E.add(hand);const palm=new THREE.Mesh(new RoundedBoxGeometry(.17,.2,.09,3,.04),dark);palm.position.y=-.06;hand.add(palm);
+  const th=new THREE.Mesh(new THREE.CapsuleGeometry(.025,.08,4,8),dark);th.position.set(-s*.09,-.02,.03);th.rotation.z=s*.6;hand.add(th);return{S,E,hand,s}});
+ const legs=[-1,1].map(s=>{const Hp=new THREE.Group();Hp.position.set(s*.2,-.12,0);hips.add(Hp);const th=new THREE.Mesh(new THREE.CapsuleGeometry(.14,.5,6,16),dark);th.position.y=-.32;Hp.add(th);
+  const K=new THREE.Group();K.position.y=-.66;Hp.add(K);const sh=new THREE.Mesh(new THREE.CylinderGeometry(.12,.03,.62,16),ghostMat(0xd6e4ee,ICE,{op:.55,rimK:2.6}));sh.position.y=-.3;K.add(sh);return{Hp,K}});
+ // magnetic tape cape: three ribbons from the shoulder blades, flowing behind
+ const tapeMat=new THREE.MeshPhysicalMaterial({color:0x2b1d12,roughness:.2,metalness:.6,clearcoat:.7,side:THREE.DoubleSide});
+ const ribbons=[-.28,0,.28].map((x,i)=>{const n=40,pos=new Float32Array((n+1)*2*3),idx=[];for(let k=0;k<n;k++){const a=k*2;idx.push(a,a+1,a+2,a+1,a+3,a+2)}const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(pos,3));g.setIndex(idx);
+  const m=new THREE.Mesh(g,tapeMat);m.frustumCulled=false;m.castShadow=true;scene.add(m);return{m,pos,n,x,ph:i*1.7,len:2.6+i*.4}});
+ const aura=new THREE.Mesh(new THREE.PlaneGeometry(4.2,5.4),new THREE.MeshBasicMaterial({map:canvasTex(256,320,(g)=>{const gr=g.createRadialGradient(128,170,10,128,170,150);gr.addColorStop(0,"rgba(159,232,255,.3)");gr.addColorStop(1,"rgba(159,232,255,0)");g.fillStyle=gr;g.fillRect(0,0,256,320)}),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));aura.position.set(0,2.3,-.5);body.add(aura);
+ body.traverse(o=>{if(o.isMesh&&o!==aura)o.castShadow=true});
+ Object.assign(root.userData,{body,hips,spine,neck,head,arms,legs,reels,ribbons,glyphP,aura,vl,glow});return root}
+
+// ---------- the thief: a hooded phantom of red glass shards, holding your stolen key ----------
+function makePhantom(){const root=new THREE.Group(),body=new THREE.Group();root.add(body);
+ const prof=[[.98,0],[.9,.25],[.72,.7],[.58,1.2],[.6,1.7],[.66,1.95],[.5,2.25],[.44,2.55],[.3,2.8],[.08,2.98],[.01,3.02]].map(([r,y])=>new THREE.Vector2(r,y));
+ const cg=new THREE.LatheGeometry(prof,48);{const p=cg.attributes.position;for(let i=0;i<p.count;i++){const y=p.getY(i);if(y<.3){const a=Math.atan2(p.getZ(i),p.getX(i));const j=(Math.sin(a*7)*.5+Math.sin(a*13+1)*.5)*.22*(1-y/.3);p.setY(i,Math.max(-.05,y+j))}}cg.computeVertexNormals()}
+ const cloakM=ghostMat(0x3a070e,REC,{op:.94,rimK:2.0,rough:.22,metal:.35});cloakM.flatShading=true;const cloak=new THREE.Mesh(cg,cloakM);cloak.castShadow=true;body.add(cloak);
+ const hole=new THREE.Mesh(new THREE.CircleGeometry(.3,32),new THREE.MeshBasicMaterial({color:0x020203}));hole.scale.set(1,1.25,1);hole.position.set(0,2.45,.41);hole.rotation.x=-.12;body.add(hole);
+ const head=new THREE.Group();head.position.set(0,2.45,.36);body.add(head);
+ const mask=new THREE.Mesh(new THREE.SphereGeometry(.24,32,20,0,Math.PI*2,0,Math.PI*.55),new THREE.MeshStandardMaterial({color:0xe9e3dc,roughness:.45}));mask.rotation.x=Math.PI/2;mask.scale.set(1,.55,1.25);mask.position.z=.0;head.add(mask);
+ const eyes=[-1,1].map(s=>{const e=new THREE.Mesh(new THREE.BoxGeometry(.11,.026,.02),new THREE.MeshBasicMaterial({color:hot(REC,3)}));e.position.set(s*.085,.04,.135);e.rotation.z=-s*.32;head.add(e);return e});
+ const grin=new THREE.Mesh(new THREE.TorusGeometry(.07,.012,6,20,Math.PI),new THREE.MeshBasicMaterial({color:0x15161a}));grin.rotation.z=Math.PI;grin.position.set(0,-.07,.13);head.add(grin);
+ const arms=[-1,1].map(s=>{const S=new THREE.Group();S.position.set(s*.62,1.95,0);body.add(S);const sl=new THREE.Mesh(new THREE.CylinderGeometry(.12,.24,.9,16,1,true),cloakM);sl.position.y=-.42;S.add(sl);
+  const E=new THREE.Group();E.position.y=-.86;S.add(E);const hand=new THREE.Group();hand.position.y=-.06;E.add(hand);const palm=new THREE.Mesh(new THREE.SphereGeometry(.09,16,12),new THREE.MeshStandardMaterial({color:0x1a0a0d,roughness:.4}));hand.add(palm);
+  for(let f=0;f<4;f++){const fg=new THREE.Mesh(new THREE.ConeGeometry(.022,.2,8),palm.material);fg.position.set((f-1.5)*.04,-.13,.02);fg.rotation.x=.3;hand.add(fg)}return{S,E,hand,s}});
+ const key=makeKey(.42);key.position.set(0,-.18,.06);key.rotation.set(.2,0,.5);arms[1].hand.add(key);
+ const sh=new THREE.InstancedMesh(new THREE.TetrahedronGeometry(.07),new THREE.MeshStandardMaterial({color:0x330308,emissive:new THREE.Color(REC),emissiveIntensity:1.8,roughness:.3}),22);sh.frustumCulled=false;body.add(sh);
+ const sd=[];for(let i=0;i<22;i++)sd.push([.9+rnd()*.5,.4+rnd()*2.3,rnd()*6.28,.3+rnd()*.5]);
+ const kl=new THREE.PointLight(REC,14,6,1.7);kl.position.set(.4,1.4,.8);body.add(kl);
+ Object.assign(root.userData,{body,head,eyes,arms,key,sh,sd,cloak,grin});return root}
+
+// ---------- the phone: the real app, redrawn on its screen ----------
+const pcv=document.createElement("canvas");pcv.width=600;pcv.height=1240;const px=pcv.getContext("2d");const ptex=new THREE.CanvasTexture(pcv);ptex.colorSpace=THREE.SRGBColorSpace;ptex.anisotropy=8;
+const phone=new THREE.Group();{const b=new THREE.Mesh(new RoundedBoxGeometry(.66,1.34,.08,6,.1),new THREE.MeshPhysicalMaterial({color:0x0a0c10,roughness:.18,metalness:.7,clearcoat:1}));phone.add(b);
+ const s=new THREE.Mesh(new THREE.PlaneGeometry(.6,1.24),new THREE.MeshBasicMaterial({map:ptex,toneMapped:false}));s.position.z=.0415;phone.add(s);
+ const l=new THREE.PointLight(0xbfe9ff,3,3,1.8);l.position.set(0,0,.5);phone.add(l);phone.userData.l=l}
+scene.add(phone);
+let lastPhone="";
+function drawPhone(mode,t,p={}){const k=mode+(p.timer||"")+(p.press?1:0)+"r"+(p.rip??-1);if(k===lastPhone)return;lastPhone=k;const g=px,Wd=600,Hd=1240;g.fillStyle="#07080b";g.fillRect(0,0,Wd,Hd);g.textBaseline="alphabetic";
+ g.font=MF(24);g.fillStyle="rgba(244,248,252,.7)";g.fillText("9:41",34,46);g.textAlign="right";g.fillText("●●● ▮",Wd-34,46);g.textAlign="left";
+ g.font=AF(34,900);g.fillStyle="#f4f8fc";g.fillText("Undo",34,118);g.font=AF(16,800);g.fillStyle="#ffb224";g.fillText("TESTNET",150,118);
+ if(mode==="alert"){g.fillStyle="rgba(255,46,77,.12)";g.beginPath();g.roundRect(24,160,Wd-48,620,26);g.fill();g.strokeStyle="rgba(255,46,77,.6)";g.lineWidth=2;g.stroke();
+  g.font=AF(18,800);g.fillStyle="#ff2e4d";g.fillText("● ALERT",54,212);g.textAlign="right";g.fillStyle="#ffb224";g.fillText("▶ UNDO WINDOW RUNNING",Wd-54,212);g.textAlign="left";
+  g.font=AF(38,800,"normal");g.fillStyle="#f4f8fc";["Money is leaving","Main wallet.","Was this you?"].forEach((s,i)=>g.fillText(s,54,290+i*50));
+  g.font=MF(22);g.fillStyle="rgba(244,248,252,.75)";g.fillText("90.00 rUSDC → undo-sngqnx.testnet",54,470);
+  g.fillStyle="rgba(255,178,36,.18)";g.fillRect(54,500,Wd-108,10);g.fillStyle="#ffb224";g.fillRect(54,500,(Wd-108)*.97,10);g.font=AF(22,700,"normal");g.fillText("final in "+(p.timer||"4:52"),54,548);
+  g.fillStyle="#1a1e28";g.beginPath();g.roundRect(54,590,220,84,42);g.fill();g.font=AF(22,700,"normal");g.fillStyle="#f4f8fc";g.textAlign="center";g.fillText("Yes, it was me",164,641);
+  g.fillStyle=p.press?"#ffffff":"#ff2e4d";g.beginPath();g.roundRect(292,590,Wd-346,84,42);g.fill();g.fillStyle=p.press?"#ff2e4d":"#ffffff";g.font=AF(24,800,"normal");g.fillText("🚨 No — PANIC",292+(Wd-346)/2,641);g.textAlign="left";
+  if((p.rip??-1)>=0){const r=18+p.rip*16,a=1-p.rip/17;g.strokeStyle=`rgba(255,255,255,${a})`;g.lineWidth=6;g.beginPath();g.arc(292+(Wd-346)/2,632,r,0,7);g.stroke();g.fillStyle=`rgba(255,255,255,${a*.25})`;g.fill()}
+  g.font=AF(18,500,"normal");g.fillStyle="rgba(244,248,252,.5)";g.fillText("undo-0092ci.testnet · recovery account on this phone",54,740)}
+ if(mode==="frozen"){g.fillStyle="rgba(159,232,255,.1)";g.beginPath();g.roundRect(24,160,Wd-48,520,26);g.fill();g.strokeStyle="rgba(159,232,255,.6)";g.lineWidth=2;g.stroke();
+  g.font=AF(20,800);g.fillStyle="#9fe8ff";g.fillText("❚❚ PAUSE",54,214);g.font=AF(26,700);g.fillText("Frozen",54,300);g.font=AF(96,900);g.fillStyle="#eaf6ff";g.fillText("100.00",54,400);g.font=AF(26,700);g.fillStyle="#9fe8ff";g.fillText("rUSDC",54,446);
+  g.font=AF(22,600,"normal");g.fillStyle="#b9c1cd";g.fillText("Theft frozen, wallet locked.",54,520);g.fillText("Gasless: paid by the Undo relayer.",54,556);g.font=MF(18);g.fillStyle="rgba(244,248,252,.5)";g.fillText("recovery NEAR 10.000000 → 10.000000",54,620)}
+ ptex.needsUpdate=true}
+
+// ---------- the money: a river of glass coins, from your phone to the thief ----------
+const coinGeo=new THREE.CylinderGeometry(.22,.22,.04,36);coinGeo.rotateX(Math.PI/2);
+const coinM=new THREE.MeshStandardMaterial({color:0x0b0e13,roughness:.1,metalness:.7,emissive:new THREE.Color(SKY),emissiveMap:coinFace("#8fdcff","#d9f3ff"),emissiveIntensity:2.6});
+const NC=72,coins=new THREE.InstancedMesh(coinGeo,coinM,NC);coins.frustumCulled=false;coins.castShadow=true;scene.add(coins);
+const coinSeed=[];for(let i=0;i<NC;i++)coinSeed.push({o:i/NC,dx:(rnd()-.5)*1.1,dy:(rnd()-.5)*.8,dz:(rnd()-.5)*1.0,sp:2+rnd()*4,ph:rnd()*6});
+const tmpO=new THREE.Object3D();
+const river=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.MeshBasicMaterial({color:hot(SKY,.5),transparent:true,opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false}));river.frustumCulled=false;scene.add(river);
+const riverAt=(A,B,from=0,to=1,col=SKY)=>{const pts=[];for(let i=0;i<=48;i++){const k=from+(to-from)*i/48;pts.push(bez(A,B,k))}river.geometry.dispose();river.geometry=new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),96,.16,10);river.material.color.copy(hot(col,.5))};
+// the path: a bezier from A (phone) to B (the thief's hand); k in 0..1
+const bez=(A,B,k,lift=1.6)=>{const M=new THREE.Vector3().addVectors(A,B).multiplyScalar(.5);M.y+=lift;const u=1-k;return new THREE.Vector3(u*u*A.x+2*u*k*M.x+k*k*B.x,u*u*A.y+2*u*k*M.y+k*k*B.y,u*u*A.z+2*u*k*M.z+k*k*B.z)};
+// flow: how far along the river each coin is. f in coins of "time"; spinT drives their spin (stops when time stops)
+function placeCoins(A,B,flow,spinT,spread=1,visibleFrom=0){for(let i=0;i<NC;i++){const s=coinSeed[i];let k=((flow+s.o)%1+1)%1;const on=k>=visibleFrom;const p=bez(A,B,k);
+  tmpO.position.set(p.x+s.dx*spread*Math.sin(Math.PI*k),p.y+s.dy*spread*Math.sin(Math.PI*k),p.z+s.dz*spread*Math.sin(Math.PI*k));tmpO.rotation.set(spinT*s.sp+s.ph,spinT*s.sp*.6,0);tmpO.scale.setScalar(on?1:.0001);tmpO.updateMatrix();coins.setMatrixAt(i,tmpO.matrix)}coins.instanceMatrix.needsUpdate=true}
+
+// ---------- posing ----------
+const PG={x:0,y:0,z:0,ry:0,lean:0,twist:0,nod:0,turn:0,tilt:0,aL:[.25,0,.3],aR:[.25,0,.3],lL:[0,0],lR:[0,0],glow:1,mouth:1};
+const mixP=(a,b,k)=>{const o={};for(const f in PG){o[f]=Array.isArray(PG[f])?a[f].map((v,i)=>v+(b[f][i]-v)*k):a[f]+(b[f]-a[f])*k}return o};
+const easeO=(k)=>{k=cl(k);const c=1.25;return k<.5?(Math.pow(2*k,2)*((c+1)*2*k-c))/2:(Math.pow(2*k-2,2)*((c+1)*(k*2-2)+c)+2)/2};
+const Q=(o)=>({...PG,...o});
+const atK=(keys,t)=>{if(t<=keys[0][0])return keys[0][1];for(let i=1;i<keys.length;i++){if(t<keys[i][0]){const[t0,a]=keys[i-1],[t1,b]=keys[i];return mixP(a,b,easeO((t-t0)/(t1-t0)))}}return keys[keys.length-1][1]};
+function poseGuardian(G,p,t,live=1){const u=G.userData;G.position.set(p.x,p.y+Math.sin(t*1.4)*.06*live,p.z);G.rotation.y=p.ry;
+ u.spine.rotation.set(p.lean,p.twist,0);u.neck.rotation.set(p.nod,p.turn,p.tilt);
+ u.arms.forEach(({S,E,s},i)=>{const A=i?p.aR:p.aL,sw=Math.sin(t*1.1+i*2)*.04*live;S.rotation.set(-A[1]-sw,0,s*A[0]);E.rotation.set(-A[2],0,0)});
+ u.legs.forEach(({Hp,K},i)=>{const L=i?p.lR:p.lL,sw=Math.sin(t*.9+i*1.5)*.06*live;Hp.rotation.x=-L[0]-sw;K.rotation.x=L[1]+.15});
+ u.reels.forEach(r=>r.rotation.z=u.spin??0);u.glow.color.copy(hot(ICE,1.2+1.6*p.glow));u.vl.intensity=1+4*p.glow;
+ // tape cape: hangs from the shoulder blades, waves in a slow wind; in stopped time it stays where it was
+ G.updateMatrixWorld(true);const base=new THREE.Vector3();u.ribbons.forEach(r=>{u.spine.localToWorld(base.set(r.x,.95,-.32));const dir=new THREE.Vector3(Math.sin(G.rotation.y)*-1,0,Math.cos(G.rotation.y)*-1);
+  for(let i=0;i<=r.n;i++){const k=i/r.n,s=k*r.len,w=Math.sin(u.windT*2.2+r.ph-k*5)*.35*k,w2=Math.cos(u.windT*1.7+r.ph-k*4)*.2*k;
+   const cx=base.x+dir.x*s*.8+(-dir.z)*(w*.6)+(-dir.z)*r.x*k*.8,cz=base.z+dir.z*s*.8+dir.x*(w*.6)+dir.x*r.x*k*.8,cy=base.y-s*.62+w2;
+   const hw=.07*(1-.3*k);r.pos.set([cx-dir.z*hw,cy,cz+dir.x*hw],i*6);r.pos.set([cx+dir.z*hw,cy,cz-dir.x*hw],i*6+3)}r.m.geometry.attributes.position.needsUpdate=true;r.m.geometry.computeVertexNormals();r.m.visible=G.visible})}
+const PP={x:0,y:0,z:0,ry:0,lean:0,twist:0,nod:0,turn:0,tilt:0,aL:[.25,0,.3],aR:[.25,0,.3],lL:[0,0],lR:[0,0],glow:1};
+function posePhantom(T,p,t,live=1,shardT=t){const u=T.userData;T.position.set(p.x,p.y+.25+Math.sin(t*1.7)*.08*live,p.z);T.rotation.y=p.ry;u.body.rotation.set(p.lean,p.twist,p.tilt*.3);
+ u.head.rotation.set(p.nod,p.turn,p.tilt);u.arms.forEach(({S,E,s},i)=>{const A=i?p.aR:p.aL;S.rotation.set(-A[1],0,s*A[0]);E.rotation.set(-A[2],0,0)});
+ u.eyes.forEach((e,i)=>{e.scale.set(1,p.glow,1);e.rotation.z=-(i?1:-1)*.32*(p.mouth>=0?1:-.4)});
+ const v=p.mouth;u.grin.rotation.z=v>=0?Math.PI:0;u.grin.scale.set(1,Math.max(.25,Math.abs(v)),1);u.grin.position.y=v>=0?-.07:-.11;
+ for(let i=0;i<u.sd.length;i++){const[R,y,a,sp]=u.sd[i];tmpO.position.set(Math.cos(a+shardT*sp)*R,y+Math.sin(shardT*sp*2+a)*.1,Math.sin(a+shardT*sp)*R);tmpO.rotation.set(shardT*sp*3,a,0);tmpO.scale.setScalar(1);tmpO.updateMatrix();u.sh.setMatrixAt(i,tmpO.matrix)}u.sh.instanceMatrix.needsUpdate=true}
+
+const undo=makeGuardian(),thief=makePhantom();scene.add(undo,thief);undo.userData.windT=0;

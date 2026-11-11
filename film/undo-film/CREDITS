@@ -1,0 +1,14 @@
+Undo: "Five Minutes" (film made in code, NEAR HACKATHON 2026)
+
+Picture
+- three.js r170 (MIT), rendered headless; post-processing from the Lemo-Opuscar library's core/three/post.js
+- Fonts: Archivo (SIL Open Font License 1.1, fonts/OFL-Archivo.txt), JetBrains Mono (SIL OFL 1.1, fonts/OFL-JetBrainsMono.txt), the same fonts as the Undo site
+- img/frost.webp, img/stage-wide.webp, img/cassette-960.webp: the Undo site's own assets (undo/app/public/undo/)
+- Everything shown on the phone is redrawn from the live app (undo-cyan.vercel.app) and real NEAR testnet transactions (see TREATMENT.md, CLAIMS.md)
+
+Sound
+- Voices: Kokoro-82M text-to-speech (Apache License 2.0), voices bm_lewis and am_onyx
+- Instruments: Versilian Community Sample Library, VCSL (CC0 1.0): tubular bells, bowed vibraphone, glockenspiel, marimba, gran cassa, gong, suspended cymbal, clash cymbals, toms, frame drum, hand chimes, woodblock
+- Synth bass, pads, sweeps and foley synthesised in code (numpy)
+
+Inspiration (grammar only, nothing copied): battle-anime guardian spirits, time-stop and rewind scenes.

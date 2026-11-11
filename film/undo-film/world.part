@@ -1,0 +1,102 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:"Archivo";src:url("fonts/Archivo.ttf") format("truetype");font-weight:100 900;font-stretch:62% 125%}
+@font-face{font-family:"JBM";src:url("fonts/JetBrainsMono.ttf") format("truetype");font-weight:100 800}
+html,body{margin:0;width:100vw;height:100vh;overflow:hidden;background:#07080b}
+canvas{display:block;position:absolute;inset:0}
+#frost{position:absolute;inset:-3%;background:url("img/frost.webp") center/cover no-repeat;mix-blend-mode:screen;opacity:0;pointer-events:none}
+/* subtitles: a VCR on-screen display, not a pill */
+#line{position:absolute;left:120px;right:120px;bottom:70px;display:flex;justify-content:center}
+#line div{max-width:1400px;border-left:6px solid var(--c,#9fe8ff);background:linear-gradient(90deg,rgba(7,8,11,.82),rgba(7,8,11,.55));padding:10px 26px 14px 22px}
+#line small{display:block;font:800 20px Archivo,sans-serif;font-stretch:125%;letter-spacing:.22em;color:var(--c,#9fe8ff);margin-bottom:2px}
+#line span{font:600 40px Archivo,sans-serif;color:#f4f8fc;letter-spacing:-.005em}
+/* the slam title: expanded, slanted, ice gradient (or PANIC red) */
+#slam{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%) skewX(-8deg);text-align:center;font:900 190px Archivo,sans-serif;font-stretch:125%;letter-spacing:-.03em;line-height:.9;
+ background:linear-gradient(180deg,#ffffff,#d9f3ff 50%,#6fc4ee);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 8px 0 #07080b) drop-shadow(0 0 40px rgba(143,220,255,.45));opacity:0}
+#slam.red{background:linear-gradient(180deg,#ffd1d8,#ff2e4d 65%,#a3001b);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 8px 0 #07080b) drop-shadow(0 0 40px rgba(255,46,77,.5))}
+/* the spec card: what this guardian can and cannot do */
+.card{position:absolute;width:560px;font:500 24px Archivo,sans-serif;color:#f4f8fc;background:rgba(7,8,11,.78);border:2px solid var(--c);box-shadow:0 0 40px -6px var(--c);padding:22px 28px 24px;opacity:0;transform-origin:left center}
+.card h3{margin:0 0 4px;font:900 64px Archivo,sans-serif;font-stretch:125%;letter-spacing:-.02em;color:var(--c);line-height:1}
+.card h4{margin:0 0 16px;font:700 18px Archivo,sans-serif;letter-spacing:.28em;color:#b9c1cd}
+.card p{margin:8px 0;display:flex;justify-content:space-between;gap:20px;border-top:1px solid rgba(244,248,252,.12);padding-top:8px}
+.card p b{font-weight:800;color:var(--c);font-stretch:125%}
+#deck{position:absolute;right:86px;top:74px;font:800 30px Archivo,sans-serif;font-stretch:125%;letter-spacing:.14em;color:#9fe8ff;text-shadow:0 0 18px rgba(159,232,255,.6)}
+#clock{position:absolute;left:86px;top:74px;font:500 26px JBM,monospace;color:rgba(244,248,252,.7);letter-spacing:.06em}
+#end{position:absolute;left:110px;width:860px;bottom:300px;text-align:left;color:#f4f8fc;font:500 36px Archivo,sans-serif;opacity:0}
+#end b{display:block;line-height:1;font:900 96px Archivo,sans-serif;font-stretch:125%;letter-spacing:-.03em;margin-bottom:22px;
+ background:linear-gradient(180deg,#ffffff,#d9f3ff 55%,#8fdcff);-webkit-background-clip:text;background-clip:text;color:transparent}
+#end i{display:block;font-style:normal;font-size:22px;opacity:.7;margin-top:16px;letter-spacing:.24em}
+</style></head><body>
+<div id="frost"></div><div id="slam"></div><div id="deck"></div><div id="clock"></div>
+<div class="card" id="cardU" style="--c:#9fe8ff"></div><div class="card" id="cardT" style="--c:#ff2e4d"></div><div id="end"></div><div id="line"></div>
+<script type="importmap">{"imports":{"three":"/node_modules/three/build/three.module.js","three/addons/":"/node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+import { makePost } from "/core/three/post.js";
+// The site's palette (undo/app/app/globals.css)
+const TAPE=0x07080b,INK=0xf4f8fc,SNOW=0xeaf6ff,SKY=0x8fdcff,ICE=0x9fe8ff,REC=0xff2e4d,SIGNAL=0xffb224,W=innerWidth,H=innerHeight;
+let seed=23;const rnd=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+const hot=(c,k=2.6)=>new THREE.Color(c).multiplyScalar(k);
+const $=id=>document.getElementById(id);
+const cl=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),sg=(t,a,b)=>cl((t-a)/(b-a)),ss=(k)=>k*k*(3-2*k),lerp=(a,b,k)=>a+(b-a)*k;
+const renderer=new THREE.WebGLRenderer({antialias:false,preserveDrawingBuffer:true});
+const SS=2;renderer.setPixelRatio(1);renderer.setSize(W*SS,H*SS,false);renderer.domElement.style.width=W+"px";renderer.domElement.style.height=H+"px";renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.body.prepend(renderer.domElement);
+const scene=new THREE.Scene();scene.background=new THREE.Color(TAPE);scene.fog=new THREE.FogExp2(0x07090d,.03);
+const pm=new THREE.PMREMGenerator(renderer);scene.environment=pm.fromScene(new RoomEnvironment(),.04).texture;scene.environmentIntensity=.22;
+const cam=new THREE.PerspectiveCamera(32,W/H,.05,160);
+const post=makePost(renderer,scene,cam,W,H,{ssaa:SS});post.bloom.strength=.36;post.bloom.radius=.5;post.bloom.threshold=1.12;post.vig.uniforms.amt.value=.5;post.vig.uniforms.contrast.value=.3;
+// our own grade, after the site's tone mapping: the time-stop sphere (colours invert inside it), frozen ice, the VHS rewind, speed lines
+const GRADE=new ShaderPass({uniforms:{tDiffuse:{value:null},c:{value:new THREE.Vector2(.5,.5)},rad:{value:0},inv:{value:0},ring:{value:0},ice:{value:0},vhs:{value:0},band:{value:0},speed:{value:0},sc:{value:new THREE.Vector2(.5,.5)},flash:{value:0},asp:{value:W/H},tm:{value:0}},
+ vertexShader:"varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}",
+ fragmentShader:`varying vec2 vUv;uniform sampler2D tDiffuse;uniform vec2 c,sc;uniform float rad,inv,ring,ice,vhs,band,speed,flash,asp,tm;
+ float h(float x){return fract(sin(x*91.7)*43758.5453);}
+ void main(){vec2 uv=vUv;
+  // VHS: a rolling tracking band, line jitter, colour fringe
+  float bd=exp(-pow((uv.y-band)*18.,2.));float jit=(h(floor(uv.y*260.)+floor(tm*24.))-.5)*.004*vhs+bd*.02*vhs;uv.x+=jit;
+  vec3 col=vec3(texture2D(tDiffuse,uv+vec2(.003*vhs,0)).r,texture2D(tDiffuse,uv).g,texture2D(tDiffuse,uv-vec2(.003*vhs,0)).b);
+  col+=bd*.18*vhs;col*=1.-.12*vhs*step(.5,fract(uv.y*270.));
+  // the sphere: inside it the colours turn to their negative, a cold ring rides its edge
+  float d=length((vUv-c)*vec2(asp,1.));float inside=1.-smoothstep(rad-.004,rad+.004,d);
+  col=mix(col,1.-col,inv*inside);col+=vec3(.75,.95,1.)*ring*exp(-abs(d-rad)*60.);
+  // frozen: grey ice with a blue lift
+  float l=dot(col,vec3(.2126,.7152,.0722));col=mix(col,vec3(l)*vec3(.86,.96,1.06)+vec3(.0,.015,.035),ice);
+  // speed lines toward a point
+  vec2 q=(vUv-sc)*vec2(asp,1.);float a=atan(q.y,q.x);float r=length(q);float ln=step(.82,h(floor(a*90.)+floor(tm*12.)))*smoothstep(.18,.6,r);col=mix(col,vec3(.95,.98,1.),ln*speed*.55);
+  col=mix(col,vec3(1.),flash);gl_FragColor=vec4(col,1.);}`});
+post.composer.addPass(GRADE);
+const canvasTex=(w,h,draw)=>{const c=document.createElement("canvas");c.width=w;c.height=h;draw(c.getContext("2d"),w,h);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
+const AF=(px,w=800,stretch="expanded")=>`${stretch==="normal"?"":stretch+" "}${w} ${px}px Archivo, sans-serif`,MF=(px,w=500)=>`${w} ${px}px JBM, Consolas, monospace`;
+
+// ---------- the world: a wet black plain in fog, a cold spotlight, VCR glyphs hanging in the dark ----------
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:0x040507,roughness:.22,metalness:.6,envMapIntensity:.2}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+const fogTex=canvasTex(512,512,(g)=>{g.filter="blur(26px)";for(let i=0;i<46;i++){const x=rnd()*512,y=rnd()*512,r=40+rnd()*110;const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,"rgba(214,232,245,.55)");gr.addColorStop(1,"rgba(214,232,245,0)");g.fillStyle=gr;g.beginPath();g.ellipse(x,y,r*1.6,r*.7,0,0,7);g.fill()}});
+fogTex.wrapS=fogTex.wrapT=THREE.RepeatWrapping;
+const fogs=[[.15,.13,40],[.4,.09,50],[.8,.05,60]].map(([y,op,s])=>{const t=fogTex.clone();t.needsUpdate=true;t.repeat.set(2.5,2.5);const m=new THREE.Mesh(new THREE.PlaneGeometry(s,s),new THREE.MeshBasicMaterial({map:t,color:0x9fb6c8,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(0,y,-4);scene.add(m);return m});
+// the glyphs: ▶ ❚❚ ◀◀ ■ drifting up in the dark like a VCR's display left on
+const glyphTex={};["▶","❚❚","◀◀","■"].forEach(s=>glyphTex[s]=canvasTex(256,256,(g)=>{g.fillStyle="#fff";g.font="900 150px Archivo, sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText(s,128,136)}));
+const glyphs=[];for(let i=0;i<30;i++){const s=["▶","❚❚","◀◀","■"][i%4];const m=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:glyphTex[s],color:hot(i%7===0?REC:ICE,.22+rnd()*.25),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,fog:true}));
+ const a=Math.PI*(1.08+rnd()*.84),R=20+rnd()*16;m.userData={x:Math.cos(a)*R,z:Math.sin(a)*R-4,y0:rnd()*12,sp:.08+rnd()*.12,s:.6+rnd()*1.0,ph:rnd()*6};scene.add(m);glyphs.push(m)}
+// scanlines across the far dark
+const scan=new THREE.Mesh(new THREE.PlaneGeometry(90,30),new THREE.MeshBasicMaterial({map:canvasTex(64,512,(g)=>{for(let y=0;y<512;y+=8){g.fillStyle=`rgba(143,220,255,${y%32===0?.5:.16})`;g.fillRect(0,y,64,2)}}),transparent:true,opacity:.05,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));scan.position.set(0,12,-40);scan.material.map.wrapS=scan.material.map.wrapT=THREE.RepeatWrapping;scan.material.map.repeat.set(30,1);scene.add(scan);
+const frostDust=(()=>{const n=2200,p=new Float32Array(n*3);for(let i=0;i<n;i++){p[i*3]=(rnd()-.5)*34;p[i*3+1]=rnd()*11;p[i*3+2]=(rnd()-.5)*30-3}const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(p,3));
+ const m=new THREE.Points(g,new THREE.PointsMaterial({color:hot(0xd9f3ff,1.4),size:.032,transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false}));scene.add(m);return m})();
+const beam=new THREE.Mesh(new THREE.ConeGeometry(4.6,18,48,1,true),new THREE.MeshBasicMaterial({color:0xd9f3ff,transparent:true,opacity:.006,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false}));beam.position.set(0,9,0);scene.add(beam);
+const key=new THREE.SpotLight(0xeaf6ff,200,44,.36,.8,1.5);key.position.set(0,16,2);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.bias=-.0004;scene.add(key,key.target);
+const rimIce=new THREE.PointLight(SKY,110,26,1.6);rimIce.position.set(-7,4,-4);const rimRed=new THREE.PointLight(REC,110,26,1.6);rimRed.position.set(7,4,-4);
+const hemi=new THREE.HemisphereLight(0x7f95b0,0x05060a,.14);const fill=new THREE.DirectionalLight(0xe6f2ff,.55);fill.position.set(-3,6,14);scene.add(rimIce,rimRed,hemi,fill);
+
+// ---------- shared pieces ----------
+// a material that glows at its edges, for spirits: lit core, rim light in its own colour
+function ghostMat(base,rim,{op=.92,rimK=2.4,rough=.35,metal=.1}={}){const m=new THREE.MeshStandardMaterial({color:base,roughness:rough,metalness:metal,transparent:op<1,opacity:op});
+ m.onBeforeCompile=(s)=>{s.uniforms.rimC={value:new THREE.Color(rim).multiplyScalar(rimK)};s.fragmentShader=s.fragmentShader.replace("#include <common>","#include <common>\nuniform vec3 rimC;").replace("#include <emissivemap_fragment>",
+  "#include <emissivemap_fragment>\n float fr=pow(1.-clamp(abs(dot(normalize(normal),normalize(vViewPosition))),0.,1.),2.2);totalEmissiveRadiance+=rimC*fr;");};return m}
+const coinFace=(rim,glyph)=>canvasTex(256,256,(g)=>{g.fillStyle="#05070a";g.fillRect(0,0,256,256);g.strokeStyle=rim;g.lineWidth=9;g.beginPath();g.arc(128,128,112,0,7);g.stroke();
+ g.lineWidth=5;g.globalAlpha=.55;g.beginPath();g.arc(128,128,96,0,7);g.stroke();g.globalAlpha=1;g.strokeStyle=glyph;g.lineWidth=11;g.lineCap="round";g.beginPath();g.arc(128,128,58,-2.2,2.9);g.stroke();
+ g.fillStyle=glyph;g.beginPath();const a=-2.2,x=128+Math.cos(a)*58,y=128+Math.sin(a)*58;g.moveTo(x-22,y-4);g.lineTo(x+8,y-22);g.lineTo(x+10,y+14);g.fill();g.font="700 66px Archivo, sans-serif";g.textAlign="center";g.textBaseline="middle";g.fillText("$",128,132)});
+function makeKey(scale=1){const km=new THREE.MeshStandardMaterial({color:0x220006,emissive:new THREE.Color(REC),emissiveIntensity:3,roughness:.35,metalness:.3}),kk=new THREE.Group();
+ const bow=new THREE.Mesh(new THREE.TorusGeometry(.34,.085,16,40),km);bow.position.y=.62;kk.add(bow);const sh=new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,1.25,12),km);sh.position.y=-.32;kk.add(sh);
+ [[-.62,.2],[-.8,.13],[-.95,.24]].forEach(([y,w])=>{const tooth=new THREE.Mesh(new THREE.BoxGeometry(w,.1,.1),km);tooth.position.set(w/2,y,0);kk.add(tooth)});kk.scale.setScalar(scale);return kk}
