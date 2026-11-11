@@ -7,16 +7,32 @@ import { ADDR, DAO, UNDO } from "@/lib/config";
 import { useAccounts } from "@/components/accounts";
 import { approvals, loadCouncil, rejections, type Council, type ResolveProposal } from "@/lib/council";
 import { useFmt, useLang, useReason, useT } from "@/lib/i18n";
-import { parseOutcome, short, view } from "@/lib/near-client";
+import { chainChanged, parseOutcome, short, view } from "@/lib/near-client";
 import { playTimeFx } from "@/lib/timefx";
 import type { Config, Transfer } from "@/lib/types";
 import { walletFunctionCall } from "@/lib/wallet";
+
+/** Transfers that can no longer change in a way this page shows, kept for the life of the page: final ones, and
+ * undisputed pending ones whose window is over (they can no longer be reported or frozen). Without this the page
+ * re-read the last 60 transfers every 5 s, about 12 RPC calls a second per open tab. */
+const unchanging = new Map<number, Transfer>();
+const isUnchanging = (t: Transfer, nowNs: bigint) =>
+  t.status === "Settled" || t.status === "Reversed" || (!t.dispute && t.status === "Pending" && BigInt(t.unlock_at) + 60_000_000_000n < nowNs);
 
 async function loadDisputes(): Promise<Transfer[]> {
   const cfg = await view<Config>(UNDO, "get_config");
   const last = Number(cfg.next_id) - 1;
   const ids = Array.from({ length: Math.min(60, last + 1) }, (_, i) => last - i);
-  const all = await Promise.all(ids.map((id) => view<Transfer | null>(UNDO, "get_transfer", { transfer_id: String(id) }).catch(() => null)));
+  const nowNs = BigInt(Date.now()) * 1_000_000n;
+  const all = await Promise.all(
+    ids.map(async (id) => {
+      const known = unchanging.get(id);
+      if (known) return known;
+      const t = await view<Transfer | null>(UNDO, "get_transfer", { transfer_id: String(id) }).catch(() => null);
+      if (t && isUnchanging(t, nowNs)) unchanging.set(id, t);
+      return t;
+    }),
+  );
   return all.filter((t): t is Transfer => !!t?.dispute);
 }
 
@@ -189,6 +205,7 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
     }
     const res = await fetch("/api/council/resolve", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ transferId: t.id, reverse, reason, passcode }) });
     const body = (await res.json()) as { error?: string; proposalId?: number; status?: string; approvals?: number; needed?: number; voteTx?: string; proposalTx?: string };
+    if (res.ok) chainChanged();
     if (res.ok && body.status === "Approved" && reverse) playTimeFx("rewind");
     setMsg(
       !res.ok
@@ -211,6 +228,7 @@ function DisputeCard({ t, council, onDone }: { t: Transfer; council: Council | u
   async function vote(p: ResolveProposal, approve: boolean) {
     try {
       const r = parseOutcome(await walletFunctionCall(DAO, "act_proposal", { id: p.id, action: approve ? "VoteApprove" : "VoteReject", proposal: p.kind }, 0n, 250));
+      if (r.ok) chainChanged();
       setMsg(r.ok ? { kind: "ok", text: approve ? tr(`Suara setuju untuk usulan #${p.id} terkirim.`, `Approval for proposal #${p.id} sent.`) : tr(`Suara tolak untuk usulan #${p.id} terkirim.`, `Rejection for proposal #${p.id} sent.`), hash: r.hash } : { kind: "error", text: r.error ?? tr("gagal", "failed"), hash: r.hash });
     } catch (e) {
       setMsg({ kind: "error", text: String((e as Error)?.message ?? e).slice(0, 200) });

@@ -8,7 +8,7 @@ import { UNDO } from "@/lib/config";
 import { NextStep, Stepper } from "@/components/visual";
 import { encryptTo, sha256hex, type Side } from "@/lib/court";
 import { useAccountLabel, useFmt, useGasNote, useLang, useReason, useT } from "@/lib/i18n";
-import { call, short, view } from "@/lib/near-client";
+import { call, chainChanged, short, view } from "@/lib/near-client";
 import type { AccountView, Config, Transfer } from "@/lib/types";
 
 type CourtStatus = { stored: Record<Side, boolean>; run: { status: string; tx?: string; costUsd?: number; error?: string; requestBytes?: number } | null };
@@ -102,6 +102,7 @@ export default function SidangPage() {
     } catch {
       body = { error: `HTTP ${res.status}: ${raw.slice(0, 160)}` };
     }
+    if (res.ok) chainChanged();
     setMsg(
       res.ok
         ? {
