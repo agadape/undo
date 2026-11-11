@@ -136,7 +136,9 @@ The interface is in English. The court's prompt is in English too; the AI writes
     - reserve 1:1;
     - pinned model key;
     - the prompt hash recomputed in your browser matches the on-chain hash.
-16. https://undo-cyan.vercel.app/coba-curi ("try to steal") is a locked instance whose bait account key is meant to be published. A guard presses panic on every outgoing transfer. The page shows attempts, frozen transfers, money cashed out (0 so far) and reaction time.
+16. https://undo-cyan.vercel.app/agen shows a recorded testnet run of an AI agent that pays a café's invoices and is fooled by a fake bank-details email.
+    You should see the payment to the trusted supplier final at once, the payments to the scammer's account frozen by the guard within seconds, and the scammer's account holding 0 rUSDC. Every step links its transaction.
+17. https://undo-cyan.vercel.app/coba-curi ("try to steal") is a locked instance whose bait account key is meant to be published. A guard presses panic on every outgoing transfer. The page shows attempts, frozen transfers, money cashed out (0 so far) and reaction time.
 
 You can also click **Connect wallet** to use a real NEAR testnet wallet through NEAR Connect instead of the demo keys.
 
@@ -168,6 +170,7 @@ Not used: NEAR Intents (no testnet deployment). See [CLAIMS.md §8](CLAIMS.md#8-
 
 | Feature | Files | Try |
 |---|---|---|
+| An AI agent fooled by a fake "our bank details changed" email: its payment to the unknown account waits in the window, a guard holding only a panic/finalize/unlock key freezes it, and the money goes back to the owner. Payments to the owner's trusted suppliers stay final at once | [`undo/app/guard/agent-demo.mjs`](undo/app/guard/agent-demo.mjs), recorded run [`undo/app/lib/agent-demo-run.json`](undo/app/lib/agent-demo-run.json) | https://undo-cyan.vercel.app/agen |
 | Panic with a function-call key limited to `panic`, `finalize`, `unlock` and `release_expired`: the guard can freeze a theft but cannot move money | [`undo/app/guard/guard.mjs`](undo/app/guard/guard.mjs) | `/coba-curi` |
 | Delayed, cancellable recovery-account changes; a stolen recovery account cannot take the balance (frozen sweep, contestable by the owner) | `set_recovery`, `contest` in `lib.rs` | [CLAIMS.md §2](CLAIMS.md#2-panic-button-theft-undone-without-any-vote) |
 | Locked contracts (0 keys) with a code hash that matches the published wasm | [`undo/contracts/wasm/`](undo/contracts/wasm/) | [CLAIMS.md §6](CLAIMS.md#6-check-it-yourself-no-keys-needed) |

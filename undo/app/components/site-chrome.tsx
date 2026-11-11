@@ -25,6 +25,7 @@ export function Nav({ home = false }: { home?: boolean }) {
     ...(home ? [] : [{ href: "/", label: t("Beranda", "Home") }]),
     { href: "/dompet", label: t("Dompet", "Wallet") },
     { href: "/coba-curi", label: t("Coba Curi", "Try to steal") },
+    { href: "/agen", label: t("Agen AI", "AI agent") },
     { href: "/dewan", label: t("Dewan", "Council") },
     { href: "/janji", label: t("Janji", "Promises") },
   ];
