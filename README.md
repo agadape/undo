@@ -257,6 +257,20 @@ These are listed in full in [CLAIMS.md §7–8](CLAIMS.md#7-trust-boundaries-wha
 - A payment to a trusted contact cannot be undone: a stolen key can pay the owner's ACTIVE contacts at once. Keep few contacts; the recovery account can remove one at any time.
 - Not built yet: appeal keys, notifications outside the browser (the alert shows only where the recovery account's key is), mainnet. v1 instances (the v1 demo, Coba Curi) were built before the reproducible setup; only v2 is a reproducible build.
 
+## Libraries, services and licence
+
+The code is MIT licensed ([LICENSE](LICENSE)). Nothing here predates the hackathon: the feasibility spikes in [`spikes/`](spikes/) start on 26 Oct 2026, after the 19 Oct announcement (rule Q-001), and this repository's first commit is 3 Nov 2026. No pre-hackathon code or own libraries are reused. Much of the code was written with an AI coding agent (Claude Code); rule Q-005 allows this and asks for it to be listed.
+
+| Part | Libraries and tools |
+|---|---|
+| Contract ([`undo/contracts/undo-token`](undo/contracts/undo-token)) | near-sdk 5.29, chacha20poly1305 0.10 (XChaCha20-Poly1305), curve25519-dalek 4.1 (X25519). Built with cargo-near 0.21.1 in the `sourcescan/cargo-near` image for a reproducible wasm |
+| Web app ([`undo/app`](undo/app)) | Next.js 16, React 19, Tailwind CSS 4, TypeScript 5.9, near-api-js 7.4, @hot-labs/near-connect 0.12 (NEAR Connect), @nearai/inference-sdk 0.1, @noble/ciphers 1.3, @noble/hashes 1.8, tweetnacl 1.0, ed2curve 0.3, borsh 2.0, three.js 0.160 (home intro), @vercel/blob 2.8 (stores evidence ciphertext and court runs) |
+| Coba Curi guard ([`undo/app/guard`](undo/app/guard)) | near-api-js on Cloudflare Workers (wrangler 4, KV), GitHub Actions as a backup runner, Telegram Bot API for team alerts |
+| Spikes ([`spikes/`](spikes/)) | near-api-js, chainsig.js, viem, openai, @nearai/inference-sdk |
+| Demo film ([`film/undo-film`](film/undo-film)) | three.js, Lemo-Opuscar post-processing, Kokoro-82M voices (Apache 2.0), VCSL samples (CC0), Archivo and JetBrains Mono fonts (SIL OFL). Licences in [`film/undo-film/CREDITS`](film/undo-film/CREDITS) |
+
+Services: NEAR testnet (RPC: FastNear and dRPC), NEAR AI Cloud (the court model `z-ai/glm-5.3-flash`, attested TEE), Sputnik DAO (the council), `usdc.fakes.testnet` (test USDC), Vercel (hosting and Blob), Cloudflare Workers and KV (the guard), Telegram (guard alerts to the team).
+
 ## Credits
 
 Design help: Dex Bennett (visual direction and front-end design, not a team member)
