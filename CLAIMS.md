@@ -90,7 +90,7 @@ The v1 instances (v1 demo, dev, S25 copy, Coba Curi) run the v1 wasm, code hash 
 
 | Claim | How to run | Status |
 |---|---|---|
-| 60 unit tests named after the promises and threats (`j1_…`–`j7_…`, `a1_…`–`a9_…`, `t0_…` for trusted contacts) | `cd undo/contracts && cargo test -p undo_token` | 🧪 |
+| 60 unit tests named after the promises and threats (`j1_…`–`j7_…`, `a1_…`–`a9_…`, `t0_…` for trusted contacts) | `cd undo/contracts && cargo test -p undo_token`; also run by CI on every push ([`.github/workflows/test.yml`](.github/workflows/test.yml)) | 🧪 |
 | Property test: random sequences of wrap, transfer, send_usdc, unwrap, recovery changes, panic, unlock, report, contest, finalize, council resolve, timeout, early release, withdraw, evidence commits and time jumps. After **every** step it checks J6 (supply conservation), J1 (final money only at the receiver, the sender, or an account that was the sender's recovery) and J2 (finished transfers never change). 40 seeds × 400 steps = 16,000 steps passed | `UNDO_FUZZ_SEEDS=40 cargo test --release -p undo_token property` (~4 min; the default is 4 seeds) — [`fuzz_tests.rs`](undo/contracts/undo-token/src/fuzz_tests.rs) l. 286 | 🧪 |
 | 35-step testnet scenario on the product contract (theft, scam, honest payments, each attack rejected) | `node spikes/v1b_testnet_flow.mjs` (needs a funded `.env`); recorded output [`spikes/out/v1_flow.json`](spikes/out/v1_flow.json) | ✅ |
 

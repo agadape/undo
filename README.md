@@ -1,5 +1,7 @@
 # Undo — reversible USDC on NEAR, with a private AI court whose procedure is verified on-chain
 
+[![test](https://github.com/agadape/undo/actions/workflows/test.yml/badge.svg)](https://github.com/agadape/undo/actions/workflows/test.yml) Contract tests (60 unit + property) and a web app type check run on every push.
+
 **Live app (NEAR testnet):** https://undo-cyan.vercel.app/?lang=en · **Every claim with its evidence:** [CLAIMS.md](CLAIMS.md) · Built at NEAR HACKATHON (1–14 Nov 2026)
 
 Undo is a wrapped-USDC token (`rUSDC`, 1:1) where every outgoing transfer waits in an undo window before it becomes final. It undoes two kinds of loss:

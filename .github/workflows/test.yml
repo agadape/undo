@@ -1,0 +1,50 @@
+# Tests on every push to main and every pull request:
+# - the product contract's 60 unit tests and the property test (4 seeds), as in the README;
+# - a type check of the web app.
+name: test
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    name: contract tests (cargo test)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: undo/contracts
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust (stable, minimal profile)
+        run: rustup toolchain install stable --profile minimal && rustup default stable && rustc --version
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: undo/contracts
+      - run: cargo test --locked -p undo_token
+
+  app:
+    name: web app type check (tsc)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: undo/app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: undo/app/package-lock.json
+      - run: npm ci --no-audit --no-fund --ignore-scripts
+      - run: npx tsc --noEmit
