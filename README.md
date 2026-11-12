@@ -2,7 +2,7 @@
 
 [![test](https://github.com/agadape/undo/actions/workflows/test.yml/badge.svg)](https://github.com/agadape/undo/actions/workflows/test.yml) Contract tests (59 unit tests + 1 property test) and a web app type check run on every push.
 
-**Live app (NEAR testnet):** https://undo-cyan.vercel.app · **Every claim with its evidence:** [CLAIMS.md](CLAIMS.md) · Built at NEAR HACKATHON (1–14 Nov 2026)
+**Live app (NEAR testnet):** https://undo-cyan.vercel.app · **Demo film (96 s) and demo post:** https://x.com/MeLikeFishes/status/2120464183854817542 · **Every claim with its evidence:** [CLAIMS.md](CLAIMS.md) · Built at NEAR HACKATHON (1–14 Nov 2026)
 
 Undo is a wrapped-USDC token (`rUSDC`, 1:1) where every outgoing transfer waits in an undo window before it becomes final. It undoes two kinds of loss:
 
