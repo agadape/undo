@@ -1,6 +1,6 @@
 # Undo — reversible USDC on NEAR, with a private AI court whose procedure is verified on-chain
 
-[![test](https://github.com/agadape/undo/actions/workflows/test.yml/badge.svg)](https://github.com/agadape/undo/actions/workflows/test.yml) Contract tests (60 unit + property) and a web app type check run on every push.
+[![test](https://github.com/agadape/undo/actions/workflows/test.yml/badge.svg)](https://github.com/agadape/undo/actions/workflows/test.yml) Contract tests (59 unit tests + 1 property test) and a web app type check run on every push.
 
 **Live app (NEAR testnet):** https://undo-cyan.vercel.app · **Every claim with its evidence:** [CLAIMS.md](CLAIMS.md) · Built at NEAR HACKATHON (1–14 Nov 2026)
 
@@ -35,17 +35,53 @@ Four transactions, one per mechanism (all on NEAR testnet, all successful):
 | The **council** (Sputnik DAO, 3 members) reaching 2 of 3 votes; the DAO then ran `resolve` and the money went back to the buyer's recovery account | [`26G1vz5z…`](https://testnet.nearblocks.io/txns/26G1vz5z7TF3DAUpKDy6WjccVJF9nePbJ7uRH3db8WgM) |
 | The **Coba Curi guard**, a bot holding a function-call key that can only call `panic`, `finalize`, `unlock` and `release_expired`, freezing a transfer out of the bait account 21 s after it was sent | [`DaN7WLrt…`](https://testnet.nearblocks.io/txns/DaN7WLrt8LzaFkj7JpztsWYddfv1LiG4gJzUNTpUgRYr) |
 
+The explorer links above are for people. A script can check the same four transactions on the archival RPC (the normal RPC forgets old transactions; `sender_account_id` is the account that signed):
+
+```bash
+tx() { curl -s https://archival-rpc.testnet.fastnear.com -H 'Content-Type: application/json'   -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tx\",\"params\":{\"tx_hash\":\"$1\",\"sender_account_id\":\"$2\",\"wait_until\":\"FINAL\"}}"; }
+tx 59goVnnPt1KxLAWYxjPjJQwPdBqqtCXZqQbCdaMXwrYG nh-s21-mvz19hwe.testnet      # panic, relayed: a Delegate action inside
+tx 5qChMdoWVfEmUkRFWe2de6QTd7wNFpU1CLa33pQFMe4v nh-spike-mvp62mw4.testnet    # post_recommendation
+tx 26G1vz5z7TF3DAUpKDy6WjccVJF9nePbJ7uRH3db8WgM smoothicon6710.testnet       # the council's second vote, then resolve
+tx DaN7WLrt8LzaFkj7JpztsWYddfv1LiG4gJzUNTpUgRYr nh-s26f-mvz1xz1q.testnet     # the guard's panic
+# → each has "status":{"SuccessValue":...}
+```
+
 The same checks run live in the browser at https://undo-cyan.vercel.app/janji. Every other claim, with its code line, test and transaction, is in [CLAIMS.md](CLAIMS.md).
 
 ## The problem
 
-In 2025, Americans reported $11.366 billion in losses involving cryptocurrency to the FBI, across 181,565 complaints, 22% more than in 2024 ([FBI IC3 2025 Internet Crime Report](https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf)).
+In 2025, Americans reported $11.366 billion in losses involving cryptocurrency to the FBI, across 181,565 complaints, 22% more than in 2024 ([FBI IC3 2025 Internet Crime Report](https://www.ic3.gov/AnnualReport/Reports/2025_IC3Report.pdf)). That total covers every kind of crypto loss, and most of it is investment fraud. Undo addresses the part where a payment leaves by a stolen key, a fake seller or a fake invoice, and the report gives no separate figure for that part.
 
 A crypto transfer is final. With a leaked key or a fake online seller, the money is gone once it leaves. Card networks have chargebacks and banks can recall transfers, but those depend on an operator who sees all your evidence and can move money anywhere. Undo keeps the undo, removes the operator:
 
 - **No owner.** The contracts have no admin functions and no access keys.
 - **Two destinations only.** Pending money can end only at the receiver or the sender's recovery account.
 - **Private evidence.** Dispute evidence stays encrypted even from us; only the AI's verdict is opened, and the contract checks how that verdict was produced.
+
+## Who it is for, who pays, and what cheating costs
+
+**Who it is for.** Three kinds of account that hold USDC and cannot afford one bad transfer:
+
+| User | The loss Undo undoes | Where it is shown |
+|---|---|---|
+| A person or small shop holding stablecoins | A leaked key drains the wallet | Scenario A, [`/dompet`](https://undo-cyan.vercel.app/dompet) |
+| A business paying invoices or payroll | A fake "our bank details changed" invoice gets paid | Scenario B, [`/agen`](https://undo-cyan.vercel.app/agen) |
+| An operator who gives an AI agent a wallet | The agent is talked into paying a scammer | [`/agen`](https://undo-cyan.vercel.app/agen) |
+
+**Who pays (a plan; none of it is charged today).** The token contract is locked and pays nobody: no operator fee, no cut of any payment. Its only charge is a fixed storage deposit of 0.005 NEAR per new transfer or contact, which stays inside the contract to pay for on-chain storage and which nobody can withdraw (the contract has no keys). That stays: a fee the operator could change would break the "no owner" promise. The plan is to earn from the services around the token, which a user can replace or run themselves:
+
+- **The guard**, as a subscription per protected account. It is the bot that watches an account and presses panic within seconds, holding a function-call key that cannot move money. The code is the Coba Curi guard in this repo (Cloudflare Worker, [`undo/app/guard/`](undo/app/guard/)). Businesses and agent operators are the expected buyers, because they cannot watch a wallet all day.
+- **The gasless relayer**, free for panic and included in the guard subscription for everything else.
+- **The court**, as a fee per dispute paid by the side that loses, on top of the bond. This needs a new contract version; the locked v2 has only the bond.
+
+What we do not plan: lending out the USDC that backs rUSDC. `rUSDC supply = USDC held` is promise J6 and it is checked live on [`/janji`](https://undo-cyan.vercel.app/janji).
+
+**What cheating costs (built, in the locked contract).**
+
+- **A false report loses its bond.** Reporting takes a 0.01 NEAR bond; if the council rules for the receiver, the bond goes to the receiver (promise J4).
+- **A report cannot hold money hostage.** If the council stays silent past the deadline, anyone can call `release_expired` and a reported payment goes to the receiver (promise J3). Only the sender's side can report at all.
+- **A thief only gets a wait.** Stolen money sits in the undo window, and a trusted contact the thief adds becomes active only after a delay; panic cancels both.
+- **The guard cannot steal.** Its key can call only `panic`, `finalize`, `unlock` and `release_expired`, and those can send money only to the receiver or the owner's recovery account (promise J1).
 
 ## How it works
 
@@ -93,6 +129,19 @@ sequenceDiagram
 
 ## Try it (no wallet needed, about 5 minutes)
 
+Some names are Indonesian, because the project started in that language:
+
+| Name | Meaning |
+|---|---|
+| `/dompet` | the wallet page |
+| `/coba-curi`, "Coba Curi" | "try to steal": the public bait account |
+| `/sidang/N` | court case N |
+| `/dewan` | the council |
+| `/janji` | promises. J1–J7 are the promises ("janji"), A1–A9 the attacks in the threat model, T0 the trusted-contact rule |
+| `kembalikan` / `lanjutkan` | the two verdicts: return to the sender's side / pay the receiver |
+| `curiga_injeksi` | the verdict's flag for a suspected prompt injection |
+| "Barang diterima" | "goods received": releases a payment early |
+
 The interface is in English. The court's prompt is in English too; the AI writes its public reason in two languages ("ID: … EN: …") and the page shows the English part. Demo accounts and their keys live in your browser only.
 
 **A. A stolen key, undone without a vote**
@@ -117,7 +166,7 @@ The interface is in English. The court's prompt is in English too; the AI writes
    To answer as the seller, switch the active account in the header to the seller and do the same.
 10. When both sides have answered, or after the 5-minute evidence window, click **Run the court (1 NEAR AI call)**.
     You should see the recommendation (`kembalikan` = return to the sender, `lanjutkan` = pay the receiver), its confidence, `curiga_injeksi` (suspected injection) and a public reason. You also see the `post_recommendation` transaction. The money has not moved.
-11. The council decides on `/dewan`. It is a DAO of three team members and a decision needs 2 of 3 votes: one member proposes and votes from the page (passcode held by the team), another approves with their own wallet on the same card.
+11. The council decides on `/dewan`. It is a DAO of three team members and a decision needs 2 of 3 votes: one member proposes and votes from the page (passcode held by the team), another approves with their own wallet on the same card. A judge cannot do this step, because the passcode is the team's; a finished example is case #4: https://undo-cyan.vercel.app/sidang/4.
     If the council stays silent for 30 minutes, anyone can press **Apply council silence** on the court page. For a fraud report, the money then goes to the receiver: the AI alone never moves money (J3).
 
 **C. Trusted contacts** (about 6 minutes)
@@ -160,7 +209,7 @@ You can also click **Connect wallet** to use a real NEAR testnet wallet through 
 | Wrapped USDC 1:1 with a public reserve check (`get_reserve`) | `lib.rs` | `/janji` |
 | `send_usdc`: pay anyone in plain USDC after the window; the receiver does not need Undo | `send_usdc`, `withdraw` in `lib.rs` | **Send** with "plain USDC (any receiver)" selected |
 | "Goods received": a buyer releases payment early from the recovery account | `release` in `lib.rs` | **Goods received** on an outgoing payment |
-| Business use: a treasury or payroll account where a payment to a fake invoice can still be undone | — | Scenario B |
+| Business use: a treasury or payroll account where a payment to a fake invoice can still be undone | [`undo/app/guard/agent-demo.mjs`](undo/app/guard/agent-demo.mjs), [`undo/app/app/agen/page.tsx`](undo/app/app/agen/page.tsx) | Scenario B, https://undo-cyan.vercel.app/agen |
 | Trusted contacts: a regular shop is paid with no window (final at once), while a contact a thief adds has to wait and can be cancelled | `add_contact`, `transfer` in `lib.rs`, contacts card in [`undo/app/app/dompet/page.tsx`](undo/app/app/dompet/page.tsx) | Scenario C |
 | Gasless safety actions (NEP-366 meta-transactions): the recovery account on your phone needs no NEAR for gas. Panic, finalize, unlock, goods received, cancelling a recovery change and applying council silence go through our relayer, which checks the signature, the access key, the nonce, the expiry and that the contract will accept the call before it pays. If the relayer is down, the app signs a normal transaction instead | [`undo/app/lib/server/relay.ts`](undo/app/lib/server/relay.ts), [`undo/app/lib/near-client.ts`](undo/app/lib/near-client.ts) | Scenario A: the panic card shows the recovery account's NEAR, unchanged after steps 2–4 |
 
@@ -174,7 +223,7 @@ Not used: NEAR Intents (no testnet deployment). See [CLAIMS.md §8](CLAIMS.md#8-
 | Panic with a function-call key limited to `panic`, `finalize`, `unlock` and `release_expired`: the guard can freeze a theft but cannot move money | [`undo/app/guard/guard.mjs`](undo/app/guard/guard.mjs) | `/coba-curi` |
 | Delayed, cancellable recovery-account changes; a stolen recovery account cannot take the balance (frozen sweep, contestable by the owner) | `set_recovery`, `contest` in `lib.rs` | [CLAIMS.md §2](CLAIMS.md#2-panic-button-theft-undone-without-any-vote) |
 | Locked contracts (0 keys) with a code hash that matches the published wasm | [`undo/contracts/wasm/`](undo/contracts/wasm/) | [CLAIMS.md §6](CLAIMS.md#6-check-it-yourself-no-keys-needed) |
-| Threat model A1–A9 (stolen main key, waiting out the window, recovery swap, stolen recovery account, …) as unit tests | [`undo/contracts/undo-token/src/tests.rs`](undo/contracts/undo-token/src/tests.rs) | `cargo test -p undo_token` |
+| Threat model A1–A9, except A8 which is out of scope (stolen main key, waiting out the window, recovery swap, stolen recovery account, …) as unit tests | [`undo/contracts/undo-token/src/tests.rs`](undo/contracts/undo-token/src/tests.rs) | `cargo test -p undo_token` |
 
 ## How NEAR fits in
 
@@ -215,7 +264,7 @@ What we believe is new: dispute evidence that stays encrypted even from the oper
 
 | Path | Contents |
 |---|---|
-| [`undo/contracts/undo-token`](undo/contracts/undo-token) | Product contract v2 (Rust, near-sdk 5.30): `lib.rs`, 60 unit tests in `tests.rs`, property test in `fuzz_tests.rs`; v1 is git tag `contract-v1` |
+| [`undo/contracts/undo-token`](undo/contracts/undo-token) | Product contract v2 (Rust, near-sdk 5.29): `lib.rs`, 59 unit tests in `tests.rs`, property test in `fuzz_tests.rs`; v1 is git tag `contract-v1` |
 | [`undo/contracts/wasm`](undo/contracts/wasm) | Built wasm + ABI of the deployed contracts |
 | [`undo/contracts/s22-verifier`](undo/contracts/s22-verifier), [`s26-court`](undo/contracts/s26-court) | Spike contracts for the signature check and the procedure proof |
 | [`undo/app`](undo/app) | Next.js 16 web app, court server (`app/api`), guard (`guard/`) |
@@ -228,7 +277,7 @@ What we believe is new: dispute evidence that stays encrypted even from the oper
 Contract (Rust + [`cargo-near`](https://github.com/near/cargo-near); we build in WSL Ubuntu):
 ```bash
 cd undo/contracts
-cargo test -p undo_token                                         # 60 unit tests + property test (4 seeds)
+cargo test -p undo_token                                         # 59 unit tests + 1 property test (4 seeds)
 UNDO_FUZZ_SEEDS=40 cargo test --release -p undo_token property   # 16,000 random steps, ~4 min
 bash build.sh                                                    # wasm into undo/contracts/wasm
 ```
@@ -254,7 +303,13 @@ These are listed in full in [CLAIMS.md §7–8](CLAIMS.md#7-trust-boundaries-wha
 
 - The model's TEE attestation is verified off-chain; the contract checks signatures against the key the council pinned.
 - The council is a Sputnik DAO with three members, all from our team (`nh-spike-mvp62mw4`, `smoothicon6710`, `biguser4780`); a decision needs 2 of 3 votes. An independent council is future work.
-- The Coba Curi guard runs as a Cloudflare Worker every minute (heartbeat: https://undo-cobacuri-guard.agadape.workers.dev), with GitHub Actions as a slower backup. The bait key is not published yet.
+- The Coba Curi guard runs as a Cloudflare Worker every minute (heartbeat: https://undo-cobacuri-guard.agadape.workers.dev), with GitHub Actions as a slower backup. The bait key is not published yet, so the three attempts so far are our own. The guard bot signs with a function-call key on the account `nh-s26f-mvz1xz1q.testnet`; every panic, finalize and unlock is signed with that key. The account is also the recovery account of the bait and has a full-access key, which the demo bot holds too and uses only to refill the bait with test USDC after an attempt. A real guard would hold the function-call key alone.
+- Costs and trade-offs of the design:
+  - Every new transfer needs 0.005 NEAR as a storage deposit. Only the safety actions (panic, finalize, unlock, release, removing a contact) are gasless.
+  - A NEAR function-call key cannot attach a deposit, so an AI agent that pays needs a full key on its own wallet. The protection is around that wallet: the window, the guard and the recovery account. In the agent demo the agent held a full key and the scammer still received 0.
+  - A receiver waits the window before the money is final, unless the sender made them a trusted contact. With the intended 24 h window, a shop that needs cash the same day has to be a trusted contact.
+  - The report bond is a flat 0.01 NEAR whatever the amount, and a seller who loses a case loses only the payment and a reputation count. Bonds that grow with the amount and a stake for sellers need a new contract version.
+  - Council members and the court server hold no stake.
 - Evidence is text only.
 - Testnet only.
 - A payment to a trusted contact cannot be undone: a stolen key can pay the owner's ACTIVE contacts at once. Keep few contacts; the recovery account can remove one at any time.

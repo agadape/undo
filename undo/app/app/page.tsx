@@ -33,6 +33,47 @@ export default function Home() {
         />
       </section>
 
+      <section aria-labelledby="cost">
+        <h2 id="cost" className="serif text-center text-3xl leading-tight sm:text-4xl">
+          {t("Curang itu ada harganya.", "Cheating has a price.")}
+        </h2>
+        <p className="mx-auto mt-3 max-w-2xl text-center text-lg text-dim">
+          {t("Undo bukan tombol batal gratis. Aturannya ada di kontrak, bukan di tangan kami.", "Undo is not a free cancel button. The rules live in the contract, not with us.")}
+        </p>
+        <ul className="mt-10 grid gap-6 md:grid-cols-3">
+          {[
+            {
+              icon: "⚑",
+              title: t("Laporan palsu kehilangan jaminan", "A false report loses its bond"),
+              text: t("Melapor butuh jaminan 0,01 NEAR. Kalah di dewan, jaminannya untuk penerima, dan kekalahan itu tercatat di chain.", "Reporting takes a 0.01 NEAR bond. Lose at the council and the bond goes to the receiver, with the loss recorded on-chain."),
+            },
+            {
+              icon: "⏱",
+              title: t("Laporan tidak bisa menyandera uang", "A report cannot hold money hostage"),
+              text: t("Kalau dewan diam sampai batas waktu, siapa pun bisa melepas uangnya ke penerima. Diam tidak pernah membalik pembayaran yang dilaporkan.", "If the council stays silent past the deadline, anyone can release the money to the receiver. Silence never reverses a reported payment."),
+            },
+            {
+              icon: "⚿",
+              title: t("Pencuri hanya dapat waktu tunggu", "A thief only gets a wait"),
+              text: t("Uang curian tertahan di jendela undo, dan kontak tepercaya baru menunggu 5 menit. PANIK membatalkan keduanya.", "Stolen money sits in the undo window, and a new trusted contact waits 5 minutes. PANIC cancels both."),
+            },
+          ].map((c) => (
+            <li key={c.title} className="rounded-[14px] bg-panel p-5">
+              <span aria-hidden className="text-2xl text-signal">
+                {c.icon}
+              </span>
+              <h3 className="serif mt-2 text-xl leading-tight text-ink">{c.title}</h3>
+              <p className="mt-2 text-sm text-dim">{c.text}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-6 text-center text-sm">
+          <Link href="/janji" className="font-semibold text-sky underline decoration-dotted underline-offset-4">
+            {t("Cek sendiri di chain: 7 janji yang dikunci kontrak", "Check it on-chain yourself: the promises locked into the contract")}
+          </Link>
+        </p>
+      </section>
+
       <section className="mx-auto max-w-3xl text-center">
         <h2 className="serif text-3xl leading-tight sm:text-4xl">
           <span className="text-signal">⚡</span> {t("Kontak tepercaya", "Trusted contacts")}

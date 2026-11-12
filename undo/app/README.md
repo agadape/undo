@@ -1,6 +1,6 @@
 # Undo web app (NEAR testnet)
 
-Next.js 16 app for the Undo v1 contract: demo wallet, panic button, private court, council, and live promise checks.
+Next.js 16 app for the Undo v2 contract: demo wallet, panic button, private court, council, and live promise checks.
 
 ## Run
 

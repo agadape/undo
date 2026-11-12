@@ -465,7 +465,13 @@ function PanicTest({
   const [guardBal, refreshGuard] = usePoll(() => view<BalanceView>(UNDO, "balance_of", { account_id: guard.id }), [guard.id]);
   const [guardNear, refreshNear] = usePoll(() => provider.viewAccount({ accountId: guard.id }).then((a) => String(a.amount)), [guard.id], 10000);
   const nearText = guardNear ? (Number(BigInt(guardNear) / 10n ** 18n) / 1e6).toLocaleString(lang === "en" ? "en-US" : "id-ID", { maximumFractionDigits: 6 }) : "…";
-  const [msg, setMsg] = useState<{ kind: "ok" | "error"; text: string; hash?: string }>();
+  const [msg, setMsgRaw] = useState<{ kind: "ok" | "error"; text: string; hash?: string }>();
+  // The drill step a message was written at: it is hidden once the drill moved two steps on (say, PANIC pressed from the alert).
+  const [msgAt, setMsgAt] = useState(0);
+  const setMsg = (m: { kind: "ok" | "error"; text: string; hash?: string }) => {
+    setMsgRaw(m);
+    setMsgAt(stage);
+  };
   const fee = BigInt(cfg.storage_fee) > 0n ? BigInt(cfg.storage_fee) : 1n;
   const now = BigInt(Date.now()) * 1_000_000n;
   const stolen = outgoing?.filter((t) => t.kind !== "Sweep" && t.status === "Pending" && BigInt(t.unlock_at) > now) ?? [];
@@ -585,7 +591,7 @@ function PanicTest({
         <span aria-hidden className="absolute left-[10%] right-[10%] top-4 hidden h-1 rounded-full bg-raise sm:block" />
         <span aria-hidden className="absolute left-[10%] top-4 hidden h-1 rounded-full bg-sky transition-[width] duration-700 sm:block" style={{ width: `${Math.min(stage, 4) * 20}%` }} />
         <Stop name={t("Curi", "Steal")} title={t("Pura-pura kuncimu dicuri: 90% saldo dikirim ke Pencuri", "Pretend your key is stolen: 90% goes to a Thief")} state={stage >= 1 ? "done" : "now"} tone="rec">
-          <Button small variant="danger" onClick={steal} disabled={bal.locked || bal.available === "0"}>
+          <Button small variant="danger" onClick={steal} disabled={bal.locked || bal.available === "0" || stolenNow}>
             {t("Simulasikan pencurian", "Simulate theft")}
           </Button>
         </Stop>
@@ -629,7 +635,7 @@ function PanicTest({
       <p className="mt-3 text-xs text-muted">
         {t(`⛽ Langkah 2–4 tanpa gas (relayer Undo, NEP-366) · NEAR akun pemulihan: ${nearText}`, `⛽ Steps 2–4 are gasless (Undo relayer, NEP-366) · recovery account NEAR: ${nearText}`)}
       </p>
-      {msg && (
+      {msg && (msg.kind === "error" || stage - msgAt < 2) && (
         <div className="mt-3">
           <Notice kind={msg.kind}>
             {msg.text} <TxLink hash={msg.hash} />
@@ -937,6 +943,7 @@ function SendCard({
   const fee = BigInt(cfg.storage_fee) > 0n ? BigInt(cfg.storage_fee) : 1n;
   const target = to || others[0]?.id || "";
   const contact = contacts?.find((c) => c.contact === target);
+  const contactActive = !!contact && (contact.active || BigInt(contact.active_at) <= BigInt(Date.now()) * 1_000_000n);
   const [, rerender] = useState(0);
   useEffect(() => {
     if (!contact || contact.active) return;
@@ -1041,7 +1048,7 @@ function SendCard({
       </div>
       {contact && (
         <p className="mt-2 text-xs">
-          {contact.active || BigInt(contact.active_at) <= BigInt(Date.now()) * 1_000_000n ? (
+          {contactActive ? (
             <span className="font-semibold text-signal">{t("⚡ Kontak tepercaya: pembayaran ini langsung final dan tidak bisa dibatalkan.", "⚡ Trusted contact: this payment is final at once and cannot be undone.")}</span>
           ) : (
             <span className="text-muted">
@@ -1053,7 +1060,9 @@ function SendCard({
         </p>
       )}
       <p className="mt-2 text-xs text-muted">
-        {t(`⏱ Uang menunggu ${cfg.window_sec} dtk · biaya storage ${fmtNear(cfg.storage_fee)} NEAR`, `⏱ Money waits ${cfg.window_sec} s · storage fee ${fmtNear(cfg.storage_fee)} NEAR`)}
+        {contactActive
+          ? t(`⚡ Langsung final · biaya storage ${fmtNear(cfg.storage_fee)} NEAR`, `⚡ Final at once · storage fee ${fmtNear(cfg.storage_fee)} NEAR`)
+          : t(`⏱ Uang menunggu ${cfg.window_sec} dtk · biaya storage ${fmtNear(cfg.storage_fee)} NEAR`, `⏱ Money waits ${cfg.window_sec} s · storage fee ${fmtNear(cfg.storage_fee)} NEAR`)}
       </p>
       {msg && (
         <div className="mt-2">
